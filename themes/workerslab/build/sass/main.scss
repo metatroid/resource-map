@@ -1,0 +1,12 @@
+@import 'libs/angular-material';
+@import "libs/normalize";
+.hidden{
+  display: none !important;
+}
+.unstyled{
+  list-style: none;
+  padding: 0;
+}
+*:focus{
+  outline: none !important;
+}

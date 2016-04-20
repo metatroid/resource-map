@@ -1,0 +1,30 @@
+{
+  "name": "resourceMap",
+  "version": "0.0.1",
+  "description": "The Workers Lab Resource Map",
+  "author": "Jon Gronberg",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:metatroid/resource-map.git"
+  },
+  "dependencies": {
+    "gulp": "latest"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/metatroid/resource-map/issues"
+  },
+  "homepage": "http://resourcemap.metatroid.com",
+  "devDependencies": {
+    "gulp-autoprefixer": "latest",
+    "gulp-concat": "latest",
+    "gulp-copy": "latest",
+    "gulp-haml": "latest",
+    "gulp-imagemin": "latest",
+    "gulp-jshint": "latest",
+    "gulp-load-plugins": "latest",
+    "gulp-rename": "latest",
+    "gulp-sass": "latest",
+    "gulp-uglify": "latest"
+  }
+}

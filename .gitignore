@@ -1,0 +1,16 @@
+*
+
+!*/
+
+!plugins/workerslab/*
+!plugins/workerslab/**/*
+
+!themes/workerslab/*
+!themes/workerslab/**/*
+themes/workerslab/build/bower_components
+themes/workerslab/build/node_modules
+
+!.gitignore
+
+upgrade
+uploads

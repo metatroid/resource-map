@@ -1,0 +1,13 @@
+!!! 5
+%html{ng-app: "resourceMap"}
+  %head
+    %title
+      The Workers Lab
+    %meta{charset: "UTF-8"}
+    %meta{name: "description", content: ""}
+    %meta{name: "viewport", content: "initial-scale=1.0, user-scalable=yes"}
+    %link{rel: "stylesheet", href: "/wp-content/themes/workerslab/assets/css/main.css"}
+    %script{src: "/wp-content/themes/workerslab/assets/js/main.js"}
+  %body{ng-class: "bodyclass", ng-controller: "mainCtrl"}
+    #main{ui-view: "main"}
+    
