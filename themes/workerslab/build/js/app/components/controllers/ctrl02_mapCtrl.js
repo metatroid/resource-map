@@ -4,7 +4,7 @@ angular.module('resourceMap.controllers')
                            '$log', 
                            'apiSrv',
     function($scope, $state, $log, apiSrv){
-      $log.info("map");
+      //
     }
   ])
 ;

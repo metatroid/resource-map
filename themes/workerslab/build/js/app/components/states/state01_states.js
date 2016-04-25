@@ -25,9 +25,11 @@ angular.module('resourceMap.states')
               templateUrl: templateDir + '/header.php'
             },
             'map@main': {
-              templateUrl: templateDir + '/map.php',
-              controller: 'mapCtrl'
-            }
+              templateUrl: templateDir + '/map.php'
+            },
+            'footer@main':{
+              templateUrl: templateDir + '/footer.php'
+            },
           }
         })
       ;

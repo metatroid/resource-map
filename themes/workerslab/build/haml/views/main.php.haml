@@ -1,3 +1,11 @@
 #mainWrapper
   #header{ui-view: "header", autoscroll: "true"}
-  #map{ui-view: "map", autoscroll: "true"}
+  #views
+    #pageMap.page
+      .page-content{ui-view: "map", autoscroll: "true"}
+    #pageOther.page
+      .page-content
+        Other page
+    #pagePage.page
+      .page-content
+        Page page

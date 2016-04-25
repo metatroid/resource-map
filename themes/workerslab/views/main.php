@@ -1,1 +1,1 @@
-<div id="mainWrapper"><div ui-view="header" autoscroll="true" id="header"></div><div ui-view="map" autoscroll="true" id="map"></div></div>
+<div id="mainWrapper"><div ui-view="header" autoscroll="true" id="header"></div><div id="views"><div class="page" id="pageMap"><div ui-view="map" autoscroll="true" class="page-content"></div></div><div class="page" id="pageOther"><div class="page-content">Other page</div></div><div class="page" id="pagePage"><div class="page-content">Page page</div></div></div></div>

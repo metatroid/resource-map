@@ -1,0 +1,92 @@
+after-save callback POST | Array
+(
+    [_wpnonce] => 31d75f2502
+    [_wp_http_referer] => /wp-admin/post.php?post=16&action=edit
+    [user_ID] => 1
+    [action] => editpost
+    [originalaction] => editpost
+    [post_author] => 1
+    [post_type] => company
+    [original_post_status] => publish
+    [referredby] => 
+    [_wp_original_http_referer] => 
+    [post_ID] => 16
+    [meta-box-order-nonce] => be0ab77e17
+    [closedpostboxesnonce] => 4f9c84d6f7
+    [post_title] => Metatroid
+    [samplepermalinknonce] => 6bab739232
+    [content] => Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    [wp-preview] => 
+    [hidden_post_status] => publish
+    [post_status] => publish
+    [hidden_post_password] => 
+    [hidden_post_visibility] => public
+    [visibility] => public
+    [post_password] => 
+    [mm] => 04
+    [jj] => 20
+    [aa] => 2016
+    [hh] => 02
+    [mn] => 13
+    [ss] => 10
+    [hidden_mm] => 04
+    [cur_mm] => 04
+    [hidden_jj] => 20
+    [cur_jj] => 24
+    [hidden_aa] => 2016
+    [cur_aa] => 2016
+    [hidden_hh] => 02
+    [cur_hh] => 04
+    [hidden_mn] => 13
+    [cur_mn] => 49
+    [original_publish] => Update
+    [save] => Update
+    [post_category] => Array
+        (
+            [0] => 0
+        )
+
+    [newcategory] => New Category Name
+    [newcategory_parent] => -1
+    [_ajax_nonce-add-category] => 17de9a3c1b
+    [tax_input] => Array
+        (
+            [post_tag] => Array
+                (
+                )
+
+        )
+
+    [newtag] => Array
+        (
+            [post_tag] => 
+        )
+
+    [nonce_CMB2phpcompany_info] => b7a834a82d
+    [compAddr] => 398 Tompkins Ave
+    [compCity] => Brooklyn
+    [compState] => NY
+    [compCountry] => us
+    [compZip] => 11216
+    [compPhone] => 253-468-4869
+    [compWebsite] => http://metatroid.com
+    [showMap] => on
+    [mapsLink] => on
+    [post_name] => metatroid
+    [post_mime_type] => 
+    [ID] => 16
+    [post_content] => Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    [comment_status] => closed
+    [ping_status] => closed
+)
+
+after-save callback lat | 
+after-save callback lng | 
+after-save callback lat | 40.6836
+after-save callback lng | -73.944273
+after-save callback lat | 40.6797314
+after-save callback lng | -73.9443876

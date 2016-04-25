@@ -49,7 +49,68 @@ angular.module('resourceMap.controllers')
                            '$log', 
                            'apiSrv',
     function($scope, $state, $log, apiSrv){
-      $log.info("loaded");
+      $scope.issues = [];
+      $scope.industries = [];
+      $scope.categories = [];
+      $scope.years = [];
+      var currentYear = new Date().getFullYear(),
+          startYear = 1970;
+      while(startYear <= currentYear){
+        $scope.years.push(startYear++);
+      }
+      $scope.filter = {
+        "issue": "",
+        "industry": "",
+        "year": ""
+      };
+      var industryHandler = function(data){
+        $scope.industries = data;
+      };
+      var issueHandler = function(data){
+        $scope.issues = data;
+      };
+      apiSrv.getIndustries(industryHandler, function(err){
+        $log.error(err);
+      });
+      apiSrv.getIssues(issueHandler, function(err){
+        $log.error(err);
+      });
+      //
+      var markers;
+      $scope.mapReady = function(map){
+        //map.setView([0,0], 3);
+        if (!navigator.geolocation) {
+          map.setView([0,0], 3);
+          $log.info("Geolocation not available");
+        } else {
+          map.locate();
+        }
+        map.on('locationfound', function(e){
+          map.setView([e.latlng.lat, e.latlng.lng], 13);
+        });
+        markers = L.mapbox.featureLayer().loadURL("/wp-content/plugins/workerslab/companies.json").addTo(map);
+      };
+      //
+      $scope.filterBy = function(opts){
+        markers.setFilter(function(f){
+          if(opts.industry && opts.issue && opts.year){
+            return (f.properties["industry"].indexOf(opts.industry) !== -1 && f.properties["issue"].indexOf(opts.issue) !== -1 && f.properties["year"].indexOf(opts.year) !== -1);
+          } else if(opts.industry && opts.issue){
+            return (f.properties["industry"].indexOf(opts.industry) !== -1 && f.properties["issue"].indexOf(opts.issue) !== -1);
+          } else if(opts.industry && opts.year){
+            return (f.properties["industry"].indexOf(opts.industry) !== -1 && f.properties["year"].indexOf(opts.year) !== -1);
+          } else if(opts.issue && opts.year){
+            return (f.properties["issue"].indexOf(opts.issue) !== -1 && f.properties["year"].indexOf(opts.year) !== -1);
+          } else if(opts.industry){
+            return (f.properties["industry"].indexOf(opts.industry) !== -1);
+          } else if(opts.issue){
+            return (f.properties["issue"].indexOf(opts.issue) !== -1);
+          } else if(opts.year){
+            return (f.properties["year"].indexOf(opts.year) !== -1);
+          }
+        });
+        $log.info(opts);
+      };
     }
   ])
 ;
@@ -59,7 +120,7 @@ angular.module('resourceMap.controllers')
                            '$log', 
                            'apiSrv',
     function($scope, $state, $log, apiSrv){
-      $log.info("map");
+      //
     }
   ])
 ;
@@ -67,11 +128,22 @@ angular.module('resourceMap.services')
   .factory('apiSrv', ['$http', 
     function($http){
       var apiSrv = {};
-      apiSrv.request = function(method, url, args, successFn, errorFn){
+      apiSrv.getCompanies = function(successFn, errorFn){
         return $http({
-          method: method,
-          url: '/wp-json/wp/v2/' + url,
-          data: JSON.stringify(args)
+          method: 'GET',
+          url: '/wp-json/wp/v2/company'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getIndustries = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/industry'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getIssues = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/issue'
         }).success(successFn).error(errorFn);
       };
       return apiSrv;
@@ -130,6 +202,7 @@ var smoothScroll = function(element, options){
     var runAnimation = setInterval(animateScroll, 16);
   }, 0);
 };
+
 angular.module('resourceMap.directives')
   .directive('scrollTo', 
     function(){
@@ -155,39 +228,179 @@ angular.module('resourceMap.directives')
     }
   )
 ;
-angular.module('resourceMap.states')
-  .run(['$rootScope', 
-        '$state', 
-        '$stateParams', 
-    function($rootScope, $state, $stateParams){
-      $rootScope.$state = $state;
-      $rootScope.$stateParams = $stateParams;
+angular.module('resourceMap')
+  .directive('map', [
+    function(){
+      return {
+        restrict: 'EA',
+        replace: true,
+        scope: {
+          mapReady: "="
+        },
+        template: '<div></div>',
+        link: function ($scope, $element, $attrs){
+          L.mapbox.accessToken = "pk.eyJ1IjoibWV0YXRyb2lkIiwiYSI6ImNpbjB5bjA0NjBhbzd1cmtrcTA2a2p3MzcifQ.66Stn21WtMpGU9lV2FoS6Q";
+          var map = L.mapbox.map($element[0], 'metatroid.pmafo9i6');
+          $scope.mapReady(map);
+        }
+      };
     }
   ])
-  .config(['$stateProvider', 
-           '$urlRouterProvider', 
-    function($stateProvider, $urlRouterProvider){
-      var templateDir = '/wp-content/themes/workerslab/views';
-
-      $urlRouterProvider.otherwise('/');
-
-      $stateProvider
-        .state('main', {
-          url: '/',
-          views: {
-            'main': {
-              templateUrl: templateDir + '/main.php'
-            },
-            'header@main':{
-              templateUrl: templateDir + '/header.php'
-            },
-            'map@main': {
-              templateUrl: templateDir + '/map.php',
-              controller: 'mapCtrl'
+;
+angular.module('resourceMap')
+  .directive('menuTrigger', [
+    function(){
+      return {
+        restrict: 'A',
+        link: function ($scope, $element, $attrs){
+          var support = {
+            transitions: Modernizr.csstransitions
+          };
+          var transEndEventNames = { 'WebkitTransition': 'webkitTransitionEnd', 'MozTransition': 'transitionend', 'OTransition': 'oTransitionEnd', 'msTransition': 'MSTransitionEnd', 'transition': 'transitionend' },
+              transEndEventName = transEndEventNames[Modernizr.prefixed('transition')],
+              onEndTransition = function(el, callback){
+                var onEndCallbackFn = function(ev){
+                  if(support.transitions){
+                    if(ev.target !== this){
+                      return;
+                    }
+                    this.removeEventListener(transEndEventName, onEndCallbackFn);
+                  }
+                  if(callback && typeof callback === 'function'){
+                    callback.call(this);
+                  }
+                };
+                if(support.transitions){
+                  el.addEventListener(transEndEventName, onEndCallbackFn);
+                } else {
+                 onEndCallbackFn();
+                }
+              },
+              stack = document.querySelector('#views'),
+              pages = [].slice.call(stack.children),
+              pagesTotal = pages.length,
+              current = 0,
+              menuCtrl = document.querySelector('.toggle-btn'),
+              nav = document.querySelector('#siteNav'),
+              navItems = [].slice.call(nav.querySelectorAll(".link-page")),
+              isMenuOpen = false;
+          function init(){
+            buildStack();
+            initEvents();
+          }
+          function buildStack(){
+            var stackPagesIdxs = getStackPagesIdxs();
+            for(var i=0;i<pagesTotal;++i){
+              var page = pages[i],
+                  posIdx = stackPagesIdxs.indexOf(i);
+              if(current !== i){
+                page.classList.add("page-inactive");
+                if(posIdx !== -1){
+                  page.style.transform = "translate3d(0,100%,0)";
+                } else {
+                  page.style.transform = "translate3d(0,75%,-300px)";
+                }
+              } else {
+                page.classList.remove("page-inactive");
+              }
+              page.style.zIndex = i < current ? parseInt(current -i) : parseInt(pagesTotal + current - i);
+              if(posIdx !== -1){
+                page.style.opacity = parseFloat(1 - 0.1 * posIdx);
+              } else {
+                page.style.opacity = 0;
+              }
             }
           }
-        })
-      ;
+          function initEvents(){
+            menuCtrl.addEventListener('click', toggleMenu);
+            navItems.forEach(function(item){
+              var pageId = item.getAttribute('href').slice(1);
+              item.addEventListener('click', function(ev){
+                console.log(pageId);
+                ev.preventDefault();
+                openPage(pageId);
+              });
+            });
+            pages.forEach(function(page){
+              var pageId = page.getAttribute('id');
+              page.addEventListener('click', function(ev){
+                if(isMenuOpen){
+                  ev.preventDefault();
+                  openPage(pageId);
+                }
+              });
+            });
+            document.addEventListener('keydown', function(ev){
+              if(!isMenuOpen){
+                return;
+              }
+              var keyCode = ev.keyCode || ev.which;
+              if(keyCode === 27){
+                closeMenu();
+              }
+            });
+          }
+          function toggleMenu(){
+            if(isMenuOpen){
+              closeMenu();
+            } else {
+              openMenu();
+              isMenuOpen = true;
+            }
+          }
+          function openMenu(){
+            menuCtrl.classList.add('open');
+            stack.classList.add('open');
+            nav.classList.add('open');
+            var stackPagesIdxs = getStackPagesIdxs();
+            for(var i=0;i<stackPagesIdxs.length;++i){
+              var page = pages[stackPagesIdxs[i]];
+              page.style.transform = "translate3d(0,75%,"+parseInt(-1 * 400 - 100 * i)+"px";
+            }
+          }
+          function closeMenu(){
+            openPage();
+          }
+          function openPage(id){
+            var futurePage = id ? document.getElementById(id) : pages[current],
+                futureCurrent = pages.indexOf(futurePage),
+                stackPagesIdxs = getStackPagesIdxs(futureCurrent);
+            futurePage.style.transform = 'translate3d(0, 0, 0)';
+            futurePage.style.opacity = 1;
+            for(var i=0;i<stackPagesIdxs.length;++i){
+              var page = pages[stackPagesIdxs[i]];
+              page.style.transform = "translate3d(0,100%,0)";
+            }
+            if(id){
+              current = futureCurrent;
+            }
+            menuCtrl.classList.remove("open");
+            nav.classList.remove("open");
+            onEndTransition(futurePage, function(){
+              stack.classList.remove("open");
+              buildStack();
+              isMenuOpen = false;
+            });
+          }
+          function getStackPagesIdxs(excludePageIdx){
+            var nextStackPageIdx = current + 1 < pagesTotal ? current + 1 : 0,
+                nextStackPageIdx_2 = current + 2 < pagesTotal ? current + 2 : 1,
+                idxs = [],
+                excludeIdx = excludePageIdx || -1;
+            if(excludePageIdx != current){
+              idxs.push(current);
+            }
+            if(excludePageIdx != nextStackPageIdx){
+              idxs.push(nextStackPageIdx);
+            }
+            if(excludePageIdx != nextStackPageIdx_2){
+              idxs.push(nextStackPageIdx_2);
+            }
+            return idxs;
+          }
+          init();
+        }
+      };
     }
   ])
 ;
@@ -230,4 +443,42 @@ angular.module('resourceMap.filters')
       };
     }
   )
+;
+angular.module('resourceMap.states')
+  .run(['$rootScope', 
+        '$state', 
+        '$stateParams', 
+    function($rootScope, $state, $stateParams){
+      $rootScope.$state = $state;
+      $rootScope.$stateParams = $stateParams;
+    }
+  ])
+  .config(['$stateProvider', 
+           '$urlRouterProvider', 
+    function($stateProvider, $urlRouterProvider){
+      var templateDir = '/wp-content/themes/workerslab/views';
+
+      $urlRouterProvider.otherwise('/');
+
+      $stateProvider
+        .state('main', {
+          url: '/',
+          views: {
+            'main': {
+              templateUrl: templateDir + '/main.php'
+            },
+            'header@main':{
+              templateUrl: templateDir + '/header.php'
+            },
+            'map@main': {
+              templateUrl: templateDir + '/map.php'
+            },
+            'footer@main':{
+              templateUrl: templateDir + '/footer.php'
+            },
+          }
+        })
+      ;
+    }
+  ])
 ;

@@ -1,1 +1,47 @@
-header
+%header#pageHeader
+  .header
+    %button.toggle-btn{menu-trigger: "#siteNav"}
+      %span.screen-reader
+      %span.icon-bar
+      %span.icon-bar
+      %span.icon-bar
+    #filterBar
+      %form{ng-submit: "filterMarkers(industry, issue, year)"}
+        .input.input-select
+          %md-select{ng-model: "filter.industry", ng-change: "filterBy(filter)"}
+            <md-option value="" disabled>Industry</md-option>
+            %md-option{ng-repeat: "industry in industries", ng-value: "{{industry.id}}"}
+              {{industry.name}}
+        .input.input-select
+          %md-select{ng-model: "filter.issue", ng-change: "filterBy(filter)"}
+            <md-option value="" disabled>Issue</md-option>
+            %md-option{ng-repeat: "issue in issues", ng-value: "{{issue.id}}"}
+              {{issue.name}}
+        .input.input-select
+          %md-select{ng-model: "filter.year", ng-change: "filterBy(filter)"}
+            <md-option value="" disabled>Year</md-option>
+            %md-option{ng-repeat: "year in years", ng-value: "{{year}}"}
+              {{year}}
+        .input.input-text.input-search
+          %span.icon.fa.fa-search
+          %input{type: "text", ng-model: "search", placeholder: "enter a zip code"}
+    %a.branding{href: "/", title: "Home"}
+      %img{rel: "The Workers Lab", src: "/assets/img/logo.png"}
+
+%nav#siteNav
+  .nav-item
+    %a.link.link-page{href: "#pageMap"}
+      Map
+  .nav-item
+    %a.link.link-page{href: "#pageOther"}
+      Other Page
+  .nav-item
+    %a.link.link-page{href: "#pagePage"}
+      Page
+  .nav-item.nav-item-social
+    %a.link.link-social{href: "https://twitter.com/theworkerslab", title: "Twitter", target: "_blank"}
+      %span.icon.fa.fa-twitter
+    %a.link.link-social{href: "https://www.facebook.com/theworkerslab", title: "Facebook", target: "_blank"}
+      %span.icon.fa.fa-facebook
+    %a.link.link-social{href: "http://www.instagram.com/theworkerslab", title: "instagram", target: "_blank"}
+      %span.icon.fa.fa-instagram
