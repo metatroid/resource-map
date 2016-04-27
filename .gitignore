@@ -4,6 +4,7 @@
 
 !plugins/workerslab/*
 !plugins/workerslab/**/*
+plugins/workerslab/workerslab.log
 
 !themes/workerslab/*
 !themes/workerslab/**/*
