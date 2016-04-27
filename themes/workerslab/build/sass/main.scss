@@ -2,8 +2,13 @@
 @import "libs/normalize";
 @import 'libs/mapbox';
 @import 'libs/font-awesome/font-awesome';
+@import 'libs/fonts';
 
 $black: #0d212f;
+$antBlack: 'AntennaExtraCond-Black';
+$antBold: 'AntennaExtraCond-Bold';
+$whitney: 'Whitney-Book';
+$whitneyItalic: 'Whitney-BookItalic';
 
 @mixin placeholder{
   $placeholders: ":-webkit-input" ":-moz" "-moz" "-ms-input";
@@ -14,6 +19,10 @@ $black: #0d212f;
   }
 }
 
+h1,h2,h3,h4,h5,h6,strong{
+  font-family: $antBlack;
+}
+
 html,
 html body{
   overflow: hidden;
@@ -21,6 +30,7 @@ html body{
 }
 body{
   background-color: $black;
+  font-family: $whitney;
 }
 .hidden{
   display: none !important;
@@ -43,7 +53,7 @@ body{
   border: 0;
 }
 
-#pageMap{
+#page_map{
   .page-content{
     >div{
       position: absolute;
@@ -71,7 +81,7 @@ body{
     flex-wrap: nowrap;
     align-items: center;
     align-content: flex-start;
-    .toggle-btn{
+    #menu{
       order: 1;
     }
     #filterBar{
@@ -81,7 +91,7 @@ body{
     .branding{
       order: 3;
     }
-    .toggle-btn{
+    #menu{
       border: none;
       background: transparent;
       display: block;

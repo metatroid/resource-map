@@ -104,6 +104,7 @@ angular.module('resourceMap')
             stack.classList.add('open');
             nav.classList.add('open');
             var stackPagesIdxs = getStackPagesIdxs();
+            console.log(pages);
             for(var i=0;i<stackPagesIdxs.length;++i){
               var page = pages[stackPagesIdxs[i]];
               page.style.transform = "translate3d(0,75%,"+parseInt(-1 * 400 - 100 * i)+"px";

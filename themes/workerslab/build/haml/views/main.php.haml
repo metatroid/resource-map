@@ -1,11 +1,6 @@
 #mainWrapper
   #header{ui-view: "header", autoscroll: "true"}
   #views
-    #pageMap.page
-      .page-content{ui-view: "map", autoscroll: "true"}
-    #pageOther.page
-      .page-content
-        Other page
-    #pagePage.page
-      .page-content
-        Page page
+    .page{ng-repeat: "page in pages", id: "page_{{page.slug}}", on-finish-render: "ngRepeatFinished"}
+      .page-content{ui-view: "{{page.slug}}", autoscroll: "true", ng-bind-html: "htmlSafe(page.content.rendered)"}
+    

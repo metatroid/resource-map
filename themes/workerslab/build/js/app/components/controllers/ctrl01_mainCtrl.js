@@ -2,17 +2,25 @@ angular.module('resourceMap.controllers')
   .controller('mainCtrl', ['$scope', 
                            '$state', 
                            '$log', 
+                           '$sce',
+                           '$compile',
+                           '$timeout',
                            'apiSrv',
-    function($scope, $state, $log, apiSrv){
+    function($scope, $state, $log, $sce, $compile, $timeout, apiSrv){
+      $scope.htmlSafe = $sce.trustAsHtml;
+      $scope.pages = [];
+      var pageHandler = function(data){
+        $scope.pages = data;
+      };
+      apiSrv.getPages('menu_order', 'ASC', pageHandler, function(err){
+        $log.error(err);
+      });
+
+      //category/filtering
       $scope.issues = [];
       $scope.industries = [];
       $scope.categories = [];
       $scope.years = [];
-      var currentYear = new Date().getFullYear(),
-          startYear = 1970;
-      while(startYear <= currentYear){
-        $scope.years.push(startYear++);
-      }
       $scope.filter = {
         "issue": "",
         "industry": "",
@@ -24,12 +32,22 @@ angular.module('resourceMap.controllers')
       var issueHandler = function(data){
         $scope.issues = data;
       };
+      var yearHandler = function(data){
+        $scope.years = data;
+      };
       apiSrv.getIndustries(industryHandler, function(err){
         $log.error(err);
       });
       apiSrv.getIssues(issueHandler, function(err){
         $log.error(err);
       });
+      apiSrv.getYears(yearHandler, function(err){
+        $log.error(err);
+      });
+      //
+      $scope.searchLocation = function(terms){
+        $log.info(terms);
+      }
       //
       var markers;
       $scope.mapReady = function(map){
@@ -64,8 +82,17 @@ angular.module('resourceMap.controllers')
             return (f.properties["year"].indexOf(opts.year) !== -1);
           }
         });
-        $log.info(opts);
       };
+
+      //
+      $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent){
+        var el = document.getElementById('menu');
+        el.outerHTML = "<button menu-trigger=\"#siteNav\" class=\"toggle-btn\" id=\"menu\"><span class=\"screen-reader\"></span><span class=\"icon-bar\"></span><span class=\"icon-bar\"></span><span class=\"icon-bar\"></span></button>";
+        $compile(document.getElementById('menu'))($scope);
+        var mapEL = document.getElementById('page_map');
+        mapEL.innerHTML = "<div id=\"map\" ui-view=\"map\" autoscroll=\"true\" class=\"page-content\"></div>";
+        $compile(document.getElementById('map'))($scope);
+      });
     }
   ])
 ;

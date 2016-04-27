@@ -169,6 +169,18 @@ function taxonInit() {
       'rest_controller_class' => 'WP_REST_Terms_Controller',
     )
   );
+  register_taxonomy(
+    'year',
+    'company',
+    array(
+      'label' => __( 'Years' ),
+      'rewrite' => array( 'slug' => 'years' ),
+      'hierarchical' => true,
+      'show_in_rest' => true,
+      'rest_base' => 'year',
+      'rest_controller_class' => 'WP_REST_Terms_Controller',
+    )
+  );
 }
 add_action( 'init', 'taxonInit' );
 
