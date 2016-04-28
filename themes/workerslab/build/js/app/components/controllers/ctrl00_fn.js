@@ -10,3 +10,11 @@ var formatErr = function(err){
   }
   return responseString;
 };
+function waitForEl(selector, fn){
+  var el = document.querySelectorAll(selector)[0];
+  if(typeof el === 'undefined' || el.length < 1){
+    setTimeout(function(){waitForEl(selector, fn);}, 500);
+  } else {
+    fn();
+  }
+}

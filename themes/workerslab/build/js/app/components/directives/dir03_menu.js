@@ -1,6 +1,6 @@
 angular.module('resourceMap')
-  .directive('menuTrigger', [
-    function(){
+  .directive('menuTrigger', ['$timeout',
+    function($timeout){
       return {
         restrict: 'A',
         link: function ($scope, $element, $attrs){
@@ -26,8 +26,8 @@ angular.module('resourceMap')
                 } else {
                  onEndCallbackFn();
                 }
-              },
-              stack = document.querySelector('#views'),
+              };
+          var stack = document.querySelector('#views'),
               pages = [].slice.call(stack.children),
               pagesTotal = pages.length,
               current = 0,
@@ -35,6 +35,16 @@ angular.module('resourceMap')
               nav = document.querySelector('#siteNav'),
               navItems = [].slice.call(nav.querySelectorAll(".link-page")),
               isMenuOpen = false;
+          function reInit(){
+            if(pages.length < 1){
+              pages = [].slice.call(stack.children),
+              pagesTotal = pages.length,
+              navItems = [].slice.call(nav.querySelectorAll(".link-page"));
+              $timeout(reInit, 500);
+            } else {
+              init();
+            }
+          }
           function init(){
             buildStack();
             initEvents();
@@ -107,7 +117,7 @@ angular.module('resourceMap')
             console.log(pages);
             for(var i=0;i<stackPagesIdxs.length;++i){
               var page = pages[stackPagesIdxs[i]];
-              page.style.transform = "translate3d(0,75%,"+parseInt(-1 * 400 - 100 * i)+"px";
+              page.style.transform = "translate3d(0,75%,"+parseInt(-1 * 200 - 100 * i)+"px";
             }
           }
           function closeMenu(){
@@ -150,7 +160,11 @@ angular.module('resourceMap')
             }
             return idxs;
           }
-          init();
+          if(pages.length > 0){
+            init();
+          } else {
+            reInit();
+          }
         }
       };
     }

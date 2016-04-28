@@ -62186,6 +62186,329 @@ angular.module("material.core").constant("$MD_THEME_CSS", "md-autocomplete.md-TH
 
 
 })(window, window.angular);;window.ngMaterial={version:{full: "1.0.7"}};
+/**
+ * @license AngularJS v1.5.5
+ * (c) 2010-2016 Google, Inc. http://angularjs.org
+ * License: MIT
+ */
+(function(window, angular) {'use strict';
+
+/**
+ * @ngdoc module
+ * @name ngCookies
+ * @description
+ *
+ * # ngCookies
+ *
+ * The `ngCookies` module provides a convenient wrapper for reading and writing browser cookies.
+ *
+ *
+ * <div doc-module-components="ngCookies"></div>
+ *
+ * See {@link ngCookies.$cookies `$cookies`} for usage.
+ */
+
+
+angular.module('ngCookies', ['ng']).
+  /**
+   * @ngdoc provider
+   * @name $cookiesProvider
+   * @description
+   * Use `$cookiesProvider` to change the default behavior of the {@link ngCookies.$cookies $cookies} service.
+   * */
+   provider('$cookies', [function $CookiesProvider() {
+    /**
+     * @ngdoc property
+     * @name $cookiesProvider#defaults
+     * @description
+     *
+     * Object containing default options to pass when setting cookies.
+     *
+     * The object may have following properties:
+     *
+     * - **path** - `{string}` - The cookie will be available only for this path and its
+     *   sub-paths. By default, this is the URL that appears in your `<base>` tag.
+     * - **domain** - `{string}` - The cookie will be available only for this domain and
+     *   its sub-domains. For security reasons the user agent will not accept the cookie
+     *   if the current domain is not a sub-domain of this domain or equal to it.
+     * - **expires** - `{string|Date}` - String of the form "Wdy, DD Mon YYYY HH:MM:SS GMT"
+     *   or a Date object indicating the exact date/time this cookie will expire.
+     * - **secure** - `{boolean}` - If `true`, then the cookie will only be available through a
+     *   secured connection.
+     *
+     * Note: By default, the address that appears in your `<base>` tag will be used as the path.
+     * This is important so that cookies will be visible for all routes when html5mode is enabled.
+     *
+     **/
+    var defaults = this.defaults = {};
+
+    function calcOptions(options) {
+      return options ? angular.extend({}, defaults, options) : defaults;
+    }
+
+    /**
+     * @ngdoc service
+     * @name $cookies
+     *
+     * @description
+     * Provides read/write access to browser's cookies.
+     *
+     * <div class="alert alert-info">
+     * Up until Angular 1.3, `$cookies` exposed properties that represented the
+     * current browser cookie values. In version 1.4, this behavior has changed, and
+     * `$cookies` now provides a standard api of getters, setters etc.
+     * </div>
+     *
+     * Requires the {@link ngCookies `ngCookies`} module to be installed.
+     *
+     * @example
+     *
+     * ```js
+     * angular.module('cookiesExample', ['ngCookies'])
+     *   .controller('ExampleController', ['$cookies', function($cookies) {
+     *     // Retrieving a cookie
+     *     var favoriteCookie = $cookies.get('myFavorite');
+     *     // Setting a cookie
+     *     $cookies.put('myFavorite', 'oatmeal');
+     *   }]);
+     * ```
+     */
+    this.$get = ['$$cookieReader', '$$cookieWriter', function($$cookieReader, $$cookieWriter) {
+      return {
+        /**
+         * @ngdoc method
+         * @name $cookies#get
+         *
+         * @description
+         * Returns the value of given cookie key
+         *
+         * @param {string} key Id to use for lookup.
+         * @returns {string} Raw cookie value.
+         */
+        get: function(key) {
+          return $$cookieReader()[key];
+        },
+
+        /**
+         * @ngdoc method
+         * @name $cookies#getObject
+         *
+         * @description
+         * Returns the deserialized value of given cookie key
+         *
+         * @param {string} key Id to use for lookup.
+         * @returns {Object} Deserialized cookie value.
+         */
+        getObject: function(key) {
+          var value = this.get(key);
+          return value ? angular.fromJson(value) : value;
+        },
+
+        /**
+         * @ngdoc method
+         * @name $cookies#getAll
+         *
+         * @description
+         * Returns a key value object with all the cookies
+         *
+         * @returns {Object} All cookies
+         */
+        getAll: function() {
+          return $$cookieReader();
+        },
+
+        /**
+         * @ngdoc method
+         * @name $cookies#put
+         *
+         * @description
+         * Sets a value for given cookie key
+         *
+         * @param {string} key Id for the `value`.
+         * @param {string} value Raw value to be stored.
+         * @param {Object=} options Options object.
+         *    See {@link ngCookies.$cookiesProvider#defaults $cookiesProvider.defaults}
+         */
+        put: function(key, value, options) {
+          $$cookieWriter(key, value, calcOptions(options));
+        },
+
+        /**
+         * @ngdoc method
+         * @name $cookies#putObject
+         *
+         * @description
+         * Serializes and sets a value for given cookie key
+         *
+         * @param {string} key Id for the `value`.
+         * @param {Object} value Value to be stored.
+         * @param {Object=} options Options object.
+         *    See {@link ngCookies.$cookiesProvider#defaults $cookiesProvider.defaults}
+         */
+        putObject: function(key, value, options) {
+          this.put(key, angular.toJson(value), options);
+        },
+
+        /**
+         * @ngdoc method
+         * @name $cookies#remove
+         *
+         * @description
+         * Remove given cookie
+         *
+         * @param {string} key Id of the key-value pair to delete.
+         * @param {Object=} options Options object.
+         *    See {@link ngCookies.$cookiesProvider#defaults $cookiesProvider.defaults}
+         */
+        remove: function(key, options) {
+          $$cookieWriter(key, undefined, calcOptions(options));
+        }
+      };
+    }];
+  }]);
+
+angular.module('ngCookies').
+/**
+ * @ngdoc service
+ * @name $cookieStore
+ * @deprecated
+ * @requires $cookies
+ *
+ * @description
+ * Provides a key-value (string-object) storage, that is backed by session cookies.
+ * Objects put or retrieved from this storage are automatically serialized or
+ * deserialized by angular's toJson/fromJson.
+ *
+ * Requires the {@link ngCookies `ngCookies`} module to be installed.
+ *
+ * <div class="alert alert-danger">
+ * **Note:** The $cookieStore service is **deprecated**.
+ * Please use the {@link ngCookies.$cookies `$cookies`} service instead.
+ * </div>
+ *
+ * @example
+ *
+ * ```js
+ * angular.module('cookieStoreExample', ['ngCookies'])
+ *   .controller('ExampleController', ['$cookieStore', function($cookieStore) {
+ *     // Put cookie
+ *     $cookieStore.put('myFavorite','oatmeal');
+ *     // Get cookie
+ *     var favoriteCookie = $cookieStore.get('myFavorite');
+ *     // Removing a cookie
+ *     $cookieStore.remove('myFavorite');
+ *   }]);
+ * ```
+ */
+ factory('$cookieStore', ['$cookies', function($cookies) {
+
+    return {
+      /**
+       * @ngdoc method
+       * @name $cookieStore#get
+       *
+       * @description
+       * Returns the value of given cookie key
+       *
+       * @param {string} key Id to use for lookup.
+       * @returns {Object} Deserialized cookie value, undefined if the cookie does not exist.
+       */
+      get: function(key) {
+        return $cookies.getObject(key);
+      },
+
+      /**
+       * @ngdoc method
+       * @name $cookieStore#put
+       *
+       * @description
+       * Sets a value for given cookie key
+       *
+       * @param {string} key Id for the `value`.
+       * @param {Object} value Value to be stored.
+       */
+      put: function(key, value) {
+        $cookies.putObject(key, value);
+      },
+
+      /**
+       * @ngdoc method
+       * @name $cookieStore#remove
+       *
+       * @description
+       * Remove given cookie
+       *
+       * @param {string} key Id of the key-value pair to delete.
+       */
+      remove: function(key) {
+        $cookies.remove(key);
+      }
+    };
+
+  }]);
+
+/**
+ * @name $$cookieWriter
+ * @requires $document
+ *
+ * @description
+ * This is a private service for writing cookies
+ *
+ * @param {string} name Cookie name
+ * @param {string=} value Cookie value (if undefined, cookie will be deleted)
+ * @param {Object=} options Object with options that need to be stored for the cookie.
+ */
+function $$CookieWriter($document, $log, $browser) {
+  var cookiePath = $browser.baseHref();
+  var rawDocument = $document[0];
+
+  function buildCookieString(name, value, options) {
+    var path, expires;
+    options = options || {};
+    expires = options.expires;
+    path = angular.isDefined(options.path) ? options.path : cookiePath;
+    if (angular.isUndefined(value)) {
+      expires = 'Thu, 01 Jan 1970 00:00:00 GMT';
+      value = '';
+    }
+    if (angular.isString(expires)) {
+      expires = new Date(expires);
+    }
+
+    var str = encodeURIComponent(name) + '=' + encodeURIComponent(value);
+    str += path ? ';path=' + path : '';
+    str += options.domain ? ';domain=' + options.domain : '';
+    str += expires ? ';expires=' + expires.toUTCString() : '';
+    str += options.secure ? ';secure' : '';
+
+    // per http://www.ietf.org/rfc/rfc2109.txt browser must allow at minimum:
+    // - 300 cookies
+    // - 20 cookies per unique domain
+    // - 4096 bytes per cookie
+    var cookieLength = str.length + 1;
+    if (cookieLength > 4096) {
+      $log.warn("Cookie '" + name +
+        "' possibly not set or overflowed because it was too large (" +
+        cookieLength + " > 4096 bytes)!");
+    }
+
+    return str;
+  }
+
+  return function(name, value, options) {
+    rawDocument.cookie = buildCookieString(name, value, options);
+  };
+}
+
+$$CookieWriter.$inject = ['$document', '$log', '$browser'];
+
+angular.module('ngCookies').provider('$$cookieWriter', function $$CookieWriterProvider() {
+  this.$get = $$CookieWriter;
+});
+
+
+})(window, window.angular);
+
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 function corslite(n,t,o){function e(n){return n>=200&&300>n||304===n}function i(){void 0===r.status||e(r.status)?t.call(r,null,r):t.call(r,r,null)}var l=!1;if("undefined"==typeof window.XMLHttpRequest)return t(Error("Browser not supported"));if("undefined"==typeof o){var u=n.match(/^\s*https?:\/\/[^\/]*/);o=u&&u[0]!==location.protocol+"//"+location.domain+(location.port?":"+location.port:"")}var r=new window.XMLHttpRequest;if(o&&!("withCredentials"in r)){r=new window.XDomainRequest;var a=t;t=function(){if(l)a.apply(this,arguments);else{var n=this,t=arguments;setTimeout(function(){a.apply(n,t)},0)}}}return"onload"in r?r.onload=i:r.onreadystatechange=function(){4===r.readyState&&i()},r.onerror=function(n){t.call(this,n||!0,null),t=function(){}},r.onprogress=function(){},r.ontimeout=function(n){t.call(this,n,null),t=function(){}},r.onabort=function(n){t.call(this,n,null),t=function(){}},r.open("GET",n,!0),r.send(null),l=!0,r}"undefined"!=typeof module&&(module.exports=corslite);
 },{}],2:[function(require,module,exports){
@@ -62260,6 +62583,7 @@ module.exports=window.L=require("leaflet/dist/leaflet-src");
 !function(e,n,t){function r(e,n){return typeof e===n}function o(){var e,n,t,o,s,i,a;for(var f in C)if(C.hasOwnProperty(f)){if(e=[],n=C[f],n.name&&(e.push(n.name.toLowerCase()),n.options&&n.options.aliases&&n.options.aliases.length))for(t=0;t<n.options.aliases.length;t++)e.push(n.options.aliases[t].toLowerCase());for(o=r(n.fn,"function")?n.fn():n.fn,s=0;s<e.length;s++)i=e[s],a=i.split("."),1===a.length?Modernizr[a[0]]=o:(!Modernizr[a[0]]||Modernizr[a[0]]instanceof Boolean||(Modernizr[a[0]]=new Boolean(Modernizr[a[0]])),Modernizr[a[0]][a[1]]=o),g.push((o?"":"no-")+a.join("-"))}}function s(e){var n=w.className,t=Modernizr._config.classPrefix||"";if(x&&(n=n.baseVal),Modernizr._config.enableJSClass){var r=new RegExp("(^|\\s)"+t+"no-js(\\s|$)");n=n.replace(r,"$1"+t+"js$2")}Modernizr._config.enableClasses&&(n+=" "+t+e.join(" "+t),x?w.className.baseVal=n:w.className=n)}function i(e){return e.replace(/([a-z])-([a-z])/g,function(e,n,t){return n+t.toUpperCase()}).replace(/^-/,"")}function a(e,n){return!!~(""+e).indexOf(n)}function f(){return"function"!=typeof n.createElement?n.createElement(arguments[0]):x?n.createElementNS.call(n,"http://www.w3.org/2000/svg",arguments[0]):n.createElement.apply(n,arguments)}function l(e,n){return function(){return e.apply(n,arguments)}}function u(e,n,t){var o;for(var s in e)if(e[s]in n)return t===!1?e[s]:(o=n[e[s]],r(o,"function")?l(o,t||n):o);return!1}function p(e){return e.replace(/([A-Z])/g,function(e,n){return"-"+n.toLowerCase()}).replace(/^ms-/,"-ms-")}function d(){var e=n.body;return e||(e=f(x?"svg":"body"),e.fake=!0),e}function c(e,t,r,o){var s,i,a,l,u="modernizr",p=f("div"),c=d();if(parseInt(r,10))for(;r--;)a=f("div"),a.id=o?o[r]:u+(r+1),p.appendChild(a);return s=f("style"),s.type="text/css",s.id="s"+u,(c.fake?c:p).appendChild(s),c.appendChild(p),s.styleSheet?s.styleSheet.cssText=e:s.appendChild(n.createTextNode(e)),p.id=u,c.fake&&(c.style.background="",c.style.overflow="hidden",l=w.style.overflow,w.style.overflow="hidden",w.appendChild(c)),i=t(p,e),c.fake?(c.parentNode.removeChild(c),w.style.overflow=l,w.offsetHeight):p.parentNode.removeChild(p),!!i}function m(n,r){var o=n.length;if("CSS"in e&&"supports"in e.CSS){for(;o--;)if(e.CSS.supports(p(n[o]),r))return!0;return!1}if("CSSSupportsRule"in e){for(var s=[];o--;)s.push("("+p(n[o])+":"+r+")");return s=s.join(" or "),c("@supports ("+s+") { #modernizr { position: absolute; } }",function(e){return"absolute"==getComputedStyle(e,null).position})}return t}function v(e,n,o,s){function l(){p&&(delete N.style,delete N.modElem)}if(s=r(s,"undefined")?!1:s,!r(o,"undefined")){var u=m(e,o);if(!r(u,"undefined"))return u}for(var p,d,c,v,h,y=["modernizr","tspan"];!N.style;)p=!0,N.modElem=f(y.shift()),N.style=N.modElem.style;for(c=e.length,d=0;c>d;d++)if(v=e[d],h=N.style[v],a(v,"-")&&(v=i(v)),N.style[v]!==t){if(s||r(o,"undefined"))return l(),"pfx"==n?v:!0;try{N.style[v]=o}catch(g){}if(N.style[v]!=h)return l(),"pfx"==n?v:!0}return l(),!1}function h(e,n,t,o,s){var i=e.charAt(0).toUpperCase()+e.slice(1),a=(e+" "+b.join(i+" ")+i).split(" ");return r(n,"string")||r(n,"undefined")?v(a,n,o,s):(a=(e+" "+P.join(i+" ")+i).split(" "),u(a,n,t))}function y(e,n,r){return h(e,t,t,n,r)}var g=[],C=[],_={_version:"3.3.1",_config:{classPrefix:"",enableClasses:!0,enableJSClass:!0,usePrefixes:!0},_q:[],on:function(e,n){var t=this;setTimeout(function(){n(t[e])},0)},addTest:function(e,n,t){C.push({name:e,fn:n,options:t})},addAsyncTest:function(e){C.push({name:null,fn:e})}},Modernizr=function(){};Modernizr.prototype=_,Modernizr=new Modernizr;var w=n.documentElement,x="svg"===w.nodeName.toLowerCase(),S="Moz O ms Webkit",b=_._config.usePrefixes?S.split(" "):[];_._cssomPrefixes=b;var E=function(n){var r,o=prefixes.length,s=e.CSSRule;if("undefined"==typeof s)return t;if(!n)return!1;if(n=n.replace(/^@/,""),r=n.replace(/-/g,"_").toUpperCase()+"_RULE",r in s)return"@"+n;for(var i=0;o>i;i++){var a=prefixes[i],f=a.toUpperCase()+"_"+r;if(f in s)return"@-"+a.toLowerCase()+"-"+n}return!1};_.atRule=E;var P=_._config.usePrefixes?S.toLowerCase().split(" "):[];_._domPrefixes=P;var z={elem:f("modernizr")};Modernizr._q.push(function(){delete z.elem});var N={style:z.elem.style};Modernizr._q.unshift(function(){delete N.style}),_.testAllProps=h;_.prefixed=function(e,n,t){return 0===e.indexOf("@")?E(e):(-1!=e.indexOf("-")&&(e=i(e)),n?h(e,n,t):h(e,"pfx"))};_.testAllProps=y,Modernizr.addTest("csstransitions",y("transition","all",!0)),o(),s(g),delete _.addTest,delete _.addAsyncTest;for(var T=0;T<Modernizr._q.length;T++)Modernizr._q[T]();e.Modernizr=Modernizr}(window,document);
 angular.module('resourceMap', [
                'ngMaterial',
+               'ngCookies',
                'resourceMap.controllers',
                'resourceMap.states',
                'resourceMap.services',
@@ -62303,19 +62627,42 @@ var formatErr = function(err){
   }
   return responseString;
 };
+function waitForEl(selector, fn){
+  var el = document.querySelectorAll(selector)[0];
+  if(typeof el === 'undefined' || el.length < 1){
+    setTimeout(function(){waitForEl(selector, fn);}, 500);
+  } else {
+    fn();
+  }
+}
 angular.module('resourceMap.controllers')
   .controller('mainCtrl', ['$scope', 
+                           '$rootScope',
                            '$state', 
                            '$log', 
                            '$sce',
                            '$compile',
                            '$timeout',
+                           '$cookies',
                            'apiSrv',
-    function($scope, $state, $log, $sce, $compile, $timeout, apiSrv){
+    function($scope, $rootScope, $state, $log, $sce, $compile, $timeout, $cookies, apiSrv){
+      var mapObj;
       $scope.htmlSafe = $sce.trustAsHtml;
+      $scope.showLandingOverlay = true;
+      //get WP pages
       $scope.pages = [];
       var pageHandler = function(data){
         $scope.pages = data;
+        function loadMap(){
+          var mapEl = document.getElementById('page_map');
+          if(mapEl === null){
+            $timeout(loadMap, 500);
+          } else {
+            mapEl.innerHTML = "<div id=\"map\" ui-view=\"map\" autoscroll=\"true\" class=\"page-content\"></div>";
+            $compile(document.getElementById('map'))($scope);
+          }
+        }
+        loadMap();
       };
       apiSrv.getPages('menu_order', 'ASC', pageHandler, function(err){
         $log.error(err);
@@ -62352,10 +62699,19 @@ angular.module('resourceMap.controllers')
       //
       $scope.searchLocation = function(terms){
         $log.info(terms);
-      }
+      };
+      //
+      $scope.companyActive = false;
+      var companyHandler = function(data){
+        $scope.companyActive = true;
+        $scope.company = data;
+        $log.info("company details:");
+        $log.info(data);
+      };
       //
       var markers;
       $scope.mapReady = function(map){
+        mapObj = map;
         //map.setView([0,0], 3);
         if (!navigator.geolocation) {
           map.setView([0,0], 3);
@@ -62365,39 +62721,87 @@ angular.module('resourceMap.controllers')
         }
         map.on('locationfound', function(e){
           map.setView([e.latlng.lat, e.latlng.lng], 13);
+          $cookies.put('location', JSON.stringify({lat: e.latlng.lat, lng: e.latlng.lng}));
         });
         markers = L.mapbox.featureLayer().loadURL("/wp-content/plugins/workerslab/companies.json").addTo(map);
+        markers.on('click', function(e){
+          // e.target.closePopup();
+          var compId = e.layer.feature.properties.compid;
+          apiSrv.getCompany(compId, companyHandler, function(err){$log.error(err);});
+        });
       };
+
       //
       $scope.filterBy = function(opts){
         markers.setFilter(function(f){
           if(opts.industry && opts.issue && opts.year){
-            return (f.properties["industry"].indexOf(opts.industry) !== -1 && f.properties["issue"].indexOf(opts.issue) !== -1 && f.properties["year"].indexOf(opts.year) !== -1);
+            return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.year.indexOf(opts.year) !== -1);
           } else if(opts.industry && opts.issue){
-            return (f.properties["industry"].indexOf(opts.industry) !== -1 && f.properties["issue"].indexOf(opts.issue) !== -1);
+            return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1);
           } else if(opts.industry && opts.year){
-            return (f.properties["industry"].indexOf(opts.industry) !== -1 && f.properties["year"].indexOf(opts.year) !== -1);
+            return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.year.indexOf(opts.year) !== -1);
           } else if(opts.issue && opts.year){
-            return (f.properties["issue"].indexOf(opts.issue) !== -1 && f.properties["year"].indexOf(opts.year) !== -1);
+            return (f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.year.indexOf(opts.year) !== -1);
           } else if(opts.industry){
-            return (f.properties["industry"].indexOf(opts.industry) !== -1);
+            return (f.properties.industry.indexOf(opts.industry) !== -1);
           } else if(opts.issue){
-            return (f.properties["issue"].indexOf(opts.issue) !== -1);
+            return (f.properties.issue.indexOf(opts.issue) !== -1);
           } else if(opts.year){
-            return (f.properties["year"].indexOf(opts.year) !== -1);
+            return (f.properties.year.indexOf(opts.year) !== -1);
           }
         });
       };
 
       //
-      $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent){
-        var el = document.getElementById('menu');
-        el.outerHTML = "<button menu-trigger=\"#siteNav\" class=\"toggle-btn\" id=\"menu\"><span class=\"screen-reader\"></span><span class=\"icon-bar\"></span><span class=\"icon-bar\"></span><span class=\"icon-bar\"></span></button>";
-        $compile(document.getElementById('menu'))($scope);
-        var mapEL = document.getElementById('page_map');
-        mapEL.innerHTML = "<div id=\"map\" ui-view=\"map\" autoscroll=\"true\" class=\"page-content\"></div>";
-        $compile(document.getElementById('map'))($scope);
+      // var rendered = 0;
+      // $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent){
+      //   document.body.className = $rootScope.$state.current.name;
+      //   var el = document.getElementById('menu');
+      //   el.outerHTML = "<button menu-trigger=\"#siteNav\" class=\"toggle-btn\" id=\"menu\"><span class=\"screen-reader\"></span><span class=\"icon-bar\"></span><span class=\"icon-bar\"></span><span class=\"icon-bar\"></span></button>";
+      //   $compile(document.getElementById('menu'))($scope);
+      //   var mapEL = document.getElementById('page_map');
+      //   if(rendered === 0){
+      //     $log.info('load map');
+      //     mapEL.innerHTML = "<div id=\"map\" ui-view=\"map\" autoscroll=\"true\" class=\"page-content\"></div>";
+      //     $compile(document.getElementById('map'))($scope);
+      //   }
+      //   rendered++;
+      // });
+
+      //stateSwitch
+      // $scope.stateSwitch = function(state){
+      //   $log.info($scope.pages);
+      // };
+
+      //get WP options
+      $scope.settings = [];
+      var optHandler = function(data){
+        $scope.settings = data;
+      };
+      apiSrv.getOptions(optHandler, function(err){
+        $log.error(err);
       });
+
+      //
+      if($cookies.get("overlaid") === "true"){
+        $scope.showLandingOverlay = false;
+      } else {
+        $log.info($cookies.get("overlaid"));
+      }
+      $scope.hideOverlay = function(){
+        $scope.showLandingOverlay = false;
+        $cookies.put('overlaid', true);
+      };
+      $scope.showOverlay = function(){
+        $scope.showLandingOverlay = true;
+      };
+
+      //
+      $scope.setMapView = function(lng,lat){
+        $log.info(lng);
+        $log.info(lat);
+        mapObj.setView([lat,lng], 13);
+      };
     }
   ])
 ;
@@ -62410,122 +62814,6 @@ angular.module('resourceMap.controllers')
       //
     }
   ])
-;
-angular.module('resourceMap.services')
-  .factory('apiSrv', ['$http', 
-    function($http){
-      var apiSrv = {};
-      apiSrv.getPages = function(order, direction, successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/pages?filter[orderby]='+order+'&filter[order]='+direction
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getCompanies = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/company'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getIndustries = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/industry'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getIssues = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/issue'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getYears = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/year'
-        }).success(successFn).error(errorFn);
-      };
-      return apiSrv;
-    }
-  ])
-;
-angular.module('resourceMap.states')
-  .run(['$rootScope', 
-        '$state', 
-        '$stateParams', 
-    function($rootScope, $state, $stateParams){
-      $rootScope.$state = $state;
-      $rootScope.$stateParams = $stateParams;
-    }
-  ])
-  .config(['$stateProvider', 
-           '$urlRouterProvider', 
-    function($stateProvider, $urlRouterProvider){
-      var templateDir = '/wp-content/themes/workerslab/views';
-
-      $urlRouterProvider.otherwise('/');
-
-      $stateProvider
-        .state('main', {
-          url: '/',
-          views: {
-            'main': {
-              templateUrl: templateDir + '/main.php'
-            },
-            'header@main':{
-              templateUrl: templateDir + '/header.php'
-            },
-            'map@main': {
-              templateUrl: templateDir + '/map.php'
-            },
-            'footer@main':{
-              templateUrl: templateDir + '/footer.php'
-            },
-          }
-        })
-      ;
-    }
-  ])
-;
-angular.module('resourceMap.filters')
-  .filter('telephone', 
-    function(){
-      return function(telephone){
-        if(!telephone){
-          return "";
-        }
-        var value = telephone.toString().trim().replace(/^\+/, '');
-        if(value.match(/[^0-9]/)){
-          return telephone;
-        }
-        var country, city, number;
-        switch(value.length){
-          case 10:
-            country = 1;
-            city = value.slice(0,3);
-            number = value.slice(3);
-            break;
-          case 11:
-            country = value[0];
-            city = value.slice(1,4);
-            number = value.slice(4);
-            break;
-          case 12:
-            country = value.slice(0,3);
-            city = value.slice(3,5);
-            number = value.slice(5);
-            break;
-          default:
-            return telephone;
-        }
-        if(country === 1){
-          country = "";
-        }
-        number = number.slice(0, 3) + '-' + number.slice(3);
-        return (country + " (" + city + ") " + number).trim();
-      };
-    }
-  )
 ;
 var smoothScroll = function(element, options){
   options = options || {};
@@ -62618,15 +62906,23 @@ angular.module('resourceMap')
         link: function ($scope, $element, $attrs){
           L.mapbox.accessToken = "pk.eyJ1IjoibWV0YXRyb2lkIiwiYSI6ImNpbjB5bjA0NjBhbzd1cmtrcTA2a2p3MzcifQ.66Stn21WtMpGU9lV2FoS6Q";
           var map = L.mapbox.map($element[0], 'metatroid.pmafo9i6');
+                    // .addControl(L.mapbox.geocoderControl('mapbox.places', {
+                    //   autocomplete: true
+                    // }));
           $scope.mapReady(map);
+          $element.on('click', function(){
+            var box = document.getElementById("autocomplete");
+            box.innerHTML = "";
+            $scope.companyActive = false;
+          });
         }
       };
     }
   ])
 ;
 angular.module('resourceMap')
-  .directive('menuTrigger', [
-    function(){
+  .directive('menuTrigger', ['$timeout',
+    function($timeout){
       return {
         restrict: 'A',
         link: function ($scope, $element, $attrs){
@@ -62652,8 +62948,8 @@ angular.module('resourceMap')
                 } else {
                  onEndCallbackFn();
                 }
-              },
-              stack = document.querySelector('#views'),
+              };
+          var stack = document.querySelector('#views'),
               pages = [].slice.call(stack.children),
               pagesTotal = pages.length,
               current = 0,
@@ -62661,6 +62957,16 @@ angular.module('resourceMap')
               nav = document.querySelector('#siteNav'),
               navItems = [].slice.call(nav.querySelectorAll(".link-page")),
               isMenuOpen = false;
+          function reInit(){
+            if(pages.length < 1){
+              pages = [].slice.call(stack.children),
+              pagesTotal = pages.length,
+              navItems = [].slice.call(nav.querySelectorAll(".link-page"));
+              $timeout(reInit, 500);
+            } else {
+              init();
+            }
+          }
           function init(){
             buildStack();
             initEvents();
@@ -62733,7 +63039,7 @@ angular.module('resourceMap')
             console.log(pages);
             for(var i=0;i<stackPagesIdxs.length;++i){
               var page = pages[stackPagesIdxs[i]];
-              page.style.transform = "translate3d(0,75%,"+parseInt(-1 * 400 - 100 * i)+"px";
+              page.style.transform = "translate3d(0,75%,"+parseInt(-1 * 200 - 100 * i)+"px";
             }
           }
           function closeMenu(){
@@ -62776,7 +63082,11 @@ angular.module('resourceMap')
             }
             return idxs;
           }
-          init();
+          if(pages.length > 0){
+            init();
+          } else {
+            reInit();
+          }
         }
       };
     }
@@ -62794,7 +63104,187 @@ angular.module('resourceMap')
             });
           }
         }
-      }
+      };
     }
   )
+;
+angular.module('resourceMap')
+  .directive('locator', ['$http', '$cookies', '$compile',
+    function($http, $cookies, $compile){
+      return {
+        restrict: 'A',
+        link: function($scope, $element, $attrs){
+          $element.on('keyup', function(e){
+            var part = $element[0].value;
+            var location = $cookies.get('location');
+            var uri = "https://api.tiles.mapbox.com/geocoding/v5/mapbox.places/"+encodeURIComponent(part)+".json?access_token=pk.eyJ1IjoibWV0YXRyb2lkIiwiYSI6ImNpbjB5bjA0NjBhbzd1cmtrcTA2a2p3MzcifQ.66Stn21WtMpGU9lV2FoS6Q"+(typeof(location) !== "undefined" ? "&proximity="+JSON.parse(location).lng+","+JSON.parse(location).lat : "")+"&types=postcode,address";
+            $http({
+              method: 'GET',
+              url: uri
+            }).success(function(data){
+              console.log(data);
+              var ul = document.getElementById("autocomplete");
+              var htmlFrag = document.createDocumentFragment();
+              // data.features[0].
+              data.features.forEach(function(place){
+                var li = document.createElement("li");
+                li.innerHTML = "<a ng-click='setMapView("+place.center+")'>"+place.place_name+"</a>";
+                htmlFrag.appendChild(li);
+              });
+              ul.innerHTML = "";
+              ul.appendChild(htmlFrag);
+              $compile(document.getElementById('autocomplete'))($scope);
+            }).error(function(err){
+              console.error(err);
+            });
+          });
+        }
+      };
+    }
+  ])
+;
+angular.module('resourceMap.filters')
+  .filter('telephone', 
+    function(){
+      return function(telephone){
+        if(!telephone){
+          return "";
+        }
+        var value = telephone.toString().trim().replace(/^\+/, '');
+        if(value.match(/[^0-9]/)){
+          return telephone;
+        }
+        var country, city, number;
+        switch(value.length){
+          case 10:
+            country = 1;
+            city = value.slice(0,3);
+            number = value.slice(3);
+            break;
+          case 11:
+            country = value[0];
+            city = value.slice(1,4);
+            number = value.slice(4);
+            break;
+          case 12:
+            country = value.slice(0,3);
+            city = value.slice(3,5);
+            number = value.slice(5);
+            break;
+          default:
+            return telephone;
+        }
+        if(country === 1){
+          country = "";
+        }
+        number = number.slice(0, 3) + '-' + number.slice(3);
+        return (country + " (" + city + ") " + number).trim();
+      };
+    }
+  )
+;
+angular.module('resourceMap.services')
+  .factory('apiSrv', ['$http', 
+    function($http){
+      var apiSrv = {};
+      apiSrv.getOptions = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/options'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getPages = function(order, direction, successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/pages?filter[orderby]='+order+'&filter[order]='+direction
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getCompanies = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/company'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getCompany = function(id, successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/company/'+id
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getIndustries = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/industry'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getIssues = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/issue'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getYears = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/year'
+        }).success(successFn).error(errorFn);
+      };
+      return apiSrv;
+    }
+  ])
+;
+angular.module('resourceMap.states')
+  .run(['$rootScope', 
+        '$state', 
+        '$stateParams', 
+    function($rootScope, $state, $stateParams){
+      $rootScope.$state = $state;
+      $rootScope.$stateParams = $stateParams;
+    }
+  ])
+  .config(['$stateProvider', 
+           '$urlRouterProvider', 
+    function($stateProvider, $urlRouterProvider){
+      var templateDir = '/wp-content/themes/workerslab/views';
+
+      $urlRouterProvider.otherwise('/');
+
+      $stateProvider
+        .state('main', {
+          url: '/',
+          views: {
+            'main': {
+              templateUrl: templateDir + '/main.php'
+            },
+            'header@main':{
+              templateUrl: templateDir + '/header.php'
+            },
+            'map@main': {
+              templateUrl: templateDir + '/map.php'
+            },
+            'footer@main':{
+              templateUrl: templateDir + '/footer.php'
+            },
+          }
+        })
+        // .state('map', {
+        //   url: '/map',
+        //   views: {
+        //     'main': {
+        //       templateUrl: templateDir + '/main-map.php'
+        //     },
+        //     'header@map':{
+        //       templateUrl: templateDir + '/header.php'
+        //     },
+        //     'map@map': {
+        //       templateUrl: templateDir + '/map.php'
+        //     },
+        //     'footer@map':{
+        //       templateUrl: templateDir + '/footer.php'
+        //     },
+        //   }
+        // })
+      ;
+    }
+  ])
 ;

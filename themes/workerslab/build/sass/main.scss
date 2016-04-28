@@ -21,6 +21,7 @@ $whitneyItalic: 'Whitney-BookItalic';
 
 h1,h2,h3,h4,h5,h6,strong{
   font-family: $antBlack;
+  font-weight: normal;
 }
 
 html,
@@ -30,7 +31,11 @@ html body{
 }
 body{
   background-color: $black;
+  color: #ffeffe;
   font-family: $whitney;
+  -webkit-font-smoothing: antialiased;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.004);
+  text-rendering: optimizeLegibility;
 }
 .hidden{
   display: none !important;
@@ -74,7 +79,7 @@ body{
   right: 0;
   z-index: 9;
   background-color: #fff;
-  padding: 11px 15px 12px;
+  padding: 16px 15px 13px;
   .header{
     display: flex;
     flex-direction: row;
@@ -135,9 +140,27 @@ body{
           padding: 0 20px;
           display: flex;
           width: 100%;
+          font-family: $antBold;
+          letter-spacing: 0.03em;
           &.input-search{
+            position: relative;
             .icon{
               margin: 3px 10px 0 0;
+            }
+            ul{
+              position: absolute;
+              left: 0;
+              right: 0;
+              top: 100%;
+              background-color: #fff;
+              list-style: none;
+              li{
+                margin-bottom: 5px;
+                a{
+                  color: $black;
+                  cursor: pointer;
+                }
+              }
             }
           }
           &.input-select{
@@ -171,7 +194,7 @@ body{
     .branding{
       display: block;
       img{
-        max-width: 46px;
+        max-width: 90px;
       }
     }
   }
@@ -292,6 +315,17 @@ body{
   //position: relative;
   //top: 56px;
   //margin-top: 56px;
+  display: flex;
+  flex-flow: column wrap;
+  #page_home{
+    order: 1;
+  }
+  #page_map{
+    order: 2;
+  }
+  #page_about{
+    order: 3;
+  }
   .page{
     position: relative;
     z-index: 5;
@@ -316,6 +350,19 @@ body{
     }
   }
 }
+body.map{
+  #views{
+    #page_home{
+      order: 3;
+    }
+    #page_map{
+      order: 1;
+    }
+    #page_about{
+      order: 2;
+    }
+  }
+}
 .info{
   font-size: 1.25em;
   max-width: 50%;
@@ -331,8 +378,58 @@ body{
 
 #main{
   position: fixed;
-  top: 56px;
+  top: 90px;
   bottom: 0;
   left: 0;
   width: 100%;
+  color: $black;
+}
+
+.overlay{
+  position: fixed;
+  top: 90px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  &#landing{
+    background-color: rgba(255,255,255,0.6);
+    h1{
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+    h2{
+      font-size: 36px;
+      margin-bottom: 45px;
+      margin-top: 0;
+    }
+    p{
+      padding-top: 45px;
+      max-width: 500px;
+      margin: 0 auto;
+      &:first-of-type{
+        border-top: 2px solid $black;
+        margin-bottom: 75px;
+      }
+      a{
+        font-size: 18px;
+        letter-spacing: 0.05em;
+        font-family: $antBlack;
+        color: rgba(255,255,255,0.9);
+        display: block;
+        width: 60%;
+        padding: 22px 0px 16px;
+        background-color: $black;
+        text-decoration: none;
+        margin: 0 auto;
+        cursor: pointer;
+      }
+      img{
+        max-width: 120px;
+      }
+    }
+  }
+  &#company{
+    width: 50%;
+    background-color: #fff;
+  }
 }

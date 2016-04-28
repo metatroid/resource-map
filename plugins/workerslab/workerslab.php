@@ -8,7 +8,7 @@ Author URI: http://metatroid.com
 License: GPL2
 */
 
-//define a logger
+//define a debugging logger
 function logg($msg, $title = ''){
   $logFile = dirname( __FILE__ ) . '/workerslab.log';
   $date = date('d.m.Y h:i:s');
@@ -63,6 +63,7 @@ function add_meta_to_json($data, $post, $request){
   $lng = get_post_meta($post->ID, 'longitude', true);
   $industry = wp_get_post_terms($post->ID, 'industry');
   $issue = wp_get_post_terms($post->ID, 'issue');
+  $year = wp_get_post_terms($post->ID, 'year');
   if($post->post_type == 'company'){
     $response_data['company_meta'] = array(
       'compAddr' => $compAddr,
@@ -77,7 +78,8 @@ function add_meta_to_json($data, $post, $request){
       'latitude' => $lat,
       'longitude' => $lng,
       'industry' => $industry,
-      'issue' => $issue
+      'issue' => $issue,
+      'year' => $year
     );  
   }
   $data->set_data($response_data);
@@ -99,7 +101,7 @@ function updateGeoJson(){
     $title = $company->post_title;
     $industry = wp_get_post_terms($company->ID, 'industry', array('fields' => 'ids'));
     $issue = wp_get_post_terms($company->ID, 'issue', array('fields' => 'ids'));
-    $year = "";
+    $year = wp_get_post_terms($company->ID, 'year', array('fields' => 'ids'));
     $comp = array(
               "geometry" => array(
                               "type" => "Point", 
@@ -110,7 +112,8 @@ function updateGeoJson(){
                 "title" => $title,
                 "industry" => $industry,
                 "issue" => $issue,
-                "year" => $year
+                "year" => $year,
+                "compid" => $company->ID
               )
             );
     array_push($jsonObj, $comp);
@@ -183,5 +186,10 @@ function taxonInit() {
   );
 }
 add_action( 'init', 'taxonInit' );
+
+//create miscellaneous options/settings page
+include_once('wlab_options.php');
+//options endpoint
+include_once('wlab_options_endpoint.php');
 
 ?>

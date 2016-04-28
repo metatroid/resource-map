@@ -12,7 +12,7 @@ gulp.task('js', function(){
 
 //compile libs+app js
 gulp.task('jsall', ['js'], function(){
-  gulp.src(['./js/libs/angular.js', './js/libs/angular-ui-router.js', './js/libs/angular-animate.js', './js/libs/angular-aria.js', './js/libs/angular-material.js', './js/libs/mapbox.js', './js/libs/modernizr-custom.js', './js/app.js'])
+  gulp.src(['./js/libs/angular.js', './js/libs/angular-ui-router.js', './js/libs/angular-animate.js', './js/libs/angular-aria.js', './js/libs/angular-material.js', './js/libs/angular-cookies.js', './js/libs/mapbox.js', './js/libs/modernizr-custom.js', './js/app.js'])
     .pipe($.concat('main.js'))
     .pipe(gulp.dest('../assets/js'))
     .pipe($.rename('main.min.js'))
@@ -34,6 +34,7 @@ gulp.task('sass', function(){
 gulp.task('html', function(){
   gulp.src('./haml/**/*.html.haml')
     .pipe($.haml({ext: ''}))
+    .pipe($.prettify())
     .pipe(gulp.dest('./html'))
     .pipe($.copy('../', {prefix: 1}));
 });
@@ -41,6 +42,7 @@ gulp.task('html', function(){
 gulp.task('php', function(){
   gulp.src('./haml/**/*.php.haml')
     .pipe($.haml({ext: ''}))
+    .pipe($.prettify())
     .pipe(gulp.dest('./php'))
     .pipe($.copy('../', {prefix: 1}));
 });

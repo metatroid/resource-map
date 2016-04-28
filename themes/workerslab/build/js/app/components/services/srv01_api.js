@@ -2,6 +2,12 @@ angular.module('resourceMap.services')
   .factory('apiSrv', ['$http', 
     function($http){
       var apiSrv = {};
+      apiSrv.getOptions = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/options'
+        }).success(successFn).error(errorFn);
+      };
       apiSrv.getPages = function(order, direction, successFn, errorFn){
         return $http({
           method: 'GET',
@@ -12,6 +18,12 @@ angular.module('resourceMap.services')
         return $http({
           method: 'GET',
           url: '/wp-json/wp/v2/company'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getCompany = function(id, successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/company/'+id
         }).success(successFn).error(errorFn);
       };
       apiSrv.getIndustries = function(successFn, errorFn){

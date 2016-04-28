@@ -32,6 +32,23 @@ angular.module('resourceMap.states')
             },
           }
         })
+        // .state('map', {
+        //   url: '/map',
+        //   views: {
+        //     'main': {
+        //       templateUrl: templateDir + '/main-map.php'
+        //     },
+        //     'header@map':{
+        //       templateUrl: templateDir + '/header.php'
+        //     },
+        //     'map@map': {
+        //       templateUrl: templateDir + '/map.php'
+        //     },
+        //     'footer@map':{
+        //       templateUrl: templateDir + '/footer.php'
+        //     },
+        //   }
+        // })
       ;
     }
   ])

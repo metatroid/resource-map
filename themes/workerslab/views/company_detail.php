@@ -1,0 +1,1 @@
+<h2>{{company.title.rendered}}</h2>

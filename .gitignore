@@ -15,3 +15,4 @@ themes/workerslab/build/node_modules
 
 upgrade
 uploads
+.DS_Store

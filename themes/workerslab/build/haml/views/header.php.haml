@@ -1,7 +1,8 @@
 %header#pageHeader
   .header
-    #menu
+    %button.toggle-btn#menu{menu-trigger: "#siteNav"}
       %span.screen-reader
+        Toggle Menu
       %span.icon-bar
       %span.icon-bar
       %span.icon-bar
@@ -24,8 +25,9 @@
               {{year.name}}
         .input.input-text.input-search
           %span.icon.fa.fa-search
-          %input{type: "text", ng-model: "search", placeholder: "enter a zip code"}
-    %a.branding{href: "/", title: "Home"}
+          %input{type: "text", ng-model: "search", placeholder: "enter a zip code", locator: "locator"}
+          %ul#autocomplete
+    %a.branding{href: "/", title: "Home", ng-click: "showOverlay()"}
       %img{rel: "The Workers Lab", src: "/assets/img/logo.png"}
 
 %nav#siteNav

@@ -1,5 +1,6 @@
 angular.module('resourceMap', [
                'ngMaterial',
+               'ngCookies',
                'resourceMap.controllers',
                'resourceMap.states',
                'resourceMap.services',
