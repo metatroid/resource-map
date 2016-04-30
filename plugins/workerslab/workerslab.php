@@ -16,6 +16,7 @@ function logg($msg, $title = ''){
   $log = $title . " | " . $msg . "\n";
   error_log($log, 3, $logFile);
 }
+// logg("example", "title");
 
 //load + enable custom meta boxes
 if ( file_exists( dirname( __FILE__ ) . '/cmb2/init.php' ) ) {
@@ -50,6 +51,7 @@ function add_meta_to_json($data, $post, $request){
   if ( $request['context'] !== 'view' || is_wp_error( $data ) ) {
     return $data;
   }
+  $subtitle = get_post_meta($post->ID, 'subtitle', true);
   $compAddr = get_post_meta($post->ID, 'compAddr', true);
   $compCity = get_post_meta($post->ID, 'compCity', true);
   $compCountry = get_post_meta($post->ID, 'compCountry', true);
@@ -64,8 +66,20 @@ function add_meta_to_json($data, $post, $request){
   $industry = wp_get_post_terms($post->ID, 'industry');
   $issue = wp_get_post_terms($post->ID, 'issue');
   $year = wp_get_post_terms($post->ID, 'year');
+  if(has_post_thumbnail($post->ID)) {
+    $attachment = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), 'full');
+    if($attachment){
+      $avatar = $attachment[0];
+    } else {
+      $avatar = "";
+    }
+  } else {
+    $avatar = "";
+  }
   if($post->post_type == 'company'){
     $response_data['company_meta'] = array(
+      'subtitle' => $subtitle,
+      'avatar' => $avatar,
       'compAddr' => $compAddr,
       'compCity' => $compCity,
       'compCountry' => $compCountry,
@@ -100,8 +114,11 @@ function updateGeoJson(){
     $longitude = get_post_meta($company->ID, 'longitude', true);
     $title = $company->post_title;
     $industry = wp_get_post_terms($company->ID, 'industry', array('fields' => 'ids'));
+    array_push($industry, "all");
     $issue = wp_get_post_terms($company->ID, 'issue', array('fields' => 'ids'));
+    array_push($issue, "all");
     $year = wp_get_post_terms($company->ID, 'year', array('fields' => 'ids'));
+    array_push($year, "all");
     $comp = array(
               "geometry" => array(
                               "type" => "Point", 
@@ -113,7 +130,15 @@ function updateGeoJson(){
                 "industry" => $industry,
                 "issue" => $issue,
                 "year" => $year,
-                "compid" => $company->ID
+                "compid" => $company->ID,
+                "marker-color" => "#0c1d20",
+                "icon" => array(
+                   "iconUrl" => "/assets/img/marker_icon.svg",
+                   "iconSize" => [22, 31],
+                   "iconAnchor" => [11, 31],
+                   "popupAnchor" => [0, 0],
+                   "className" => "dot"
+                 )
               )
             );
     array_push($jsonObj, $comp);
@@ -122,6 +147,7 @@ function updateGeoJson(){
 }
 
 //add after-save callback to save lat/lng coordinates to db
+add_action( 'save_post', 'save_company_meta', 10, 3 );
 function save_company_meta($post_id, $post, $update){
   if($post->post_type !== "company"){
     return;
@@ -129,22 +155,23 @@ function save_company_meta($post_id, $post, $update){
   $street = $post->compAddr;
   $city = $post->compCity;
   $state = $post->compState;
-  $locationString = "{$street} {$city} {$state}";
-  $locationString = urlencode($locationString);
-  $apiKey = "AIzaSyDCeNiQn5pxEpsoOGBIRChItBfGSYwe2VY";
-  $apiURL = "https://maps.googleapis.com/maps/api/geocode/json?key={$apiKey}&address={$locationString}";
-  $geocode = json_decode(file_get_contents($apiURL));
-  $lat = $geocode->results[0]->geometry->location->lat;
-  $lng = $geocode->results[0]->geometry->location->lng;
-  if(isset($lat)){
-    update_post_meta($post_id, 'latitude', $lat);
+  if(strlen($street) > 0){
+    $locationString = "{$street} {$city} {$state}";
+    $locationString = urlencode($locationString);
+    $apiKey = "AIzaSyDCeNiQn5pxEpsoOGBIRChItBfGSYwe2VY";
+    $apiURL = "https://maps.googleapis.com/maps/api/geocode/json?key={$apiKey}&address={$locationString}";
+    $geocode = json_decode(file_get_contents($apiURL));
+    $lat = $geocode->results[0]->geometry->location->lat;
+    $lng = $geocode->results[0]->geometry->location->lng;
+    if(isset($lat)){
+      update_post_meta($post_id, 'latitude', $lat);
+    }
+    if(isset($lng)){
+      update_post_meta($post_id, 'longitude', $lng);
+    }
+    updateGeoJson();
   }
-  if(isset($lng)){
-    update_post_meta($post_id, 'longitude', $lng);
-  }
-  updateGeoJson();
 }
-add_action( 'save_post', 'save_company_meta', 10, 3 );
 
 //add custom taxonomies
 function taxonInit() {

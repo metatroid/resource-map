@@ -139,27 +139,58 @@ class WLab_Admin {
       'default' => '',
     ) );
 
-    $cmb->add_field( array(
-      'name' => __( 'Twitter URL', 'wlab' ),
-      'desc' => __( 'Enter the Twitter profile address', 'wlab' ),
-      'id'   => 'twitter_url',
+    $group_field_id = $cmb->add_field( array(
+      'id'          => 'social_media_links',
+      'type'        => 'group',
+      'description' => __( 'URLs for The Workers Lab social media profiles', 'cmb2' ),
+      'options'     => array(
+          'group_title'   => __( 'Profile {#}', 'cmb2' ),
+          'add_button'    => __( 'Add Another Profile', 'cmb2' ),
+          'remove_button' => __( 'Remove Profile', 'cmb2' ),
+          'sortable'      => true
+      )
+    ));
+    $cmb->add_group_field( $group_field_id, array(
+      'name' => 'Social Media Service',
+      'id'   => 'service',
+      'type' => 'select',
+      'show_option_none' => false,
+        'options'          => array(
+          "facebook" => __('Facebook', 'facebook'),
+          "twitter" => __('Twitter', 'twitter'),
+          "instagram" => __('Instagram', 'instagram'),
+          "linkedin" => __('LinkedIn', 'linkedin'),
+          "tumblr" => __('Tumblr', 'tumblr'),
+          "youtube-play" => __('YouTube', 'youtube-play'),
+          "google-plus" => __('Google+', 'google-plus')
+        )
+    ));
+    $cmb->add_group_field( $group_field_id, array(
+      'name' => 'Social Media URL',
+      'id'   => 'url',
       'type' => 'text',
-      'default' => 'http://',
-    ) );
-    $cmb->add_field( array(
-      'name' => __( 'Facebook URL', 'wlab' ),
-      'desc' => __( 'Enter the Facebook profile address', 'wlab' ),
-      'id'   => 'facebook_url',
-      'type' => 'text',
-      'default' => 'http://',
-    ) );
-    $cmb->add_field( array(
-      'name' => __( 'Instagram URL', 'wlab' ),
-      'desc' => __( 'Enter the Instagram profile address', 'wlab' ),
-      'id'   => 'instagram_url',
-      'type' => 'text',
-      'default' => 'http://',
-    ) );
+    ));
+    // $cmb->add_field( array(
+    //   'name' => __( 'Twitter URL', 'wlab' ),
+    //   'desc' => __( 'Enter the Twitter profile address', 'wlab' ),
+    //   'id'   => 'twitter_url',
+    //   'type' => 'text',
+    //   'default' => 'http://',
+    // ) );
+    // $cmb->add_field( array(
+    //   'name' => __( 'Facebook URL', 'wlab' ),
+    //   'desc' => __( 'Enter the Facebook profile address', 'wlab' ),
+    //   'id'   => 'facebook_url',
+    //   'type' => 'text',
+    //   'default' => 'http://',
+    // ) );
+    // $cmb->add_field( array(
+    //   'name' => __( 'Instagram URL', 'wlab' ),
+    //   'desc' => __( 'Enter the Instagram profile address', 'wlab' ),
+    //   'id'   => 'instagram_url',
+    //   'type' => 'text',
+    //   'default' => 'http://',
+    // ) );
 
   }
 

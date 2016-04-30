@@ -3,9 +3,11 @@
   "version": "0.0.1",
   "dependencies": {
     "angular": "latest",
+    "angular-cookies": "latest",
     "angular-material": "latest",
     "angular-ui-router": "latest",
-    "angular-cookies": "latest"
+    "flickity": "latest",
+    "lory": "~2.1.0"
   },
   "resolutions": {
     "angular": "latest"

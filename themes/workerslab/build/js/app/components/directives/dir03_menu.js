@@ -1,3 +1,4 @@
+/* jshint expr: true */
 angular.module('resourceMap')
   .directive('menuTrigger', ['$timeout',
     function($timeout){
@@ -77,7 +78,6 @@ angular.module('resourceMap')
             navItems.forEach(function(item){
               var pageId = item.getAttribute('href').slice(1);
               item.addEventListener('click', function(ev){
-                console.log(pageId);
                 ev.preventDefault();
                 openPage(pageId);
               });
@@ -105,19 +105,21 @@ angular.module('resourceMap')
             if(isMenuOpen){
               closeMenu();
             } else {
-              openMenu();
               isMenuOpen = true;
+              openMenu();
             }
           }
           function openMenu(){
             menuCtrl.classList.add('open');
             stack.classList.add('open');
             nav.classList.add('open');
+            if(document.getElementById("landing") !== null){
+              document.getElementById("landing").parentNode.classList.add("menu-open");
+            }
             var stackPagesIdxs = getStackPagesIdxs();
-            console.log(pages);
             for(var i=0;i<stackPagesIdxs.length;++i){
               var page = pages[stackPagesIdxs[i]];
-              page.style.transform = "translate3d(0,75%,"+parseInt(-1 * 200 - 100 * i)+"px";
+              page.style.transform = "translate3d(0,75%,"+parseInt(-1 * 200 - 50 * i)+"px";
             }
           }
           function closeMenu(){
@@ -140,8 +142,12 @@ angular.module('resourceMap')
             nav.classList.remove("open");
             onEndTransition(futurePage, function(){
               stack.classList.remove("open");
+              if(document.getElementById("landing") !== null){
+                document.getElementById("landing").parentNode.classList.remove("menu-open");
+              }
               buildStack();
               isMenuOpen = false;
+              if(id === "page_map"){window.location.href = "/#/map";}
             });
           }
           function getStackPagesIdxs(excludePageIdx){

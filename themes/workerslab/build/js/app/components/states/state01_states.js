@@ -27,28 +27,34 @@ angular.module('resourceMap.states')
             'map@main': {
               templateUrl: templateDir + '/map.php'
             },
+            'landing': {
+              templateUrl: templateDir + '/landing.php'
+            },
             'footer@main':{
               templateUrl: templateDir + '/footer.php'
             },
           }
         })
-        // .state('map', {
-        //   url: '/map',
-        //   views: {
-        //     'main': {
-        //       templateUrl: templateDir + '/main-map.php'
-        //     },
-        //     'header@map':{
-        //       templateUrl: templateDir + '/header.php'
-        //     },
-        //     'map@map': {
-        //       templateUrl: templateDir + '/map.php'
-        //     },
-        //     'footer@map':{
-        //       templateUrl: templateDir + '/footer.php'
-        //     },
-        //   }
-        // })
+        .state('map', {
+          url: '/map',
+          views: {
+            'main': {
+              templateUrl: templateDir + '/main.php'
+            },
+            'header@map': {
+              templateUrl: templateDir + '/header.php'
+            },
+            'map@map': {
+              templateUrl: templateDir + '/map.php'
+            },
+            'footer@map':{
+              templateUrl: templateDir + '/footer.php'
+            }
+          }
+        })
+        .state('map.companyView', {
+          url: '/:id'
+        })
       ;
     }
   ])

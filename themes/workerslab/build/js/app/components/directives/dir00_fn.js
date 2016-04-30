@@ -50,3 +50,20 @@ var smoothScroll = function(element, options){
     var runAnimation = setInterval(animateScroll, 16);
   }, 0);
 };
+//
+// function ready(fn) {
+//   if (document.readyState != 'loading'){
+//     fn();
+//   } else {
+//     document.addEventListener('DOMContentLoaded', fn);
+//   }
+// }
+// //
+// ready(function(){
+//   var imgs = document.querySelectorAll('.fit-images');
+//   for(var i=0;i<imgs.length;i++){
+//     var img = imgs[i].querySelector('img');
+//     var imgClass = (img.width/img.height > 1) ? 'tall' : 'wide';
+//     img.classList.add(imgClass);
+//   }
+// });

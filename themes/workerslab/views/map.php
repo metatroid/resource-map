@@ -1,1 +1,1 @@
-<map map-ready="mapReady"></map>
+<map map-ready="mapReady" id="mapbox"></map>

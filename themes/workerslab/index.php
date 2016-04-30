@@ -12,25 +12,7 @@
 
   <body ng-controller="mainCtrl">
     <div ui-view="main" id="main"></div>
-    <script type="text/javascript">
-      //<![CDATA[
-      waitForEl('#landing a', function()
-      {
-        var btns = document.querySelectorAll("#landing a, #menu");
-        for (var i = 0; i < btns.length; i++)
-        {
-          btns[i].addEventListener("click", function(e)
-          {
-            var scope = angular.element(document.getElementById('main')).scope();
-            scope.$apply(function()
-            {
-              scope.hideOverlay();
-            });
-          }, false);
-        }
-      });
-      //]]>
-    </script>
+    <div ui-view="landing"></div>
   </body>
 
 </html>

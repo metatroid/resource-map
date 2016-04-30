@@ -4,7 +4,5 @@
     <div class="page" id="page_map">
       <div ui-view="map" class="page-content"></div>
     </div>
-    <div class="page"></div>
   </div>
-  <footer ui-view="footer" id="pageFooter"></footer>
 </div>

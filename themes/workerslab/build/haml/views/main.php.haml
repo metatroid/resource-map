@@ -1,11 +1,8 @@
 #mainWrapper
   #header{ui-view: "header", autoscroll: "true"}
   #views
-    .page{ng-repeat: "page in pages", id: "page_{{page.slug}}", on-finish-render: "ngRepeatFinished"}
-      .page-content{ui-view: "{{page.slug}}", autoscroll: "true", ng-bind-html: "htmlSafe(page.content.rendered)"}
-#landing.overlay{ng-show: "showLandingOverlay === true"}
-  .overlay-content
-    %div{ng-bind-html: "htmlSafe(settings.landing_content)"}
-#company.overlay{ng-show: "companyActive === true"}
-  .overlay-content
-    %ng-include{src: "'/wp-content/themes/workerslab/views/company_detail.php'", id: "compDetails"}
+    .page#page_map
+      .page-content{ui-view: "map"}
+    .page
+  %footer#pageFooter{ui-view: "footer"}
+  

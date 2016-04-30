@@ -12,7 +12,6 @@ angular.module('resourceMap')
               method: 'GET',
               url: uri
             }).success(function(data){
-              console.log(data);
               var ul = document.getElementById("autocomplete");
               var htmlFrag = document.createDocumentFragment();
               // data.features[0].

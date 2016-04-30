@@ -61,25 +61,35 @@ angular.module('resourceMap.controllers')
                            '$compile',
                            '$timeout',
                            '$cookies',
+                           '$mdBottomSheet',
                            'apiSrv',
-    function($scope, $rootScope, $state, $log, $sce, $compile, $timeout, $cookies, apiSrv){
+                           'msgSrv',
+    function($scope, $rootScope, $state, $log, $sce, $compile, $timeout, $cookies, $mdBottomSheet, apiSrv, msgSrv){
       var mapObj;
+      var mLayer;
+      var geojson;
+      var _geojson;
       $scope.htmlSafe = $sce.trustAsHtml;
+      var overlay = false;
+      if($state.is('map.companyView')){
+        var id = $state.params.id;
+        msgSrv.setState('companyView', {id: id});
+      }
       $scope.showLandingOverlay = true;
       //get WP pages
       $scope.pages = [];
       var pageHandler = function(data){
         $scope.pages = data;
-        function loadMap(){
-          var mapEl = document.getElementById('page_map');
-          if(mapEl === null){
-            $timeout(loadMap, 500);
-          } else {
-            mapEl.innerHTML = "<div id=\"map\" ui-view=\"map\" autoscroll=\"true\" class=\"page-content\"></div>";
-            $compile(document.getElementById('map'))($scope);
-          }
-        }
-        loadMap();
+        // function loadMap(){
+        //   var mapEl = document.getElementById('page_map');
+        //   if(mapEl === null){
+        //     $timeout(loadMap, 500);
+        //   } else {
+        //     mapEl.innerHTML = "<div id=\"map\" ui-view=\"map\" autoscroll=\"true\" class=\"page-content\"></div>";
+        //     $compile(document.getElementById('map'))($scope);
+        //   }
+        // }
+        // loadMap();
       };
       apiSrv.getPages('menu_order', 'ASC', pageHandler, function(err){
         $log.error(err);
@@ -114,40 +124,116 @@ angular.module('resourceMap.controllers')
         $log.error(err);
       });
       //
-      $scope.searchLocation = function(terms){
-        $log.info(terms);
-      };
-      //
-      $scope.companyActive = false;
-      var companyHandler = function(data){
-        $scope.companyActive = true;
-        $scope.company = data;
-        $log.info("company details:");
-        $log.info(data);
-      };
+      $scope.searchLocation = function(terms){};
       //
       var markers;
       $scope.mapReady = function(map){
         mapObj = map;
-        //map.setView([0,0], 3);
-        if (!navigator.geolocation) {
-          map.setView([0,0], 3);
-          $log.info("Geolocation not available");
+        if(typeof($cookies.get('location')) !== 'undefined'){
+          var loc = JSON.parse($cookies.get('location')),
+              lat = loc.lat,
+              lng = loc.lng;
+          map.setView([lat, lng], 13);
         } else {
-          map.locate();
+          if (!navigator.geolocation) {
+            map.setView([0,0], 3);
+          } else {
+            map.locate();
+          }
         }
         map.on('locationfound', function(e){
           map.setView([e.latlng.lat, e.latlng.lng], 13);
           $cookies.put('location', JSON.stringify({lat: e.latlng.lat, lng: e.latlng.lng}));
         });
         markers = L.mapbox.featureLayer().loadURL("/wp-content/plugins/workerslab/companies.json").addTo(map);
+        mLayer = markers;
+        markers.on('layeradd', function(e){
+          var marker = e.layer,
+              feature = marker.feature;
+          marker.setIcon(L.icon(feature.properties.icon));
+        });
         markers.on('click', function(e){
-          // e.target.closePopup();
+          var marker = e.layer,
+              feature = marker.feature;
+          marker.setIcon(L.icon({
+            "iconUrl":"/assets/img/marker_icon_clicked.svg",
+            "iconSize":[44,62],
+            "iconAnchor":[25,60],
+            "popupAnchor":[0,0],
+            "className":"dot"
+          }));
+          //
           var compId = e.layer.feature.properties.compid;
-          apiSrv.getCompany(compId, companyHandler, function(err){$log.error(err);});
+          msgSrv.setState('companyView', {id: compId});
+          $state.go("map.companyView", {id: compId});
+        });
+        // apiSrv.getJson(function(data){
+        //   geojson = data;
+        //   _geojson = data;
+        //   for(var i=0;i<_geojson.length;i++){
+        //     if(_geojson[i].properties.compid === $state.params.id){
+        //       _geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon_clicked.svg";
+        //     }
+        //   }
+        //   markers.setGeoJSON(_geojson);
+        // }, function(err){
+        //   $log.error(err);
+        // });
+      };
+      //
+      $scope.$on('updateState', function(){
+        switch(msgSrv.state.fn){
+          case "companyView":
+            $scope.showCompany(msgSrv.state.args.id);
+            break;
+          default:
+            // $log.info(msgSrv.state);
+            break;
+        }
+      });
+      $scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){
+        switch(toState.name){
+          case "map.companyView":
+            if(!overlay){$scope.showCompany(toParams.id);}
+            // $log.info(toParams);
+            break;
+          default:
+            // $log.info(msgSrv.state);
+            break;
+        }
+      });
+      //
+      $scope.closeSheet = function(){
+        $mdBottomSheet.hide();
+      };
+      //
+      $scope.showCompany = function(id){
+        overlay = true;
+        apiSrv.getCompany(id, function(company){
+          //swap marker icon somehow...
+          $mdBottomSheet.show({
+            controller: function(){
+              this.parent = $scope;
+              this.parent.company = company;
+            },
+            controllerAs: 'ctrl',
+            templateUrl: '/wp-content/themes/workerslab/views/company_detail.php',
+            parent: angular.element(document.querySelector('#main')),
+            clickOutsideToClose: true
+          }).finally(function(){
+            $state.go("map");
+            mLayer.setGeoJSON(geojson);
+          });
+        }, function(err){
+          $log.error(err);
         });
       };
-
+      //
+      $scope.companyActive = false;
+      var companyHandler = function(data){
+        $scope.companyActive = true;
+        $scope.company = data;
+      };
       //
       $scope.filterBy = function(opts){
         markers.setFilter(function(f){
@@ -169,27 +255,6 @@ angular.module('resourceMap.controllers')
         });
       };
 
-      //
-      // var rendered = 0;
-      // $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent){
-      //   document.body.className = $rootScope.$state.current.name;
-      //   var el = document.getElementById('menu');
-      //   el.outerHTML = "<button menu-trigger=\"#siteNav\" class=\"toggle-btn\" id=\"menu\"><span class=\"screen-reader\"></span><span class=\"icon-bar\"></span><span class=\"icon-bar\"></span><span class=\"icon-bar\"></span></button>";
-      //   $compile(document.getElementById('menu'))($scope);
-      //   var mapEL = document.getElementById('page_map');
-      //   if(rendered === 0){
-      //     $log.info('load map');
-      //     mapEL.innerHTML = "<div id=\"map\" ui-view=\"map\" autoscroll=\"true\" class=\"page-content\"></div>";
-      //     $compile(document.getElementById('map'))($scope);
-      //   }
-      //   rendered++;
-      // });
-
-      //stateSwitch
-      // $scope.stateSwitch = function(state){
-      //   $log.info($scope.pages);
-      // };
-
       //get WP options
       $scope.settings = [];
       var optHandler = function(data){
@@ -200,23 +265,7 @@ angular.module('resourceMap.controllers')
       });
 
       //
-      if($cookies.get("overlaid") === "true"){
-        $scope.showLandingOverlay = false;
-      } else {
-        $log.info($cookies.get("overlaid"));
-      }
-      $scope.hideOverlay = function(){
-        $scope.showLandingOverlay = false;
-        $cookies.put('overlaid', true);
-      };
-      $scope.showOverlay = function(){
-        $scope.showLandingOverlay = true;
-      };
-
-      //
       $scope.setMapView = function(lng,lat){
-        $log.info(lng);
-        $log.info(lat);
         mapObj.setView([lat,lng], 13);
       };
     }
@@ -229,6 +278,180 @@ angular.module('resourceMap.controllers')
                            'apiSrv',
     function($scope, $state, $log, apiSrv){
       //
+    }
+  ])
+;
+angular.module('resourceMap.services')
+  .factory('apiSrv', ['$http', 
+    function($http){
+      var apiSrv = {};
+      apiSrv.getJson = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-content/plugins/workerslab/companies.json'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getOptions = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/options'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getPages = function(order, direction, successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/pages?filter[orderby]='+order+'&filter[order]='+direction
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getCompanies = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/company'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getCompany = function(id, successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/company/'+id
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getIndustries = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/industry'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getIssues = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/issue'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getYears = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/year'
+        }).success(successFn).error(errorFn);
+      };
+      return apiSrv;
+    }
+  ])
+;
+angular.module('resourceMap.services')
+  .factory('msgSrv', ['$rootScope',
+    function($rootScope){
+      var msgSrv = {};
+      msgSrv.state = {};
+      msgSrv.setState = function(stateLabel, data){
+        msgSrv.state = {
+          fn: stateLabel,
+          args: data
+        };
+        $rootScope.$broadcast('updateState');
+      };
+
+      return msgSrv;
+    }
+  ])
+;
+angular.module('resourceMap.filters')
+  .filter('telephone', 
+    function(){
+      return function(telephone){
+        if(!telephone){
+          return "";
+        }
+        var value = telephone.toString().trim().replace(/^\+/, '');
+        if(value.match(/[^0-9]/)){
+          return telephone;
+        }
+        var country, city, number;
+        switch(value.length){
+          case 10:
+            country = 1;
+            city = value.slice(0,3);
+            number = value.slice(3);
+            break;
+          case 11:
+            country = value[0];
+            city = value.slice(1,4);
+            number = value.slice(4);
+            break;
+          case 12:
+            country = value.slice(0,3);
+            city = value.slice(3,5);
+            number = value.slice(5);
+            break;
+          default:
+            return telephone;
+        }
+        if(country === 1){
+          country = "";
+        }
+        number = number.slice(0, 3) + '-' + number.slice(3);
+        return (country + " (" + city + ") " + number).trim();
+      };
+    }
+  )
+;
+angular.module('resourceMap.states')
+  .run(['$rootScope', 
+        '$state', 
+        '$stateParams', 
+    function($rootScope, $state, $stateParams){
+      $rootScope.$state = $state;
+      $rootScope.$stateParams = $stateParams;
+    }
+  ])
+  .config(['$stateProvider', 
+           '$urlRouterProvider', 
+    function($stateProvider, $urlRouterProvider){
+      var templateDir = '/wp-content/themes/workerslab/views';
+
+      $urlRouterProvider.otherwise('/');
+
+      $stateProvider
+        .state('main', {
+          url: '/',
+          views: {
+            'main': {
+              templateUrl: templateDir + '/main.php'
+            },
+            'header@main':{
+              templateUrl: templateDir + '/header.php'
+            },
+            'map@main': {
+              templateUrl: templateDir + '/map.php'
+            },
+            'landing': {
+              templateUrl: templateDir + '/landing.php'
+            },
+            'footer@main':{
+              templateUrl: templateDir + '/footer.php'
+            },
+          }
+        })
+        .state('map', {
+          url: '/map',
+          views: {
+            'main': {
+              templateUrl: templateDir + '/main.php'
+            },
+            'header@map': {
+              templateUrl: templateDir + '/header.php'
+            },
+            'map@map': {
+              templateUrl: templateDir + '/map.php'
+            },
+            'footer@map':{
+              templateUrl: templateDir + '/footer.php'
+            }
+          }
+        })
+        .state('map.companyView', {
+          url: '/:id'
+        })
+      ;
     }
   ])
 ;
@@ -284,7 +507,23 @@ var smoothScroll = function(element, options){
     var runAnimation = setInterval(animateScroll, 16);
   }, 0);
 };
-
+//
+// function ready(fn) {
+//   if (document.readyState != 'loading'){
+//     fn();
+//   } else {
+//     document.addEventListener('DOMContentLoaded', fn);
+//   }
+// }
+// //
+// ready(function(){
+//   var imgs = document.querySelectorAll('.fit-images');
+//   for(var i=0;i<imgs.length;i++){
+//     var img = imgs[i].querySelector('img');
+//     var imgClass = (img.width/img.height > 1) ? 'tall' : 'wide';
+//     img.classList.add(imgClass);
+//   }
+// });
 angular.module('resourceMap.directives')
   .directive('scrollTo', 
     function(){
@@ -323,20 +562,17 @@ angular.module('resourceMap')
         link: function ($scope, $element, $attrs){
           L.mapbox.accessToken = "pk.eyJ1IjoibWV0YXRyb2lkIiwiYSI6ImNpbjB5bjA0NjBhbzd1cmtrcTA2a2p3MzcifQ.66Stn21WtMpGU9lV2FoS6Q";
           var map = L.mapbox.map($element[0], 'metatroid.pmafo9i6');
-                    // .addControl(L.mapbox.geocoderControl('mapbox.places', {
-                    //   autocomplete: true
-                    // }));
           $scope.mapReady(map);
           $element.on('click', function(){
             var box = document.getElementById("autocomplete");
             box.innerHTML = "";
-            $scope.companyActive = false;
           });
         }
       };
     }
   ])
 ;
+/* jshint expr: true */
 angular.module('resourceMap')
   .directive('menuTrigger', ['$timeout',
     function($timeout){
@@ -416,7 +652,6 @@ angular.module('resourceMap')
             navItems.forEach(function(item){
               var pageId = item.getAttribute('href').slice(1);
               item.addEventListener('click', function(ev){
-                console.log(pageId);
                 ev.preventDefault();
                 openPage(pageId);
               });
@@ -444,19 +679,21 @@ angular.module('resourceMap')
             if(isMenuOpen){
               closeMenu();
             } else {
-              openMenu();
               isMenuOpen = true;
+              openMenu();
             }
           }
           function openMenu(){
             menuCtrl.classList.add('open');
             stack.classList.add('open');
             nav.classList.add('open');
+            if(document.getElementById("landing") !== null){
+              document.getElementById("landing").parentNode.classList.add("menu-open");
+            }
             var stackPagesIdxs = getStackPagesIdxs();
-            console.log(pages);
             for(var i=0;i<stackPagesIdxs.length;++i){
               var page = pages[stackPagesIdxs[i]];
-              page.style.transform = "translate3d(0,75%,"+parseInt(-1 * 200 - 100 * i)+"px";
+              page.style.transform = "translate3d(0,75%,"+parseInt(-1 * 200 - 50 * i)+"px";
             }
           }
           function closeMenu(){
@@ -479,8 +716,12 @@ angular.module('resourceMap')
             nav.classList.remove("open");
             onEndTransition(futurePage, function(){
               stack.classList.remove("open");
+              if(document.getElementById("landing") !== null){
+                document.getElementById("landing").parentNode.classList.remove("menu-open");
+              }
               buildStack();
               isMenuOpen = false;
+              if(id === "page_map"){window.location.href = "/#/map";}
             });
           }
           function getStackPagesIdxs(excludePageIdx){
@@ -539,7 +780,6 @@ angular.module('resourceMap')
               method: 'GET',
               url: uri
             }).success(function(data){
-              console.log(data);
               var ul = document.getElementById("autocomplete");
               var htmlFrag = document.createDocumentFragment();
               // data.features[0].
@@ -560,148 +800,41 @@ angular.module('resourceMap')
     }
   ])
 ;
-angular.module('resourceMap.filters')
-  .filter('telephone', 
+angular.module('resourceMap')
+  .directive('slideshow', ['$timeout',
+    function($timeout){
+      return {
+        restrict: 'EA',
+        link: function ($scope, $element, $attrs){
+          waitForEl('.comp-images', function(){
+            var elem = document.querySelector('.comp-images');
+            var flkty = new Flickity(elem, {
+              imagesLoaded: true,
+              wrapAround: true,
+              prevNextButtons: false,
+              pageDots: true,
+              cellSelector: '.img',
+              percentPosition: false
+            });
+          });
+        }
+      };
+    }
+  ])
+;
+angular.module('resourceMap.directives')
+  .directive('toggleClass', 
     function(){
-      return function(telephone){
-        if(!telephone){
-          return "";
+      return {
+        restrict: 'A',
+        link: function($scope, $element, $attrs){
+          $element.on('click', function(e){
+            e.preventDefault();
+            var el = document.querySelector($attrs.toggleClassTarget);
+            el.classList.add($attrs.toggleClass);
+          });
         }
-        var value = telephone.toString().trim().replace(/^\+/, '');
-        if(value.match(/[^0-9]/)){
-          return telephone;
-        }
-        var country, city, number;
-        switch(value.length){
-          case 10:
-            country = 1;
-            city = value.slice(0,3);
-            number = value.slice(3);
-            break;
-          case 11:
-            country = value[0];
-            city = value.slice(1,4);
-            number = value.slice(4);
-            break;
-          case 12:
-            country = value.slice(0,3);
-            city = value.slice(3,5);
-            number = value.slice(5);
-            break;
-          default:
-            return telephone;
-        }
-        if(country === 1){
-          country = "";
-        }
-        number = number.slice(0, 3) + '-' + number.slice(3);
-        return (country + " (" + city + ") " + number).trim();
       };
     }
   )
-;
-angular.module('resourceMap.services')
-  .factory('apiSrv', ['$http', 
-    function($http){
-      var apiSrv = {};
-      apiSrv.getOptions = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/options'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getPages = function(order, direction, successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/pages?filter[orderby]='+order+'&filter[order]='+direction
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getCompanies = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/company'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getCompany = function(id, successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/company/'+id
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getIndustries = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/industry'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getIssues = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/issue'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getYears = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/year'
-        }).success(successFn).error(errorFn);
-      };
-      return apiSrv;
-    }
-  ])
-;
-angular.module('resourceMap.states')
-  .run(['$rootScope', 
-        '$state', 
-        '$stateParams', 
-    function($rootScope, $state, $stateParams){
-      $rootScope.$state = $state;
-      $rootScope.$stateParams = $stateParams;
-    }
-  ])
-  .config(['$stateProvider', 
-           '$urlRouterProvider', 
-    function($stateProvider, $urlRouterProvider){
-      var templateDir = '/wp-content/themes/workerslab/views';
-
-      $urlRouterProvider.otherwise('/');
-
-      $stateProvider
-        .state('main', {
-          url: '/',
-          views: {
-            'main': {
-              templateUrl: templateDir + '/main.php'
-            },
-            'header@main':{
-              templateUrl: templateDir + '/header.php'
-            },
-            'map@main': {
-              templateUrl: templateDir + '/map.php'
-            },
-            'footer@main':{
-              templateUrl: templateDir + '/footer.php'
-            },
-          }
-        })
-        // .state('map', {
-        //   url: '/map',
-        //   views: {
-        //     'main': {
-        //       templateUrl: templateDir + '/main-map.php'
-        //     },
-        //     'header@map':{
-        //       templateUrl: templateDir + '/header.php'
-        //     },
-        //     'map@map': {
-        //       templateUrl: templateDir + '/map.php'
-        //     },
-        //     'footer@map':{
-        //       templateUrl: templateDir + '/footer.php'
-        //     },
-        //   }
-        // })
-      ;
-    }
-  ])
 ;

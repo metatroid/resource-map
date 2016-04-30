@@ -1,1 +1,9 @@
-footer
+.footer
+  .copy
+    Copyright The Workers Lab {{currentYear}}
+  .cta
+    %a{href: "#"}
+      Call to action.
+  .social-media
+    %a.link.link-social{ng-repeat: "profile in settings.social_media_links", href: "{{profile.url}}", title: "{{profile.service}}", target: "_blank"}
+      %span.icon.fa{class: "fa-{{profile.service}}"}

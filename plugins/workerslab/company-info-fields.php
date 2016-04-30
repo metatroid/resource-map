@@ -12,6 +12,12 @@ $cmb = new_cmb2_box(array(
 ));
 //
 $cmb->add_field(array(
+  'name' => 'Subtitle',
+  'type' => 'text',
+  'id' => 'subtitle'
+));
+//
+$cmb->add_field(array(
   'name' => 'Address',
   'type' => 'text',
   'id' => 'compAddr'

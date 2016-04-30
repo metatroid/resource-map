@@ -2,6 +2,12 @@ angular.module('resourceMap.services')
   .factory('apiSrv', ['$http', 
     function($http){
       var apiSrv = {};
+      apiSrv.getJson = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-content/plugins/workerslab/companies.json'
+        }).success(successFn).error(errorFn);
+      };
       apiSrv.getOptions = function(successFn, errorFn){
         return $http({
           method: 'GET',

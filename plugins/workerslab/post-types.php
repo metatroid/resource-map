@@ -25,6 +25,6 @@
     ),
     'query_var' => true,
     'supports' => array('title', 'editor', 'thumbnail'),
-    'taxonomies' => array('post_tag', 'industry', 'issue', 'category')
+    'taxonomies' => array('industry', 'issue', 'year')
   ));
 ?>
