@@ -1,7 +1,7 @@
 <header id="pageHeader">
   <div class="header"><button menu-trigger="#siteNav" class="toggle-btn" id="menu"><span class="screen-reader">Toggle Menu</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
     <div id="filterBar">
-      <form ng-submit="searchLocation(search)">
+      <form ng-submit="searchFor(search)">
         <div class="input input-select">
           <md-select ng-model="filter.industry" ng-change="filterBy(filter)">
             <md-option value="" disabled>Industry</md-option>

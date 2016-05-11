@@ -26,10 +26,10 @@ angular.module('resourceMap.services')
           url: '/wp-json/wp/v2/company'
         }).success(successFn).error(errorFn);
       };
-      apiSrv.getCompany = function(id, successFn, errorFn){
+      apiSrv.getCompany = function(slug, successFn, errorFn){
         return $http({
           method: 'GET',
-          url: '/wp-json/wp/v2/company/'+id
+          url: '/wp-json/wp/v2/company?filter[name]='+slug
         }).success(successFn).error(errorFn);
       };
       apiSrv.getIndustries = function(successFn, errorFn){
@@ -48,6 +48,15 @@ angular.module('resourceMap.services')
         return $http({
           method: 'GET',
           url: '/wp-json/wp/v2/year'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getCoords = function(terms, successFn, errorFn){
+        var apiKey = "AIzaSyDCeNiQn5pxEpsoOGBIRChItBfGSYwe2VY";
+        var lookup = encodeURI(terms);
+        var apiUrl = "https://maps.googleapis.com/maps/api/geocode/json?key="+apiKey+"&address="+lookup;
+        return $http({
+          method: 'GET',
+          url: apiUrl
         }).success(successFn).error(errorFn);
       };
       return apiSrv;

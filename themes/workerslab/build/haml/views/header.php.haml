@@ -7,7 +7,7 @@
       %span.icon-bar
       %span.icon-bar
     #filterBar
-      %form{ng-submit: "searchLocation(search)"}
+      %form{ng-submit: "searchFor(search)"}
         .input.input-select
           %md-select{ng-model: "filter.industry", ng-change: "filterBy(filter)"}
             <md-option value="" disabled>Industry</md-option>

@@ -1,4 +1,4 @@
-%md-bottom-sheet#compDetail
+%md-bottom-sheet#compDetail.full-content
   %md-content
     %a.close-btn{ng-click: "ctrl.parent.closeSheet()"}
       %svg{version: "1.1", xmlns: "http://www.w3.org/2000/svg", x: "0", y: "0", width: "16", height: "16", viewBox: "0 0 16 16", 'xml:space': "preserve"}
@@ -28,6 +28,6 @@
               %md-content.md-padding{ng-bind-html: "ctrl.parent.htmlSafe(tab.content)"}
 
 
-  .see-more
+  -#.see-more
     %a.more-btn{toggle-class: "full-content", toggle-class-target: "#compDetail"}
       See More

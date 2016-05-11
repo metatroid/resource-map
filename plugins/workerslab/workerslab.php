@@ -19,20 +19,20 @@ function logg($msg, $title = ''){
 // logg("example", "title");
 
 //load + enable custom meta boxes
-if ( file_exists( dirname( __FILE__ ) . '/cmb2/init.php' ) ) {
-  require_once dirname( __FILE__ ) . '/cmb2/init.php';
+if ( file_exists( dirname( __FILE__ ) . '/workerslab/cmb2/init.php' ) ) {
+  require_once dirname( __FILE__ ) . '/workerslab/cmb2/init.php';
 }
 
 //define 'company' post type
 function wlab_cpt(){
-  include_once('post-types.php');
+  include_once('workerslab/post-types.php');
 }
 add_action('init', 'wlab_cpt');
 add_action( 'cmb2_init', 'company_info_fields' );
 
 //define meta box fields
 function company_info_fields(){
-  include_once('company-info-fields.php');
+  include_once('workerslab/company-info-fields.php');
 }
 
 //set up API/JSON endpoints
@@ -113,6 +113,7 @@ function updateGeoJson(){
     $latitude = get_post_meta($company->ID, 'latitude', true);
     $longitude = get_post_meta($company->ID, 'longitude', true);
     $title = $company->post_title;
+    $slug = $company->post_name;
     $industry = wp_get_post_terms($company->ID, 'industry', array('fields' => 'ids'));
     array_push($industry, "all");
     $issue = wp_get_post_terms($company->ID, 'issue', array('fields' => 'ids'));
@@ -127,6 +128,7 @@ function updateGeoJson(){
               "type" => "Feature",
               "properties" => array(
                 "title" => $title,
+                "slug" => $slug,
                 "industry" => $industry,
                 "issue" => $issue,
                 "year" => $year,
@@ -215,8 +217,8 @@ function taxonInit() {
 add_action( 'init', 'taxonInit' );
 
 //create miscellaneous options/settings page
-include_once('wlab_options.php');
+include_once('workerslab/wlab_options.php');
 //options endpoint
-include_once('wlab_options_endpoint.php');
+include_once('workerslab/wlab_options_endpoint.php');
 
 ?>

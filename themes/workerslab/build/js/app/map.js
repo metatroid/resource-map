@@ -17,7 +17,7 @@ angular.module('resourceMap')
   .config(['$httpProvider', '$compileProvider', '$mdThemingProvider', function($httpProvider, $compileProvider, $mdThemingProvider){
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
-    $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+    // $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|mailto|tel):/);
     $mdThemingProvider.theme('default')
       .primaryPalette('grey')

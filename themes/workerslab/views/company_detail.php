@@ -1,4 +1,4 @@
-<md-bottom-sheet id="compDetail">
+<md-bottom-sheet class="full-content" id="compDetail">
   <md-content><a ng-click="ctrl.parent.closeSheet()" class="close-btn"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0" y="0" width="16" height="16" viewBox="0 0 16 16" 'xml:space'="preserve"><path d="M0 0 L16 16" fill="#fff" stroke="#fff" stroke-width="2px"></path><path d="M0 16 L16 0" fill="#fff" stroke="#fff" stroke-width="2px"></path></svg></a>
     <div
       slideshow="slideshow" class="comp-images">
@@ -26,5 +26,4 @@
         </div>
       </div>
   </md-content>
-  <div class="see-more"><a toggle-class="full-content" toggle-class-target="#compDetail" class="more-btn">See More</a></div>
 </md-bottom-sheet>

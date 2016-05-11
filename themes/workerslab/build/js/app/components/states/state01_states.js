@@ -53,7 +53,7 @@ angular.module('resourceMap.states')
           }
         })
         .state('map.companyView', {
-          url: '/:id'
+          url: '/companies/:slug'
         })
       ;
     }

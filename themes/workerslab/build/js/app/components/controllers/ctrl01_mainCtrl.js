@@ -18,8 +18,8 @@ angular.module('resourceMap.controllers')
       $scope.htmlSafe = $sce.trustAsHtml;
       var overlay = false;
       if($state.is('map.companyView')){
-        var id = $state.params.id;
-        msgSrv.setState('companyView', {id: id});
+        var slug = $state.params.slug;
+        msgSrv.setState('companyView', {slug: slug});
       }
       $scope.showLandingOverlay = true;
       //get WP pages
@@ -112,9 +112,12 @@ angular.module('resourceMap.controllers')
             "className":"dot"
           }));
           //
-          var compId = e.layer.feature.properties.compid;
-          msgSrv.setState('companyView', {id: compId});
-          $state.go("map.companyView", {id: compId});
+          var compId = e.layer.feature.properties.compid,
+              compTitle = e.layer.feature.properties.title;
+          var compSlug = e.layer.feature.properties.slug;
+          $log.info(e.layer.feature.properties);
+          msgSrv.setState('companyView', {slug: compSlug});
+          $state.go("map.companyView", {slug: compSlug});
         });
         map.on('click', function(e){
           markers = L.mapbox.featureLayer().loadURL("/wp-content/plugins/workerslab/companies.json");
@@ -123,10 +126,10 @@ angular.module('resourceMap.controllers')
           geojson = data;
           _geojson = data;
           for(var i=0;i<_geojson.length;i++){
-            if(parseInt(_geojson[i].properties.compid) === parseInt($state.params.id)){
-              _geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon_clicked.svg";
-              _geojson[i].properties.icon.iconSize = [44,62];
-              _geojson[i].properties.icon.iconAnchor = [25,60];
+            if(_geojson[i].properties.compSlug === $state.params.slug){
+              // _geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon_clicked.svg";
+              // _geojson[i].properties.icon.iconSize = [44,62];
+              // _geojson[i].properties.icon.iconAnchor = [25,60];
             }
           }
           if($state.current.name === "map.companyView"){
@@ -140,7 +143,7 @@ angular.module('resourceMap.controllers')
       $scope.$on('updateState', function(){
         switch(msgSrv.state.fn){
           case "companyView":
-            $scope.showCompany(msgSrv.state.args.id);
+            $scope.showCompany(msgSrv.state.args.slug);
             break;
           default:
             // $log.info(msgSrv.state);
@@ -150,7 +153,7 @@ angular.module('resourceMap.controllers')
       $scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){
         switch(toState.name){
           case "map.companyView":
-            if(!overlay){$scope.showCompany(toParams.id);}
+            if(!overlay){$scope.showCompany(toParams.slug);}
             // $log.info(toParams);
             break;
           default:
@@ -163,10 +166,10 @@ angular.module('resourceMap.controllers')
         $mdBottomSheet.hide();
       };
       //
-      $scope.showCompany = function(id){
+      $scope.showCompany = function(slug){
         overlay = true;
-        apiSrv.getCompany(id, function(company){
-          //swap marker icon somehow...
+        apiSrv.getCompany(slug, function(company){
+          company = company[0];
           $mdBottomSheet.show({
             controller: function(){
               this.parent = $scope;
@@ -179,11 +182,11 @@ angular.module('resourceMap.controllers')
           }).finally(function(){
             mLayer.setGeoJSON(geojson);
             for(var i=0;i<geojson.length;i++){
-              if(parseInt(geojson[i].properties.compid) === parseInt($state.params.id)){
+              // if(geojson[i].properties.compSlug === $state.params.slug){
                 geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
                 geojson[i].properties.icon.iconSize = [22,31];
                 geojson[i].properties.icon.iconAnchor = [11,31];
-              }
+              // }
             }
             if($state.current.name === "map"){
               mLayer.setGeoJSON(geojson);
@@ -202,26 +205,47 @@ angular.module('resourceMap.controllers')
       };
       //
       $scope.filterBy = function(opts){
-        markers.setFilter(function(f){
-          if(opts.industry && opts.issue && opts.year){
-            return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.year.indexOf(opts.year) !== -1);
-          } else if(opts.industry && opts.issue){
-            return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1);
-          } else if(opts.industry && opts.year){
-            return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.year.indexOf(opts.year) !== -1);
-          } else if(opts.issue && opts.year){
-            return (f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.year.indexOf(opts.year) !== -1);
-          } else if(opts.industry){
-            return (f.properties.industry.indexOf(opts.industry) !== -1);
-          } else if(opts.issue){
-            return (f.properties.issue.indexOf(opts.issue) !== -1);
-          } else if(opts.year){
-            return (f.properties.year.indexOf(opts.year) !== -1);
-          }
-        });
-        mapObj.fitBounds(markers.getBounds());
+        if($state.current.name !== "map"){
+          $state.go("map");
+        }
+        if(isMenuOpen){
+          $timeout(function(){
+            closeMenu();
+          }, 0);
+        }
+        $timeout(function(){
+          markers.setFilter(function(f){
+            if(opts.industry && opts.issue && opts.year){
+              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.year.indexOf(opts.year) !== -1);
+            } else if(opts.industry && opts.issue){
+              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1);
+            } else if(opts.industry && opts.year){
+              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.year.indexOf(opts.year) !== -1);
+            } else if(opts.issue && opts.year){
+              return (f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.year.indexOf(opts.year) !== -1);
+            } else if(opts.industry){
+              return (f.properties.industry.indexOf(opts.industry) !== -1);
+            } else if(opts.issue){
+              return (f.properties.issue.indexOf(opts.issue) !== -1);
+            } else if(opts.year){
+              return (f.properties.year.indexOf(opts.year) !== -1);
+            }
+          });
+          mapObj.fitBounds(markers.getBounds());
+        }, 0);
       };
-
+      //
+      $scope.searchFor = function(search){
+        apiSrv.getCoords(search, function(data){
+          if(data){
+            var lat = data.results[0].geometry.location.lat;
+            var lng = data.results[0].geometry.location.lng;
+            $scope.setMapView(lng,lat);
+          }
+        }, function(err){
+          $log.error(err);
+        });
+      };
       //get WP options
       $scope.settings = [];
       var optHandler = function(data){

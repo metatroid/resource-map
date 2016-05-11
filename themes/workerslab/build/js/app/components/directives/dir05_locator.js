@@ -26,6 +26,10 @@ angular.module('resourceMap')
             }).error(function(err){
               console.error(err);
             });
+            if(e.which === 13){
+              e.preventDefault();
+              // setMapView(place.center)
+            }
           });
         }
       };

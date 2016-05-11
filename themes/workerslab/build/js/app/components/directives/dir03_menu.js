@@ -34,8 +34,8 @@ angular.module('resourceMap')
               current = 0,
               menuCtrl = document.querySelector('.toggle-btn'),
               nav = document.querySelector('#siteNav'),
-              navItems = [].slice.call(nav.querySelectorAll(".link-page")),
-              isMenuOpen = false;
+              navItems = [].slice.call(nav.querySelectorAll(".link-page"));
+          isMenuOpen = false;
           function reInit(){
             if(pages.length < 1){
               pages = [].slice.call(stack.children),
@@ -122,9 +122,9 @@ angular.module('resourceMap')
               page.style.transform = "translate3d(0,75%,"+parseInt(-1 * 200 - 50 * i)+"px";
             }
           }
-          function closeMenu(){
+          closeMenu = function(){
             openPage();
-          }
+          };
           function openPage(id){
             var futurePage = id ? document.getElementById(id) : pages[current],
                 futureCurrent = pages.indexOf(futurePage),
