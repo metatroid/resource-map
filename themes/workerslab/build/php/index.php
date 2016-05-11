@@ -13,6 +13,7 @@
   <body ng-controller="mainCtrl">
     <div ui-view="main" id="main"></div>
     <div ui-view="landing"></div>
+    <footer ui-view="footer" id="pageFooter"></footer>
   </body>
 
 </html>

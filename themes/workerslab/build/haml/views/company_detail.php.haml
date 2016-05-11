@@ -16,7 +16,7 @@
             {{ctrl.parent.company.company_meta.subtitle}}
         .social
           .avatar
-            %img{src: "{{ctrl.parent.company.company_meta.avatar}}", rel: "{{ctrl.parent.company.title.rendered}} logo"}
+            %img{src: "{{ctrl.parent.company.company_meta.avatar}}", alt: "{{ctrl.parent.company.title.rendered}} logo"}
           .links
             %a{ng-repeat: "site in ctrl.parent.company.acf.social_media", target: "_blank", href: "{{site.url}}", title: "{{site.service}}"}
               %span.icon.fa{class: "fa-{{site.service}}"}

@@ -92,6 +92,9 @@ angular.module('resourceMap.controllers')
           $cookies.put('location', JSON.stringify({lat: e.latlng.lat, lng: e.latlng.lng}));
         });
         markers = L.mapbox.featureLayer().loadURL("/wp-content/plugins/workerslab/companies.json").addTo(map);
+        markers.on('ready', function(){
+          map.fitBounds(markers.getBounds());
+        });
         mLayer = markers;
         markers.on('layeradd', function(e){
           var marker = e.layer,
@@ -113,18 +116,25 @@ angular.module('resourceMap.controllers')
           msgSrv.setState('companyView', {id: compId});
           $state.go("map.companyView", {id: compId});
         });
-        // apiSrv.getJson(function(data){
-        //   geojson = data;
-        //   _geojson = data;
-        //   for(var i=0;i<_geojson.length;i++){
-        //     if(_geojson[i].properties.compid === $state.params.id){
-        //       _geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon_clicked.svg";
-        //     }
-        //   }
-        //   markers.setGeoJSON(_geojson);
-        // }, function(err){
-        //   $log.error(err);
-        // });
+        map.on('click', function(e){
+          markers = L.mapbox.featureLayer().loadURL("/wp-content/plugins/workerslab/companies.json");
+        });
+        apiSrv.getJson(function(data){
+          geojson = data;
+          _geojson = data;
+          for(var i=0;i<_geojson.length;i++){
+            if(parseInt(_geojson[i].properties.compid) === parseInt($state.params.id)){
+              _geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon_clicked.svg";
+              _geojson[i].properties.icon.iconSize = [44,62];
+              _geojson[i].properties.icon.iconAnchor = [25,60];
+            }
+          }
+          if($state.current.name === "map.companyView"){
+            markers.setGeoJSON(_geojson);
+          }
+        }, function(err){
+          $log.error(err);
+        });
       };
       //
       $scope.$on('updateState', function(){
@@ -167,8 +177,18 @@ angular.module('resourceMap.controllers')
             parent: angular.element(document.querySelector('#main')),
             clickOutsideToClose: true
           }).finally(function(){
-            $state.go("map");
             mLayer.setGeoJSON(geojson);
+            for(var i=0;i<geojson.length;i++){
+              if(parseInt(geojson[i].properties.compid) === parseInt($state.params.id)){
+                geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
+                geojson[i].properties.icon.iconSize = [22,31];
+                geojson[i].properties.icon.iconAnchor = [11,31];
+              }
+            }
+            if($state.current.name === "map"){
+              mLayer.setGeoJSON(geojson);
+            }
+            $state.go("map");
           });
         }, function(err){
           $log.error(err);
@@ -199,6 +219,7 @@ angular.module('resourceMap.controllers')
             return (f.properties.year.indexOf(opts.year) !== -1);
           }
         });
+        mapObj.fitBounds(markers.getBounds());
       };
 
       //get WP options

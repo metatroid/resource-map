@@ -146,6 +146,9 @@ angular.module('resourceMap.controllers')
           $cookies.put('location', JSON.stringify({lat: e.latlng.lat, lng: e.latlng.lng}));
         });
         markers = L.mapbox.featureLayer().loadURL("/wp-content/plugins/workerslab/companies.json").addTo(map);
+        markers.on('ready', function(){
+          map.fitBounds(markers.getBounds());
+        });
         mLayer = markers;
         markers.on('layeradd', function(e){
           var marker = e.layer,
@@ -167,18 +170,25 @@ angular.module('resourceMap.controllers')
           msgSrv.setState('companyView', {id: compId});
           $state.go("map.companyView", {id: compId});
         });
-        // apiSrv.getJson(function(data){
-        //   geojson = data;
-        //   _geojson = data;
-        //   for(var i=0;i<_geojson.length;i++){
-        //     if(_geojson[i].properties.compid === $state.params.id){
-        //       _geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon_clicked.svg";
-        //     }
-        //   }
-        //   markers.setGeoJSON(_geojson);
-        // }, function(err){
-        //   $log.error(err);
-        // });
+        map.on('click', function(e){
+          markers = L.mapbox.featureLayer().loadURL("/wp-content/plugins/workerslab/companies.json");
+        });
+        apiSrv.getJson(function(data){
+          geojson = data;
+          _geojson = data;
+          for(var i=0;i<_geojson.length;i++){
+            if(parseInt(_geojson[i].properties.compid) === parseInt($state.params.id)){
+              _geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon_clicked.svg";
+              _geojson[i].properties.icon.iconSize = [44,62];
+              _geojson[i].properties.icon.iconAnchor = [25,60];
+            }
+          }
+          if($state.current.name === "map.companyView"){
+            markers.setGeoJSON(_geojson);
+          }
+        }, function(err){
+          $log.error(err);
+        });
       };
       //
       $scope.$on('updateState', function(){
@@ -221,8 +231,18 @@ angular.module('resourceMap.controllers')
             parent: angular.element(document.querySelector('#main')),
             clickOutsideToClose: true
           }).finally(function(){
-            $state.go("map");
             mLayer.setGeoJSON(geojson);
+            for(var i=0;i<geojson.length;i++){
+              if(parseInt(geojson[i].properties.compid) === parseInt($state.params.id)){
+                geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
+                geojson[i].properties.icon.iconSize = [22,31];
+                geojson[i].properties.icon.iconAnchor = [11,31];
+              }
+            }
+            if($state.current.name === "map"){
+              mLayer.setGeoJSON(geojson);
+            }
+            $state.go("map");
           });
         }, function(err){
           $log.error(err);
@@ -253,6 +273,7 @@ angular.module('resourceMap.controllers')
             return (f.properties.year.indexOf(opts.year) !== -1);
           }
         });
+        mapObj.fitBounds(markers.getBounds());
       };
 
       //get WP options
@@ -280,119 +301,6 @@ angular.module('resourceMap.controllers')
       //
     }
   ])
-;
-angular.module('resourceMap.services')
-  .factory('apiSrv', ['$http', 
-    function($http){
-      var apiSrv = {};
-      apiSrv.getJson = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-content/plugins/workerslab/companies.json'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getOptions = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/options'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getPages = function(order, direction, successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/pages?filter[orderby]='+order+'&filter[order]='+direction
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getCompanies = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/company'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getCompany = function(id, successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/company/'+id
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getIndustries = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/industry'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getIssues = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/issue'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getYears = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/year'
-        }).success(successFn).error(errorFn);
-      };
-      return apiSrv;
-    }
-  ])
-;
-angular.module('resourceMap.services')
-  .factory('msgSrv', ['$rootScope',
-    function($rootScope){
-      var msgSrv = {};
-      msgSrv.state = {};
-      msgSrv.setState = function(stateLabel, data){
-        msgSrv.state = {
-          fn: stateLabel,
-          args: data
-        };
-        $rootScope.$broadcast('updateState');
-      };
-
-      return msgSrv;
-    }
-  ])
-;
-angular.module('resourceMap.filters')
-  .filter('telephone', 
-    function(){
-      return function(telephone){
-        if(!telephone){
-          return "";
-        }
-        var value = telephone.toString().trim().replace(/^\+/, '');
-        if(value.match(/[^0-9]/)){
-          return telephone;
-        }
-        var country, city, number;
-        switch(value.length){
-          case 10:
-            country = 1;
-            city = value.slice(0,3);
-            number = value.slice(3);
-            break;
-          case 11:
-            country = value[0];
-            city = value.slice(1,4);
-            number = value.slice(4);
-            break;
-          case 12:
-            country = value.slice(0,3);
-            city = value.slice(3,5);
-            number = value.slice(5);
-            break;
-          default:
-            return telephone;
-        }
-        if(country === 1){
-          country = "";
-        }
-        number = number.slice(0, 3) + '-' + number.slice(3);
-        return (country + " (" + city + ") " + number).trim();
-      };
-    }
-  )
 ;
 angular.module('resourceMap.states')
   .run(['$rootScope', 
@@ -426,7 +334,7 @@ angular.module('resourceMap.states')
             'landing': {
               templateUrl: templateDir + '/landing.php'
             },
-            'footer@main':{
+            'footer':{
               templateUrl: templateDir + '/footer.php'
             },
           }
@@ -443,7 +351,7 @@ angular.module('resourceMap.states')
             'map@map': {
               templateUrl: templateDir + '/map.php'
             },
-            'footer@map':{
+            'footer':{
               templateUrl: templateDir + '/footer.php'
             }
           }
@@ -561,7 +469,10 @@ angular.module('resourceMap')
         template: '<div></div>',
         link: function ($scope, $element, $attrs){
           L.mapbox.accessToken = "pk.eyJ1IjoibWV0YXRyb2lkIiwiYSI6ImNpbjB5bjA0NjBhbzd1cmtrcTA2a2p3MzcifQ.66Stn21WtMpGU9lV2FoS6Q";
-          var map = L.mapbox.map($element[0], 'metatroid.pmafo9i6');
+          var map = L.mapbox.map($element[0], 'metatroid.pmafo9i6', {
+            maxZoom: 13,
+            minZoom: 3
+          });
           $scope.mapReady(map);
           $element.on('click', function(){
             var box = document.getElementById("autocomplete");
@@ -834,6 +745,119 @@ angular.module('resourceMap.directives')
             el.classList.add($attrs.toggleClass);
           });
         }
+      };
+    }
+  )
+;
+angular.module('resourceMap.services')
+  .factory('apiSrv', ['$http', 
+    function($http){
+      var apiSrv = {};
+      apiSrv.getJson = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-content/plugins/workerslab/companies.json'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getOptions = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/options'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getPages = function(order, direction, successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/pages?filter[orderby]='+order+'&filter[order]='+direction
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getCompanies = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/company'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getCompany = function(id, successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/company/'+id
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getIndustries = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/industry'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getIssues = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/issue'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getYears = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/year'
+        }).success(successFn).error(errorFn);
+      };
+      return apiSrv;
+    }
+  ])
+;
+angular.module('resourceMap.services')
+  .factory('msgSrv', ['$rootScope',
+    function($rootScope){
+      var msgSrv = {};
+      msgSrv.state = {};
+      msgSrv.setState = function(stateLabel, data){
+        msgSrv.state = {
+          fn: stateLabel,
+          args: data
+        };
+        $rootScope.$broadcast('updateState');
+      };
+
+      return msgSrv;
+    }
+  ])
+;
+angular.module('resourceMap.filters')
+  .filter('telephone', 
+    function(){
+      return function(telephone){
+        if(!telephone){
+          return "";
+        }
+        var value = telephone.toString().trim().replace(/^\+/, '');
+        if(value.match(/[^0-9]/)){
+          return telephone;
+        }
+        var country, city, number;
+        switch(value.length){
+          case 10:
+            country = 1;
+            city = value.slice(0,3);
+            number = value.slice(3);
+            break;
+          case 11:
+            country = value[0];
+            city = value.slice(1,4);
+            number = value.slice(4);
+            break;
+          case 12:
+            country = value.slice(0,3);
+            city = value.slice(3,5);
+            number = value.slice(5);
+            break;
+          default:
+            return telephone;
+        }
+        if(country === 1){
+          country = "";
+        }
+        number = number.slice(0, 3) + '-' + number.slice(3);
+        return (country + " (" + city + ") " + number).trim();
       };
     }
   )

@@ -10,7 +10,7 @@
             <h2 class="title">{{ctrl.parent.company.title.rendered}}</h2>
             <h3 class="subtitle">{{ctrl.parent.company.company_meta.subtitle}}</h3></div>
           <div class="social">
-            <div class="avatar"><img src="{{ctrl.parent.company.company_meta.avatar}}" rel="{{ctrl.parent.company.title.rendered}} logo" /></div>
+            <div class="avatar"><img src="{{ctrl.parent.company.company_meta.avatar}}" alt="{{ctrl.parent.company.title.rendered}} logo" /></div>
             <div class="links"><a ng-repeat="site in ctrl.parent.company.acf.social_media" target="_blank" href="{{site.url}}" title="{{site.service}}"><span class="icon fa fa-{{site.service}}"></span></a></div>
           </div>
         </div>

@@ -6,5 +6,4 @@
     </div>
     <div class="page"></div>
   </div>
-  <footer ui-view="footer" id="pageFooter"></footer>
 </div>

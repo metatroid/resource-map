@@ -28,7 +28,7 @@
         </div>
       </form>
     </div>
-    <a ui-sref="main" title="Home" class="branding"><img rel="The Workers Lab" src="/assets/img/logo.png" /></a>
+    <a ui-sref="main" title="Home" class="branding"><img alt="The Workers Lab" src="/assets/img/logo.png" /></a>
   </div>
 </header>
 <nav id="siteNav">

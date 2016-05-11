@@ -30,7 +30,7 @@ angular.module('resourceMap.states')
             'landing': {
               templateUrl: templateDir + '/landing.php'
             },
-            'footer@main':{
+            'footer':{
               templateUrl: templateDir + '/footer.php'
             },
           }
@@ -47,7 +47,7 @@ angular.module('resourceMap.states')
             'map@map': {
               templateUrl: templateDir + '/map.php'
             },
-            'footer@map':{
+            'footer':{
               templateUrl: templateDir + '/footer.php'
             }
           }
