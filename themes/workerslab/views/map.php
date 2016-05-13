@@ -1,1 +1,1 @@
-<map map-ready="mapReady" id="mapbox"></map>
+<map map-ready="mapReady" menu-trigger="#siteNav" id="mapbox"></map>

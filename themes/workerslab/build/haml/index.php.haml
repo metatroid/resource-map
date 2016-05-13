@@ -9,6 +9,7 @@
     %link{rel: "stylesheet", href: "/assets/css/main.css"}
     %script{src: "/assets/js/main.js"}
   %body{ng-controller: "mainCtrl"}
+    #header{ui-view: "header", autoscroll: "true"}
     #main{ui-view: "main"}
     %div{ui-view: "landing"}
     %footer#pageFooter{ui-view: "footer"}

@@ -21,7 +21,7 @@ angular.module('resourceMap.states')
             'main': {
               templateUrl: templateDir + '/main.php'
             },
-            'header@main':{
+            'header':{
               templateUrl: templateDir + '/header.php'
             },
             'map@main': {
@@ -41,7 +41,7 @@ angular.module('resourceMap.states')
             'main': {
               templateUrl: templateDir + '/main.php'
             },
-            'header@map': {
+            'header': {
               templateUrl: templateDir + '/header.php'
             },
             'map@map': {

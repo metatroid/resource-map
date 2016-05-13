@@ -26617,6 +26617,10 @@ img.alignright {
       #pageHeader .header .branding img {
         max-width: 90px; }
 
+#header {
+  position: relative;
+  z-index: 9; }
+
 #siteNav {
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -26633,7 +26637,6 @@ img.alignright {
   -webkit-flex-direction: column;
       -ms-flex-direction: column;
           flex-direction: column;
-  padding: 20px;
   text-align: center;
   background-color: #aadeff;
   position: absolute;
@@ -26641,7 +26644,7 @@ img.alignright {
   left: 0;
   width: 100%;
   height: 40vh;
-  padding: 30px;
+  padding: 200px 30px 30px 30px;
   box-sizing: border-box;
   pointer-events: none;
   opacity: 0;
@@ -26850,12 +26853,13 @@ img.alignright {
     pointer-events: auto; }
 
 #compDetail {
-  top: 0px;
+  top: 93px;
+  bottom: 61px;
   -webkit-transform: translateY(0);
           transform: translateY(0);
   border-top: 0;
   width: 500px;
-  height: 100%;
+  height: auto;
   padding: 0;
   overflow: hidden; }
   #compDetail.full-content md-content {
@@ -26890,7 +26894,9 @@ img.alignright {
     z-index: 1;
     cursor: pointer; }
   #compDetail .comp-images {
-    position: relative; }
+    position: relative;
+    height: 240px;
+    overflow: hidden; }
     #compDetail .comp-images .img {
       width: 500px;
       height: 240px;

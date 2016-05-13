@@ -1,6 +1,6 @@
 %header#pageHeader
   .header
-    %button.toggle-btn#menu{menu-trigger: "#siteNav"}
+    %button.toggle-btn#menu
       %span.screen-reader
         Toggle Menu
       %span.icon-bar
@@ -9,19 +9,19 @@
     #filterBar
       %form{ng-submit: "searchFor(search)"}
         .input.input-select
-          %md-select{ng-model: "filter.industry", ng-change: "filterBy(filter)"}
+          %md-select{ng-model: "filter.industry", ng-change: "filterBy(filter)", aria-label: "Industry"}
             <md-option value="" disabled>Industry</md-option>
             <md-option value="all">All</md-option>
             %md-option{ng-repeat: "industry in industries", ng-value: "{{industry.id}}"}
               {{industry.name}}
         .input.input-select
-          %md-select{ng-model: "filter.issue", ng-change: "filterBy(filter)"}
+          %md-select{ng-model: "filter.issue", ng-change: "filterBy(filter)", aria-label: "Issue"}
             <md-option value="" disabled>Issue</md-option>
             <md-option value="all">All</md-option>
             %md-option{ng-repeat: "issue in issues", ng-value: "{{issue.id}}"}
               {{issue.name}}
         .input.input-select
-          %md-select{ng-model: "filter.year", ng-change: "filterBy(filter)"}
+          %md-select{ng-model: "filter.year", ng-change: "filterBy(filter)", aria-label: "Year"}
             <md-option value="" disabled>Year</md-option>
             <md-option value="all">All</md-option>
             %md-option{ng-repeat: "year in years", ng-value: "{{year.id}}"}

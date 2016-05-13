@@ -68131,7 +68131,7 @@ angular.module('resourceMap.controllers')
           var compId = e.layer.feature.properties.compid,
               compTitle = e.layer.feature.properties.title;
           var compSlug = e.layer.feature.properties.slug;
-          $log.info(e.layer.feature.properties);
+          // $log.info(e.layer.feature.properties);
           msgSrv.setState('companyView', {slug: compSlug});
           $state.go("map.companyView", {slug: compSlug});
         });
@@ -68150,6 +68150,17 @@ angular.module('resourceMap.controllers')
           }
           if($state.current.name === "map.companyView"){
             markers.setGeoJSON(_geojson);
+            markers.eachLayer(function(marker){
+              if(marker.feature.properties.slug === $state.params.slug){
+                marker.setIcon(L.icon({
+                  "iconUrl":"/assets/img/marker_icon_clicked.svg",
+                  "iconSize":[44,62],
+                  "iconAnchor":[25,60],
+                  "popupAnchor":[0,0],
+                  "className":"dot"
+                }));
+              }
+            });
           }
         }, function(err){
           $log.error(err);
@@ -68184,35 +68195,68 @@ angular.module('resourceMap.controllers')
       //
       $scope.showCompany = function(slug){
         overlay = true;
-        apiSrv.getCompany(slug, function(company){
-          company = company[0];
-          $mdBottomSheet.show({
-            controller: function(){
-              this.parent = $scope;
-              this.parent.company = company;
-            },
-            controllerAs: 'ctrl',
-            templateUrl: '/wp-content/themes/workerslab/views/company_detail.php',
-            parent: angular.element(document.querySelector('#main')),
-            clickOutsideToClose: true
-          }).finally(function(){
+        $mdBottomSheet.show({
+          controller: function(){
+            this.parent = $scope;
+            this.parent.company = {};
+            apiSrv.getCompany(slug, function(company){
+              company = company[0];
+              $timeout(function(){
+                $scope.$apply(function(){
+                  this.parent = $scope;
+                  this.parent.company = company;
+                });
+              }, 0);
+            }, function(err){
+              $log.error(err);
+            });
+          },
+          controllerAs: 'ctrl',
+          templateUrl: '/wp-content/themes/workerslab/views/company_detail.php',
+          // parent: angular.element(document.querySelector('#main')),
+          clickOutsideToClose: true
+        }).finally(function(){
+          mLayer.setGeoJSON(geojson);
+          for(var i=0;i<geojson.length;i++){
+            // if(geojson[i].properties.compSlug === $state.params.slug){
+              geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
+              geojson[i].properties.icon.iconSize = [22,31];
+              geojson[i].properties.icon.iconAnchor = [11,31];
+            // }
+          }
+          if($state.current.name === "map"){
             mLayer.setGeoJSON(geojson);
-            for(var i=0;i<geojson.length;i++){
-              // if(geojson[i].properties.compSlug === $state.params.slug){
-                geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
-                geojson[i].properties.icon.iconSize = [22,31];
-                geojson[i].properties.icon.iconAnchor = [11,31];
-              // }
-            }
-            if($state.current.name === "map"){
-              mLayer.setGeoJSON(geojson);
-            }
-            $state.go("map");
-          });
-        }, function(err){
-          $log.error(err);
+          }
+          overlay = false;
+          $state.go("map");
         });
       };
+      //
+      // $scope.showCompany = function(slug){
+      //   overlay = true;
+      //   msgSrv.setScope('mainCtrl', $scope);
+      //   msgSrv.setVars({slug: slug});
+      //   $mdBottomSheet.show({
+      //     controller: 'compCtrl',
+      //     controllerAs: 'ctrl',
+      //     templateUrl: '/wp-content/themes/workerslab/views/company_detail.php',
+      //     parent: angular.element(document.querySelector('#main')),
+      //     clickOutsideToClose: true
+      //   }).finally(function(){
+      //     mLayer.setGeoJSON(geojson);
+      //     for(var i=0;i<geojson.length;i++){
+      //       // if(geojson[i].properties.compSlug === $state.params.slug){
+      //         geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
+      //         geojson[i].properties.icon.iconSize = [22,31];
+      //         geojson[i].properties.icon.iconAnchor = [11,31];
+      //       // }
+      //     }
+      //     if($state.current.name === "map"){
+      //       mLayer.setGeoJSON(geojson);
+      //     }
+      //     $state.go("map");
+      //   });
+      // };
       //
       $scope.companyActive = false;
       var companyHandler = function(data){
@@ -68252,15 +68296,25 @@ angular.module('resourceMap.controllers')
       };
       //
       $scope.searchFor = function(search){
-        apiSrv.getCoords(search, function(data){
-          if(data){
-            var lat = data.results[0].geometry.location.lat;
-            var lng = data.results[0].geometry.location.lng;
-            $scope.setMapView(lng,lat);
-          }
-        }, function(err){
-          $log.error(err);
-        });
+        if($state.current.name !== "map"){
+          $state.go("map");
+        }
+        if(isMenuOpen){
+          $timeout(function(){
+            closeMenu();
+          }, 0);
+        }
+        $timeout(function(){
+          apiSrv.getCoords(search, function(data){
+            if(data){
+              var lat = data.results[0].geometry.location.lat;
+              var lng = data.results[0].geometry.location.lng;
+              $scope.setMapView(lng,lat);
+            }
+          }, function(err){
+            $log.error(err);
+          });
+        }, 0);
       };
       //get WP options
       $scope.settings = [];
@@ -68273,7 +68327,17 @@ angular.module('resourceMap.controllers')
 
       //
       $scope.setMapView = function(lng,lat){
-        mapObj.setView([lat,lng], 13);
+        if($state.current.name !== "map"){
+          $state.go("map");
+        }
+        if(isMenuOpen){
+          $timeout(function(){
+            closeMenu();
+          }, 0);
+        }
+        $timeout(function(){
+          mapObj.setView([lat,lng], 13);
+        }, 0);
       };
     }
   ])
@@ -68288,6 +68352,34 @@ angular.module('resourceMap.controllers')
     }
   ])
 ;
+// angular.module('resourceMap.controllers')
+//   .controller('compCtrl', ['$scope',
+//                            '$log',
+//                            'apiSrv',
+//     function($scope, $log, apiSrv){
+//       $log.info("company selected");
+//       var $scope = msgSrv.getScope('mainCtrl');
+//       var vars = msgSrv.getVars();
+//       var it = this;
+//       this.parent = $scope;
+//       this.parent.company = {};
+//       //
+//       apiSrv.getCompany(slug, function(company){
+//         company = company[0];
+//         $timeout(function(){
+//           $scope.$apply(function(){
+//             $scope.company = company[0];
+//             // this.parent = $scope;
+//             // this.parent.company = company;
+//           });
+//         }, 0);
+//       }, function(err){
+//         $log.error(err);
+//       });
+//       //
+//     }
+//   ])
+// ;
 var smoothScroll = function(element, options){
   options = options || {};
   var duration = 800,
@@ -68438,149 +68530,151 @@ angular.module('resourceMap')
                  onEndCallbackFn();
                 }
               };
-          var stack = document.querySelector('#views'),
-              pages = [].slice.call(stack.children),
-              pagesTotal = pages.length,
-              current = 0,
-              menuCtrl = document.querySelector('.toggle-btn'),
-              nav = document.querySelector('#siteNav'),
-              navItems = [].slice.call(nav.querySelectorAll(".link-page"));
-          isMenuOpen = false;
-          function reInit(){
-            if(pages.length < 1){
-              pages = [].slice.call(stack.children),
-              pagesTotal = pages.length,
-              navItems = [].slice.call(nav.querySelectorAll(".link-page"));
-              $timeout(reInit, 500);
-            } else {
-              init();
+          waitForEl("#views", function(){
+            var stack = document.querySelector('#views'),
+                pages = [].slice.call(stack.children),
+                pagesTotal = pages.length,
+                current = 0,
+                menuCtrl = document.querySelector('.toggle-btn'),
+                nav = document.querySelector('#siteNav'),
+                navItems = [].slice.call(nav.querySelectorAll(".link-page"));
+            isMenuOpen = false;
+            function reInit(){
+              if(pages.length < 1){
+                pages = [].slice.call(stack.children),
+                pagesTotal = pages.length,
+                navItems = [].slice.call(nav.querySelectorAll(".link-page"));
+                $timeout(reInit, 500);
+              } else {
+                init();
+              }
             }
-          }
-          function init(){
-            buildStack();
-            initEvents();
-          }
-          function buildStack(){
-            var stackPagesIdxs = getStackPagesIdxs();
-            for(var i=0;i<pagesTotal;++i){
-              var page = pages[i],
-                  posIdx = stackPagesIdxs.indexOf(i);
-              if(current !== i){
-                page.classList.add("page-inactive");
-                if(posIdx !== -1){
-                  page.style.transform = "translate3d(0,100%,0)";
+            function init(){
+              buildStack();
+              initEvents();
+            }
+            function buildStack(){
+              var stackPagesIdxs = getStackPagesIdxs();
+              for(var i=0;i<pagesTotal;++i){
+                var page = pages[i],
+                    posIdx = stackPagesIdxs.indexOf(i);
+                if(current !== i){
+                  page.classList.add("page-inactive");
+                  if(posIdx !== -1){
+                    page.style.transform = "translate3d(0,100%,0)";
+                  } else {
+                    page.style.transform = "translate3d(0,75%,-300px)";
+                  }
                 } else {
-                  page.style.transform = "translate3d(0,75%,-300px)";
+                  page.classList.remove("page-inactive");
                 }
-              } else {
-                page.classList.remove("page-inactive");
-              }
-              page.style.zIndex = i < current ? parseInt(current -i) : parseInt(pagesTotal + current - i);
-              if(posIdx !== -1){
-                page.style.opacity = parseFloat(1 - 0.1 * posIdx);
-              } else {
-                page.style.opacity = 0;
+                page.style.zIndex = i < current ? parseInt(current -i) : parseInt(pagesTotal + current - i);
+                if(posIdx !== -1){
+                  page.style.opacity = parseFloat(1 - 0.1 * posIdx);
+                } else {
+                  page.style.opacity = 0;
+                }
               }
             }
-          }
-          function initEvents(){
-            menuCtrl.addEventListener('click', toggleMenu);
-            navItems.forEach(function(item){
-              var pageId = item.getAttribute('href').slice(1);
-              item.addEventListener('click', function(ev){
-                ev.preventDefault();
-                openPage(pageId);
-              });
-            });
-            pages.forEach(function(page){
-              var pageId = page.getAttribute('id');
-              page.addEventListener('click', function(ev){
-                if(isMenuOpen){
+            function initEvents(){
+              menuCtrl.addEventListener('click', toggleMenu);
+              navItems.forEach(function(item){
+                var pageId = item.getAttribute('href').slice(1);
+                item.addEventListener('click', function(ev){
                   ev.preventDefault();
                   openPage(pageId);
+                });
+              });
+              pages.forEach(function(page){
+                var pageId = page.getAttribute('id');
+                page.addEventListener('click', function(ev){
+                  if(isMenuOpen){
+                    ev.preventDefault();
+                    openPage(pageId);
+                  }
+                });
+              });
+              document.addEventListener('keydown', function(ev){
+                if(!isMenuOpen){
+                  return;
+                }
+                var keyCode = ev.keyCode || ev.which;
+                if(keyCode === 27){
+                  closeMenu();
                 }
               });
-            });
-            document.addEventListener('keydown', function(ev){
-              if(!isMenuOpen){
-                return;
-              }
-              var keyCode = ev.keyCode || ev.which;
-              if(keyCode === 27){
+            }
+            function toggleMenu(){
+              if(isMenuOpen){
                 closeMenu();
+              } else {
+                isMenuOpen = true;
+                openMenu();
               }
-            });
-          }
-          function toggleMenu(){
-            if(isMenuOpen){
-              closeMenu();
-            } else {
-              isMenuOpen = true;
-              openMenu();
             }
-          }
-          function openMenu(){
-            menuCtrl.classList.add('open');
-            stack.classList.add('open');
-            nav.classList.add('open');
-            if(document.getElementById("landing") !== null){
-              document.getElementById("landing").parentNode.classList.add("menu-open");
+            function openMenu(){
+              menuCtrl.classList.add('open');
+              stack.classList.add('open');
+              nav.classList.add('open');
+              if(document.getElementById("landing") !== null){
+                document.getElementById("landing").parentNode.classList.add("menu-open");
+              }
+              var stackPagesIdxs = getStackPagesIdxs();
+              for(var i=0;i<stackPagesIdxs.length;++i){
+                var page = pages[stackPagesIdxs[i]];
+                page.style.transform = "translate3d(0,75%,"+parseInt(-1 * 200 - 50 * i)+"px";
+              }
             }
-            var stackPagesIdxs = getStackPagesIdxs();
-            for(var i=0;i<stackPagesIdxs.length;++i){
-              var page = pages[stackPagesIdxs[i]];
-              page.style.transform = "translate3d(0,75%,"+parseInt(-1 * 200 - 50 * i)+"px";
-            }
-          }
-          closeMenu = function(){
-            openPage();
-          };
-          function openPage(id){
-            var futurePage = id ? document.getElementById(id) : pages[current],
-                futureCurrent = pages.indexOf(futurePage),
-                stackPagesIdxs = getStackPagesIdxs(futureCurrent);
-            futurePage.style.transform = 'translate3d(0, 0, 0)';
-            futurePage.style.opacity = 1;
-            for(var i=0;i<stackPagesIdxs.length;++i){
-              var page = pages[stackPagesIdxs[i]];
-              page.style.transform = "translate3d(0,100%,0)";
-            }
-            if(id){
-              current = futureCurrent;
-            }
-            menuCtrl.classList.remove("open");
-            nav.classList.remove("open");
-            onEndTransition(futurePage, function(){
-              stack.classList.remove("open");
+            closeMenu = function(){
+              openPage();
+            };
+            function openPage(id){
+              var futurePage = id ? document.getElementById(id) : pages[current],
+                  futureCurrent = pages.indexOf(futurePage),
+                  stackPagesIdxs = getStackPagesIdxs(futureCurrent);
+              futurePage.style.transform = 'translate3d(0, 0, 0)';
+              futurePage.style.opacity = 1;
+              for(var i=0;i<stackPagesIdxs.length;++i){
+                var page = pages[stackPagesIdxs[i]];
+                page.style.transform = "translate3d(0,100%,0)";
+              }
+              if(id){
+                current = futureCurrent;
+              }
+              menuCtrl.classList.remove("open");
+              nav.classList.remove("open");
               if(document.getElementById("landing") !== null){
                 document.getElementById("landing").parentNode.classList.remove("menu-open");
               }
-              buildStack();
-              isMenuOpen = false;
-              if(id === "page_map"){window.location.href = "/#/map";}
-            });
-          }
-          function getStackPagesIdxs(excludePageIdx){
-            var nextStackPageIdx = current + 1 < pagesTotal ? current + 1 : 0,
-                nextStackPageIdx_2 = current + 2 < pagesTotal ? current + 2 : 1,
-                idxs = [],
-                excludeIdx = excludePageIdx || -1;
-            if(excludePageIdx != current){
-              idxs.push(current);
+              onEndTransition(futurePage, function(){
+                stack.classList.remove("open");
+                buildStack();
+                isMenuOpen = false;
+                if(id === "page_map"){window.location.href = "/#/map";}
+              });
             }
-            if(excludePageIdx != nextStackPageIdx){
-              idxs.push(nextStackPageIdx);
+            function getStackPagesIdxs(excludePageIdx){
+              var nextStackPageIdx = current + 1 < pagesTotal ? current + 1 : 0,
+                  nextStackPageIdx_2 = current + 2 < pagesTotal ? current + 2 : 1,
+                  idxs = [],
+                  excludeIdx = excludePageIdx || -1;
+              if(excludePageIdx != current){
+                idxs.push(current);
+              }
+              if(excludePageIdx != nextStackPageIdx){
+                idxs.push(nextStackPageIdx);
+              }
+              if(excludePageIdx != nextStackPageIdx_2){
+                idxs.push(nextStackPageIdx_2);
+              }
+              return idxs;
             }
-            if(excludePageIdx != nextStackPageIdx_2){
-              idxs.push(nextStackPageIdx_2);
+            if(pages.length > 0){
+              init();
+            } else {
+              reInit();
             }
-            return idxs;
-          }
-          if(pages.length > 0){
-            init();
-          } else {
-            reInit();
-          }
+          });
         }
       };
     }
@@ -68788,6 +68882,8 @@ angular.module('resourceMap.services')
     function($rootScope){
       var msgSrv = {};
       msgSrv.state = {};
+      msgSrv.appScope = {};
+      msgSrv.vars = {};
       msgSrv.setState = function(stateLabel, data){
         msgSrv.state = {
           fn: stateLabel,
@@ -68795,7 +68891,18 @@ angular.module('resourceMap.services')
         };
         $rootScope.$broadcast('updateState');
       };
-
+      msgSrv.setScope = function(key, value){
+        msgSrv.appScope[key] = value;
+      };
+      msgSrv.getScope = function(key){
+        return msgSrv.appScope[key];
+      };
+      msgSrv.setVars = function(obj){
+        msgSrv.vars = obj;
+      };
+      msgSrv.getVars = function(){
+        return msgSrv.vars;
+      };
       return msgSrv;
     }
   ])
@@ -68823,7 +68930,7 @@ angular.module('resourceMap.states')
             'main': {
               templateUrl: templateDir + '/main.php'
             },
-            'header@main':{
+            'header':{
               templateUrl: templateDir + '/header.php'
             },
             'map@main': {
@@ -68843,7 +68950,7 @@ angular.module('resourceMap.states')
             'main': {
               templateUrl: templateDir + '/main.php'
             },
-            'header@map': {
+            'header': {
               templateUrl: templateDir + '/header.php'
             },
             'map@map': {

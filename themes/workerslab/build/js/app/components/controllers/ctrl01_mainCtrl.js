@@ -115,7 +115,7 @@ angular.module('resourceMap.controllers')
           var compId = e.layer.feature.properties.compid,
               compTitle = e.layer.feature.properties.title;
           var compSlug = e.layer.feature.properties.slug;
-          $log.info(e.layer.feature.properties);
+          // $log.info(e.layer.feature.properties);
           msgSrv.setState('companyView', {slug: compSlug});
           $state.go("map.companyView", {slug: compSlug});
         });
@@ -134,6 +134,17 @@ angular.module('resourceMap.controllers')
           }
           if($state.current.name === "map.companyView"){
             markers.setGeoJSON(_geojson);
+            markers.eachLayer(function(marker){
+              if(marker.feature.properties.slug === $state.params.slug){
+                marker.setIcon(L.icon({
+                  "iconUrl":"/assets/img/marker_icon_clicked.svg",
+                  "iconSize":[44,62],
+                  "iconAnchor":[25,60],
+                  "popupAnchor":[0,0],
+                  "className":"dot"
+                }));
+              }
+            });
           }
         }, function(err){
           $log.error(err);
@@ -168,35 +179,68 @@ angular.module('resourceMap.controllers')
       //
       $scope.showCompany = function(slug){
         overlay = true;
-        apiSrv.getCompany(slug, function(company){
-          company = company[0];
-          $mdBottomSheet.show({
-            controller: function(){
-              this.parent = $scope;
-              this.parent.company = company;
-            },
-            controllerAs: 'ctrl',
-            templateUrl: '/wp-content/themes/workerslab/views/company_detail.php',
-            parent: angular.element(document.querySelector('#main')),
-            clickOutsideToClose: true
-          }).finally(function(){
+        $mdBottomSheet.show({
+          controller: function(){
+            this.parent = $scope;
+            this.parent.company = {};
+            apiSrv.getCompany(slug, function(company){
+              company = company[0];
+              $timeout(function(){
+                $scope.$apply(function(){
+                  this.parent = $scope;
+                  this.parent.company = company;
+                });
+              }, 0);
+            }, function(err){
+              $log.error(err);
+            });
+          },
+          controllerAs: 'ctrl',
+          templateUrl: '/wp-content/themes/workerslab/views/company_detail.php',
+          // parent: angular.element(document.querySelector('#main')),
+          clickOutsideToClose: true
+        }).finally(function(){
+          mLayer.setGeoJSON(geojson);
+          for(var i=0;i<geojson.length;i++){
+            // if(geojson[i].properties.compSlug === $state.params.slug){
+              geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
+              geojson[i].properties.icon.iconSize = [22,31];
+              geojson[i].properties.icon.iconAnchor = [11,31];
+            // }
+          }
+          if($state.current.name === "map"){
             mLayer.setGeoJSON(geojson);
-            for(var i=0;i<geojson.length;i++){
-              // if(geojson[i].properties.compSlug === $state.params.slug){
-                geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
-                geojson[i].properties.icon.iconSize = [22,31];
-                geojson[i].properties.icon.iconAnchor = [11,31];
-              // }
-            }
-            if($state.current.name === "map"){
-              mLayer.setGeoJSON(geojson);
-            }
-            $state.go("map");
-          });
-        }, function(err){
-          $log.error(err);
+          }
+          overlay = false;
+          $state.go("map");
         });
       };
+      //
+      // $scope.showCompany = function(slug){
+      //   overlay = true;
+      //   msgSrv.setScope('mainCtrl', $scope);
+      //   msgSrv.setVars({slug: slug});
+      //   $mdBottomSheet.show({
+      //     controller: 'compCtrl',
+      //     controllerAs: 'ctrl',
+      //     templateUrl: '/wp-content/themes/workerslab/views/company_detail.php',
+      //     parent: angular.element(document.querySelector('#main')),
+      //     clickOutsideToClose: true
+      //   }).finally(function(){
+      //     mLayer.setGeoJSON(geojson);
+      //     for(var i=0;i<geojson.length;i++){
+      //       // if(geojson[i].properties.compSlug === $state.params.slug){
+      //         geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
+      //         geojson[i].properties.icon.iconSize = [22,31];
+      //         geojson[i].properties.icon.iconAnchor = [11,31];
+      //       // }
+      //     }
+      //     if($state.current.name === "map"){
+      //       mLayer.setGeoJSON(geojson);
+      //     }
+      //     $state.go("map");
+      //   });
+      // };
       //
       $scope.companyActive = false;
       var companyHandler = function(data){
@@ -236,15 +280,25 @@ angular.module('resourceMap.controllers')
       };
       //
       $scope.searchFor = function(search){
-        apiSrv.getCoords(search, function(data){
-          if(data){
-            var lat = data.results[0].geometry.location.lat;
-            var lng = data.results[0].geometry.location.lng;
-            $scope.setMapView(lng,lat);
-          }
-        }, function(err){
-          $log.error(err);
-        });
+        if($state.current.name !== "map"){
+          $state.go("map");
+        }
+        if(isMenuOpen){
+          $timeout(function(){
+            closeMenu();
+          }, 0);
+        }
+        $timeout(function(){
+          apiSrv.getCoords(search, function(data){
+            if(data){
+              var lat = data.results[0].geometry.location.lat;
+              var lng = data.results[0].geometry.location.lng;
+              $scope.setMapView(lng,lat);
+            }
+          }, function(err){
+            $log.error(err);
+          });
+        }, 0);
       };
       //get WP options
       $scope.settings = [];
@@ -257,7 +311,17 @@ angular.module('resourceMap.controllers')
 
       //
       $scope.setMapView = function(lng,lat){
-        mapObj.setView([lat,lng], 13);
+        if($state.current.name !== "map"){
+          $state.go("map");
+        }
+        if(isMenuOpen){
+          $timeout(function(){
+            closeMenu();
+          }, 0);
+        }
+        $timeout(function(){
+          mapObj.setView([lat,lng], 13);
+        }, 0);
       };
     }
   ])

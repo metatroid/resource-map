@@ -11,6 +11,7 @@
   </head>
 
   <body ng-controller="mainCtrl">
+    <div ui-view="header" autoscroll="true" id="header"></div>
     <div ui-view="main" id="main"></div>
     <div ui-view="landing"></div>
     <footer ui-view="footer" id="pageFooter"></footer>

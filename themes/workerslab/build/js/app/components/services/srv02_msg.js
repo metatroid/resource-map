@@ -3,6 +3,8 @@ angular.module('resourceMap.services')
     function($rootScope){
       var msgSrv = {};
       msgSrv.state = {};
+      msgSrv.appScope = {};
+      msgSrv.vars = {};
       msgSrv.setState = function(stateLabel, data){
         msgSrv.state = {
           fn: stateLabel,
@@ -10,7 +12,18 @@ angular.module('resourceMap.services')
         };
         $rootScope.$broadcast('updateState');
       };
-
+      msgSrv.setScope = function(key, value){
+        msgSrv.appScope[key] = value;
+      };
+      msgSrv.getScope = function(key){
+        return msgSrv.appScope[key];
+      };
+      msgSrv.setVars = function(obj){
+        msgSrv.vars = obj;
+      };
+      msgSrv.getVars = function(){
+        return msgSrv.vars;
+      };
       return msgSrv;
     }
   ])
