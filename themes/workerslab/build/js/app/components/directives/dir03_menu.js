@@ -59,8 +59,10 @@ angular.module('resourceMap')
                 if(current !== i){
                   page.classList.add("page-inactive");
                   if(posIdx !== -1){
+                    page.style.WebkitTransform = "translate3d(0,100%,0)";
                     page.style.transform = "translate3d(0,100%,0)";
                   } else {
+                    page.style.WebkitTransform = "translate3d(0,75%,-300px)";
                     page.style.transform = "translate3d(0,75%,-300px)";
                   }
                 } else {
@@ -92,6 +94,14 @@ angular.module('resourceMap')
                   }
                 });
               });
+              document.addEventListener('click', function(e){
+                e.preventDefault();
+                var target = document.querySelector('#landing .overlay-content > div');
+                if(e.target === target){
+                  openPage('page_map');
+                  // closeMenu();
+                }
+              });
               document.addEventListener('keydown', function(ev){
                 if(!isMenuOpen){
                   return;
@@ -120,7 +130,8 @@ angular.module('resourceMap')
               var stackPagesIdxs = getStackPagesIdxs();
               for(var i=0;i<stackPagesIdxs.length;++i){
                 var page = pages[stackPagesIdxs[i]];
-                page.style.transform = "translate3d(0,75%,"+parseInt(-1 * 200 - 50 * i)+"px";
+                page.style.WebkitTransform = 'translate3d(0, 75%, ' + parseInt(-1 * 200 - 50*i) + 'px)'; // -200px, -230px, -260px
+                page.style.transform = 'translate3d(0, 75%, ' + parseInt(-1 * 200 - 50*i) + 'px)';
               }
             }
             closeMenu = function(){
@@ -130,10 +141,12 @@ angular.module('resourceMap')
               var futurePage = id ? document.getElementById(id) : pages[current],
                   futureCurrent = pages.indexOf(futurePage),
                   stackPagesIdxs = getStackPagesIdxs(futureCurrent);
+              futurePage.style.WebkitTransform = 'translate3d(0, 0, 0)';
               futurePage.style.transform = 'translate3d(0, 0, 0)';
               futurePage.style.opacity = 1;
               for(var i=0;i<stackPagesIdxs.length;++i){
                 var page = pages[stackPagesIdxs[i]];
+                page.style.WebkitTransform = "translate3d(0,100%,0)";
                 page.style.transform = "translate3d(0,100%,0)";
               }
               if(id){

@@ -1,1 +1,15 @@
 %map#mapbox{map-ready: "mapReady", menu-trigger: "#siteNav"}
+#filterBar{ng-class: "{open: filterSelectionsOpen === true}"}
+  %a{ng-click: "toggleFilterSelections()"}
+    Filter by:
+    %span.icon.fa.fa-caret-down.pull-right
+  %ul.unstyled
+    %li
+      %a{ng-click: "revealFilterModal('industry')"}
+        Industry
+    %li
+      %a{ng-click: "revealFilterModal('issue')"}
+        Issue
+    %li
+      %a{ng-click: "revealFilterModal('year')"}
+        Year

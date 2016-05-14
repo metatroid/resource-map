@@ -1,0 +1,61 @@
+////////////////////////////////////// colors
+$black: #0d212f;
+$antBlack: 'AntennaExtraCond-Black';
+$antBold: 'AntennaExtraCond-Bold';
+$whitney: 'Whitney-Book';
+$whitneyItalic: 'Whitney-BookItalic';
+////////////////////////////////////// breakpoints
+$mobile-width: 767px;
+$mobile2-width: 410px;
+$tablet-width: 768px;
+$desktop-width: 769px;
+$wide-width: 1200px;
+@mixin phone {
+  @media (max-width: #{$mobile-width}){
+    @content;
+  }
+}
+@mixin phone2 {
+  @media (min-width: #{$mobile2-width}) and (max-width: #{$mobile-width}){
+    @content;
+  }
+}
+@mixin tablet {
+  @media (min-width: #{$tablet-width}) and (max-width: #{$tablet-width}){
+    @content;
+  }
+}
+@mixin phablet {
+  @media (max-width: #{$tablet-width}){
+    @content;
+  }
+}
+@mixin desktop {
+  @media (min-width: #{$desktop-width}){
+    @content;
+  }
+}
+@mixin mid {
+  @media (min-width: 769px) and (max-width: 1199px){
+    @content;
+  }
+}
+@mixin mid2 {
+  @media (min-width: 769px) and (max-width: 992px){
+    @content;
+  }
+}
+@mixin wide {
+  @media (min-width: #{$wide-width}){
+    @content;
+  }
+}
+////////////////////////////////////// utils
+@mixin placeholder{
+  $placeholders: ":-webkit-input" ":-moz" "-moz" "-ms-input";
+  @each $placeholder in $placeholders{
+    &:#{$placeholder}-placeholder{
+      @content;
+    }
+  }
+}

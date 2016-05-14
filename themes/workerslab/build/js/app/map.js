@@ -1,4 +1,5 @@
 angular.module('resourceMap', [
+               'ngSanitize',
                'ngMaterial',
                'ngCookies',
                'resourceMap.controllers',

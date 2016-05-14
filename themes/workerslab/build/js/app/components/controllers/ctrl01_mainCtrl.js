@@ -8,15 +8,17 @@ angular.module('resourceMap.controllers')
                            '$timeout',
                            '$cookies',
                            '$mdBottomSheet',
+                           '$mdDialog',
                            'apiSrv',
                            'msgSrv',
-    function($scope, $rootScope, $state, $log, $sce, $compile, $timeout, $cookies, $mdBottomSheet, apiSrv, msgSrv){
+    function($scope, $rootScope, $state, $log, $sce, $compile, $timeout, $cookies, $mdBottomSheet, $mdDialog, apiSrv, msgSrv){
       var mapObj;
       var mLayer;
       var geojson;
       var _geojson;
       $scope.htmlSafe = $sce.trustAsHtml;
       var overlay = false;
+      //
       if($state.is('map.companyView')){
         var slug = $state.params.slug;
         msgSrv.setState('companyView', {slug: slug});
@@ -162,6 +164,13 @@ angular.module('resourceMap.controllers')
         }
       });
       $scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){
+        $timeout(function(){
+          var bodyClass = toState.name;
+          // var bodyClass = $rootScope.$state.current.name;
+          // document.body.classList.add(bodyClass);
+          document.body.className = bodyClass;
+          // $log.info(bodyClass);
+        }, 100);
         switch(toState.name){
           case "map.companyView":
             if(!overlay){$scope.showCompany(toParams.slug);}
@@ -322,6 +331,61 @@ angular.module('resourceMap.controllers')
         $timeout(function(){
           mapObj.setView([lat,lng], 13);
         }, 0);
+      };
+      //
+      $scope.selectFilter = function(id){
+        $log.info(id);
+      };
+      //
+      $scope.openFilterModal = null;
+      $scope.revealFilterModal = function(filter){
+        $scope.openFilterModal = filter;
+        $scope.filterSelectionsOpen = false;
+        var filterModalContent = "<ul class='unstyled filter-options'>";
+        var selectedFilterSet;
+        switch(filter){
+          case "industry":
+            selectedFilterSet = $scope.industries;
+            break;
+          case "issue":
+            selectedFilterSet = $scope.issues;
+            break;
+          case "year":
+            selectedFilterSet = $scope.years;
+            break;
+          default:
+            break;
+        }
+        for(var i=0;i<selectedFilterSet.length;i++){
+          filterModalContent += "<li><a ng-click='selectFilter("+selectedFilterSet[i].id+")'>"+selectedFilterSet[i].name+"</a></li>";
+        }
+        filterModalContent += "</ul>";
+        var confirm = $mdDialog.confirm()
+            .htmlContent(filterModalContent)
+            .clickOutsideToClose(true)
+            .ariaLabel("Filter markers")
+            .ok("APPLY")
+            .cancel("CANCEL")
+            .openFrom({
+              top: -100,
+              width: 20,
+              height: 20
+            })
+            .closeTo({
+              bottom: 500
+            });
+        $mdDialog.show(confirm).then(function(){
+          var filterId = document.querySelector('.filter-options input:checked').value;
+          // filterBy(filterId);
+          $log.info(filterId);
+        }, function(err){
+          $log.error(err);
+        });
+      };
+      //
+      $scope.filterSelectionsOpen = false;
+      $scope.toggleFilterSelections = function(){
+        $scope.filterSelectionsOpen = !$scope.filterSelectionsOpen;
       };
     }
   ])

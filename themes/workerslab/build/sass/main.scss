@@ -1,24 +1,10 @@
+@import 'libs/vars';
 @import 'libs/angular-material';
 @import "libs/normalize";
 @import 'libs/mapbox';
 @import 'libs/flickity';
 @import 'libs/font-awesome/font-awesome';
 @import 'libs/fonts';
-
-$black: #0d212f;
-$antBlack: 'AntennaExtraCond-Black';
-$antBold: 'AntennaExtraCond-Bold';
-$whitney: 'Whitney-Book';
-$whitneyItalic: 'Whitney-BookItalic';
-
-@mixin placeholder{
-  $placeholders: ":-webkit-input" ":-moz" "-moz" "-ms-input";
-  @each $placeholder in $placeholders{
-    &:#{$placeholder}-placeholder{
-      @content;
-    }
-  }
-}
 
 h1,h2,h3,h4,h5,h6,strong{
   font-family: $antBlack;
@@ -97,6 +83,66 @@ img.alignright{
   .leaflet-control-zoom{
     display: none;
   }
+  #mapbox{
+    @include phone{
+      bottom: 50px;
+    }
+  }
+  #filterBar{
+    display: none;
+    @include phone{
+      display: block;
+      position: absolute;
+      left: 0;
+      bottom: 105px;
+      top: auto;
+      width: 100%;
+      background-color: #fff;
+      a{
+        color: $black;
+        display: block;
+        padding: 17px 15px 12px;
+        font-family: $antBold;
+        letter-spacing: 0.5px;
+        transition: color .5s ease;
+      }
+      span{
+        transform: rotate(0deg);
+        transition: transform .5s ease;
+      }
+      ul{
+        max-height: 0;
+        margin: 0;
+        overflow: hidden;
+        transition: max-height 1s ease;
+        li{
+          &:last-of-type{
+            padding-bottom: 5px;
+          }
+        }
+      }
+      &.open{
+        ul{
+          max-height: 666px;
+          height: auto;
+        }
+        > a{
+          color: #d0021b;
+        }
+        span{
+          transform: rotate(180deg);
+          color: $black;
+        }
+      }
+    }
+  }
+}
+body.main{
+  #page_map{
+    #filterBar{
+      display: none;
+    }
+  }
 }
 
 #pageHeader{
@@ -107,6 +153,9 @@ img.alignright{
   z-index: 9;
   background-color: #fff;
   padding: 16px 15px 13px;
+  @include phone{
+    padding: 14px 15px;
+  }
   .header{
     display: flex;
     flex-direction: row;
@@ -115,10 +164,16 @@ img.alignright{
     align-content: flex-start;
     #menu{
       order: 1;
+      @include phone{
+        order: 2;
+      }
     }
     #filterBar{
       order: 2;
       flex: 1;
+      @include phone{
+        order: 1;
+      }
     }
     .branding{
       order: 3;
@@ -155,6 +210,9 @@ img.alignright{
           }
         }
       }
+      @include phone{
+        margin-right: 0;
+      }
     }
     #filterBar{
       form{
@@ -189,6 +247,12 @@ img.alignright{
                 }
               }
             }
+            @include phone{
+              padding: 0;
+              .icon{
+                margin-top: 0;
+              }
+            }
           }
           &.input-select{
             md-select{
@@ -203,6 +267,9 @@ img.alignright{
                 }
               }
             }
+            @include phone{
+              display: none;
+            }
           }
           &.input-text{
             input{
@@ -213,7 +280,13 @@ img.alignright{
               @include placeholder{
                 color: $black;
               }
+              @include phone{
+                text-transform: capitalize;
+              }
             }
+          }
+          @include phone{
+            border-left: 0;
           }
         }
       }
@@ -222,6 +295,9 @@ img.alignright{
       display: block;
       img{
         max-width: 90px;
+      }
+      @include phone{
+        display: none;
       }
     }
   }
@@ -342,6 +418,29 @@ img.alignright{
       }
     }
   }
+  @include phone{
+    padding: 55px 15px 0;
+    height: auto;
+    .nav-intro{
+      padding-top: 20px;
+      max-width: 100%;
+      font-size: 14px;
+      h1{
+        font-size: 18px;
+        margin-top: 0;
+      }
+    }
+    .nav-item{
+      &.nav-item-social{
+        padding-bottom: 15px;
+      }
+      .link{
+        &.link-social{
+          margin: 0 25px;
+        }
+      }
+    }
+  }
 }
 .text-hidden {
   position: absolute;
@@ -413,6 +512,9 @@ img.alignright{
       cursor: pointer;
       transition: transform 0.45s, opacity 0.45s;
       transition-timing-function: cubic-bezier(0.6,0,0.4,1);
+      @include phone{
+        top: 50px;
+      }
     }
     .leaflet-container{
       cursor: pointer;
@@ -439,6 +541,10 @@ img.alignright{
   left: 0;
   width: 100%;
   color: $black;
+  @include phone{
+    top: 55px;
+    bottom: 50px;
+  }
 }
 
 .overlay{
@@ -451,26 +557,77 @@ img.alignright{
     background-color: rgba(255,255,255,0.6);
     transition: transform 0.45s;
     transition-timing-function: cubic-bezier(0.6, 0, 0.4, 1);
+    z-index: 8;
+    .overlay-content{
+      @include phone{
+        height: 100%;
+        > div{
+          display: flex;
+          flex-direction: column;
+          flex-wrap: nowrap;
+          justify-content: center;
+          align-items: center;
+          align-content: center;
+          padding: 0 30px;
+          height: 100%;
+          h1{
+            order: 1;
+            margin-bottom: 0;
+          }
+          h2{
+            order: 2;
+            border-bottom: 2px solid $black;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            width: 100%;
+          }
+          p{
+            &:nth-child(3){
+              order: 4;
+            }
+            &:nth-child(4){
+              order: 3;
+            }
+          }
+        }
+      }
+    }
     h1{
       font-size: 48px;
       margin-bottom: 10px;
+      @include phone{
+        font-size: 29px;
+      }
     }
     h2{
       font-size: 36px;
       margin-bottom: 45px;
       margin-top: 0;
+      @include phone{
+        font-size: 22px;
+      }
     }
     p{
       padding-top: 45px;
       max-width: 500px;
       margin: 0 auto;
+      @include phone{
+        padding-top: 0;
+        max-width: 100%;
+      }
       &:first-of-type{
         border-top: 2px solid $black;
         margin-bottom: 75px;
+        @include phone{
+          border: 0;
+          margin-bottom: 0;
+          margin-top: 70px;
+          width: 100%;
+        }
       }
       a{
         font-size: 18px;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.5px;
         font-family: $antBlack;
         color: rgba(255,255,255,0.9);
         display: block;
@@ -480,15 +637,27 @@ img.alignright{
         text-decoration: none;
         margin: 0 auto;
         cursor: pointer;
+        @include phone{
+          font-size: 14px;
+          padding: 14px 0 8px;
+          width: 90%;
+        }
       }
       img{
         max-width: 120px;
+        @include phone{
+          max-width: 72px;
+        }
       }
     }
   }
   &#company{
     width: 50%;
     background-color: #fff;
+  }
+  @include phone{
+    top: 55px;
+    bottom: 50px;
   }
 }
 .menu-open{
@@ -501,6 +670,9 @@ img.alignright{
     cursor: pointer;
     z-index: 3;
     pointer-events: auto;
+    @include phone{
+      transform: translate3d(0px, 95%, -15px);
+    }
   }
 }
 
@@ -535,7 +707,7 @@ img.alignright{
       color: #fff;
       font-size: 14px;
       font-family: $antBlack;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.5px;
       text-align: center;
       margin: 25px auto 0;
       padding: 9px 12px 8px;
@@ -669,12 +841,16 @@ md-backdrop.md-opaque{
   right: 0;
   bottom: 0;
   background-color: $black;
+  z-index: 9;
   .footer{
     display: flex;
     color: #fff;
     padding: 20px 30px;
     font-size: 16px;
     font-family: $antBlack;
+    @include phone{
+      padding: 10px 15px;
+    }
     a{
       color: #fff;
       text-decoration: none;
@@ -685,13 +861,39 @@ md-backdrop.md-opaque{
     }
     .copy{
       flex-grow: 1;
+      @include phone{
+        display: none;
+      }
     }
     .cta{
       margin-right: 30px;
+      @include phone{
+        display: none;
+      }
     }
     .cta,
     .social-media{
       flex-shrink: 1;
+    }
+    @include phone{
+      .social-media{
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        align-content: center;
+        align-items: center;
+        width: 100%;
+        a{
+          margin: 0 15px;
+          border: 1px solid #fff;
+          border-radius: 100%;
+          line-height: 31px;
+          text-align: center;
+          width: 28px;
+          height: 28px;
+          font-size: 14px;
+        }
+      }
     }
   }
 }

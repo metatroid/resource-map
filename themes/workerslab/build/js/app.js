@@ -1,4 +1,5 @@
 angular.module('resourceMap', [
+               'ngSanitize',
                'ngMaterial',
                'ngCookies',
                'resourceMap.controllers',
@@ -62,15 +63,17 @@ angular.module('resourceMap.controllers')
                            '$timeout',
                            '$cookies',
                            '$mdBottomSheet',
+                           '$mdDialog',
                            'apiSrv',
                            'msgSrv',
-    function($scope, $rootScope, $state, $log, $sce, $compile, $timeout, $cookies, $mdBottomSheet, apiSrv, msgSrv){
+    function($scope, $rootScope, $state, $log, $sce, $compile, $timeout, $cookies, $mdBottomSheet, $mdDialog, apiSrv, msgSrv){
       var mapObj;
       var mLayer;
       var geojson;
       var _geojson;
       $scope.htmlSafe = $sce.trustAsHtml;
       var overlay = false;
+      //
       if($state.is('map.companyView')){
         var slug = $state.params.slug;
         msgSrv.setState('companyView', {slug: slug});
@@ -216,6 +219,13 @@ angular.module('resourceMap.controllers')
         }
       });
       $scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){
+        $timeout(function(){
+          var bodyClass = toState.name;
+          // var bodyClass = $rootScope.$state.current.name;
+          // document.body.classList.add(bodyClass);
+          document.body.className = bodyClass;
+          // $log.info(bodyClass);
+        }, 100);
         switch(toState.name){
           case "map.companyView":
             if(!overlay){$scope.showCompany(toParams.slug);}
@@ -376,6 +386,61 @@ angular.module('resourceMap.controllers')
         $timeout(function(){
           mapObj.setView([lat,lng], 13);
         }, 0);
+      };
+      //
+      $scope.selectFilter = function(id){
+        $log.info(id);
+      };
+      //
+      $scope.openFilterModal = null;
+      $scope.revealFilterModal = function(filter){
+        $scope.openFilterModal = filter;
+        $scope.filterSelectionsOpen = false;
+        var filterModalContent = "<ul class='unstyled filter-options'>";
+        var selectedFilterSet;
+        switch(filter){
+          case "industry":
+            selectedFilterSet = $scope.industries;
+            break;
+          case "issue":
+            selectedFilterSet = $scope.issues;
+            break;
+          case "year":
+            selectedFilterSet = $scope.years;
+            break;
+          default:
+            break;
+        }
+        for(var i=0;i<selectedFilterSet.length;i++){
+          filterModalContent += "<li><a ng-click='selectFilter("+selectedFilterSet[i].id+")'>"+selectedFilterSet[i].name+"</a></li>";
+        }
+        filterModalContent += "</ul>";
+        var confirm = $mdDialog.confirm()
+            .htmlContent(filterModalContent)
+            .clickOutsideToClose(true)
+            .ariaLabel("Filter markers")
+            .ok("APPLY")
+            .cancel("CANCEL")
+            .openFrom({
+              top: -100,
+              width: 20,
+              height: 20
+            })
+            .closeTo({
+              bottom: 500
+            });
+        $mdDialog.show(confirm).then(function(){
+          var filterId = document.querySelector('.filter-options input:checked').value;
+          // filterBy(filterId);
+          $log.info(filterId);
+        }, function(err){
+          $log.error(err);
+        });
+      };
+      //
+      $scope.filterSelectionsOpen = false;
+      $scope.toggleFilterSelections = function(){
+        $scope.filterSelectionsOpen = !$scope.filterSelectionsOpen;
       };
     }
   ])
@@ -599,8 +664,10 @@ angular.module('resourceMap')
                 if(current !== i){
                   page.classList.add("page-inactive");
                   if(posIdx !== -1){
+                    page.style.WebkitTransform = "translate3d(0,100%,0)";
                     page.style.transform = "translate3d(0,100%,0)";
                   } else {
+                    page.style.WebkitTransform = "translate3d(0,75%,-300px)";
                     page.style.transform = "translate3d(0,75%,-300px)";
                   }
                 } else {
@@ -632,6 +699,14 @@ angular.module('resourceMap')
                   }
                 });
               });
+              document.addEventListener('click', function(e){
+                e.preventDefault();
+                var target = document.querySelector('#landing .overlay-content > div');
+                if(e.target === target){
+                  openPage('page_map');
+                  // closeMenu();
+                }
+              });
               document.addEventListener('keydown', function(ev){
                 if(!isMenuOpen){
                   return;
@@ -660,7 +735,8 @@ angular.module('resourceMap')
               var stackPagesIdxs = getStackPagesIdxs();
               for(var i=0;i<stackPagesIdxs.length;++i){
                 var page = pages[stackPagesIdxs[i]];
-                page.style.transform = "translate3d(0,75%,"+parseInt(-1 * 200 - 50 * i)+"px";
+                page.style.WebkitTransform = 'translate3d(0, 75%, ' + parseInt(-1 * 200 - 50*i) + 'px)'; // -200px, -230px, -260px
+                page.style.transform = 'translate3d(0, 75%, ' + parseInt(-1 * 200 - 50*i) + 'px)';
               }
             }
             closeMenu = function(){
@@ -670,10 +746,12 @@ angular.module('resourceMap')
               var futurePage = id ? document.getElementById(id) : pages[current],
                   futureCurrent = pages.indexOf(futurePage),
                   stackPagesIdxs = getStackPagesIdxs(futureCurrent);
+              futurePage.style.WebkitTransform = 'translate3d(0, 0, 0)';
               futurePage.style.transform = 'translate3d(0, 0, 0)';
               futurePage.style.opacity = 1;
               for(var i=0;i<stackPagesIdxs.length;++i){
                 var page = pages[stackPagesIdxs[i]];
+                page.style.WebkitTransform = "translate3d(0,100%,0)";
                 page.style.transform = "translate3d(0,100%,0)";
               }
               if(id){
@@ -744,24 +822,29 @@ angular.module('resourceMap')
             var part = $element[0].value;
             var location = $cookies.get('location');
             var uri = "https://api.tiles.mapbox.com/geocoding/v5/mapbox.places/"+encodeURIComponent(part)+".json?access_token=pk.eyJ1IjoibWV0YXRyb2lkIiwiYSI6ImNpbjB5bjA0NjBhbzd1cmtrcTA2a2p3MzcifQ.66Stn21WtMpGU9lV2FoS6Q"+(typeof(location) !== "undefined" ? "&proximity="+JSON.parse(location).lng+","+JSON.parse(location).lat : "")+"&types=postcode,address";
-            $http({
-              method: 'GET',
-              url: uri
-            }).success(function(data){
-              var ul = document.getElementById("autocomplete");
-              var htmlFrag = document.createDocumentFragment();
-              // data.features[0].
-              data.features.forEach(function(place){
-                var li = document.createElement("li");
-                li.innerHTML = "<a ng-click='setMapView("+place.center+")'>"+place.place_name+"</a>";
-                htmlFrag.appendChild(li);
+            if(part.length > 0){
+              $http({
+                method: 'GET',
+                url: uri
+              }).success(function(data){
+                var ul = document.getElementById("autocomplete");
+                var htmlFrag = document.createDocumentFragment();
+                // data.features[0].
+                data.features.forEach(function(place){
+                  var li = document.createElement("li");
+                  li.innerHTML = "<a ng-click='setMapView("+place.center+")'>"+place.place_name+"</a>";
+                  htmlFrag.appendChild(li);
+                });
+                ul.innerHTML = "";
+                ul.appendChild(htmlFrag);
+                $compile(document.getElementById('autocomplete'))($scope);
+              }).error(function(err){
+                console.error(err);
               });
+            } else {
+              var ul = document.getElementById("autocomplete");
               ul.innerHTML = "";
-              ul.appendChild(htmlFrag);
-              $compile(document.getElementById('autocomplete'))($scope);
-            }).error(function(err){
-              console.error(err);
-            });
+            }
             if(e.which === 13){
               e.preventDefault();
               // setMapView(place.center)
