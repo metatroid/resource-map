@@ -333,53 +333,47 @@ angular.module('resourceMap.controllers')
         }, 0);
       };
       //
-      $scope.selectFilter = function(id){
-        $log.info(id);
+      $scope.selectFilter = function(name, id){
+        $scope.filter[name] = id;
       };
-      //
+      $scope.cancelFilters = function(){
+        $mdDialog.cancel();
+      };
+      $scope.confirmFilters = function(){
+        $scope.filterBy($scope.filter);
+        $mdDialog.hide();
+      };
       $scope.openFilterModal = null;
       $scope.revealFilterModal = function(filter){
         $scope.openFilterModal = filter;
         $scope.filterSelectionsOpen = false;
-        var filterModalContent = "<ul class='unstyled filter-options'>";
-        var selectedFilterSet;
+        $scope.filterSet = [];
         switch(filter){
           case "industry":
-            selectedFilterSet = $scope.industries;
+            $scope.filterSet = $scope.industries;
             break;
           case "issue":
-            selectedFilterSet = $scope.issues;
+            $scope.filterSet = $scope.issues;
             break;
           case "year":
-            selectedFilterSet = $scope.years;
+            $scope.filterSet = $scope.years;
             break;
           default:
             break;
         }
-        for(var i=0;i<selectedFilterSet.length;i++){
-          filterModalContent += "<li><a ng-click='selectFilter("+selectedFilterSet[i].id+")'>"+selectedFilterSet[i].name+"</a></li>";
-        }
-        filterModalContent += "</ul>";
-        var confirm = $mdDialog.confirm()
-            .htmlContent(filterModalContent)
-            .clickOutsideToClose(true)
-            .ariaLabel("Filter markers")
-            .ok("APPLY")
-            .cancel("CANCEL")
-            .openFrom({
-              top: -100,
-              width: 20,
-              height: 20
-            })
-            .closeTo({
-              bottom: 500
-            });
-        $mdDialog.show(confirm).then(function(){
-          var filterId = document.querySelector('.filter-options input:checked').value;
-          // filterBy(filterId);
-          $log.info(filterId);
-        }, function(err){
-          $log.error(err);
+        $mdDialog.show({
+          controller: function(){
+            this.parent = $scope;
+          },
+          controllerAs: 'ctrl',
+          templateUrl: '/wp-content/themes/workerslab/views/filter-modal.php',
+          parent: angular.element(document.body),
+          clickOutsideToClose: true,
+          disableParentScroll: true,
+          openFrom: {top: -500},
+          closeTo: {bottom: -500},
+        }).finally(function(){
+          //
         });
       };
       //

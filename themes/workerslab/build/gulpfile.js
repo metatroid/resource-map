@@ -12,7 +12,7 @@ gulp.task('js', function(){
 
 //compile libs+app js
 gulp.task('jsall', ['js'], function(){
-  gulp.src(['js/libs/angular.js', 'js/libs/angular-ui-router.js', 'js/libs/angular-animate.js', 'js/libs/angular-aria.js', 'js/libs/angular-sanitize.js', 'js/libs/angular-material.js', 'js/libs/angular-cookies.js', 'js/libs/mapbox.js', 'js/libs/flickity.pkgd.js', 'js/libs/modernizr-custom.js', 'js/app.js'])
+  gulp.src(['js/libs/angular.js', 'js/libs/angular-ui-router.js', 'js/libs/angular-animate.js', 'js/libs/angular-aria.js', 'js/libs/angular-material.js', 'js/libs/angular-cookies.js', 'js/libs/mapbox.js', 'js/libs/flickity.pkgd.js', 'js/libs/modernizr-custom.js', 'js/libs/viewport-units-buggyfill.js', 'js/app.js'])
     .pipe($.concat('main.js'))
     .pipe(gulp.dest('../assets/js'))
     .pipe($.rename('main.min.js'))

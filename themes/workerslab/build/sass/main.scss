@@ -94,7 +94,7 @@ img.alignright{
       display: block;
       position: absolute;
       left: 0;
-      bottom: 105px;
+      bottom: 100px;
       top: auto;
       width: 100%;
       background-color: #fff;
@@ -133,6 +133,25 @@ img.alignright{
           transform: rotate(180deg);
           color: $black;
         }
+      }
+    }
+  }
+}
+.filter-options{
+  padding: 0px 15px;
+  max-height: 200px;
+  overflow: auto;
+  li{
+    a{
+      display: block;
+      padding: 10px 0;
+      position: relative;
+      font-family: $antBold;
+      font-size: 14px;
+      span{
+        position: absolute;
+        right: 0;
+        top: 10px;
       }
     }
   }
@@ -331,6 +350,8 @@ body.main{
     pointer-events: auto;
     opacity: 1;
     transform: translate3D(0,0,0);
+    height: auto;
+    padding-top: 50px;
     .nav-item{
       &.nav-item-social{
         opacity: 1;
@@ -542,7 +563,7 @@ body.main{
   width: 100%;
   color: $black;
   @include phone{
-    top: 55px;
+    top: 50px;
     bottom: 50px;
   }
 }
@@ -559,6 +580,12 @@ body.main{
     transition-timing-function: cubic-bezier(0.6, 0, 0.4, 1);
     z-index: 8;
     .overlay-content{
+      > div{
+        padding-top: 30px;
+        h1{
+          margin-top: 0;
+        }
+      }
       @include phone{
         height: 100%;
         > div{
@@ -656,7 +683,7 @@ body.main{
     background-color: #fff;
   }
   @include phone{
-    top: 55px;
+    top: 50px;
     bottom: 50px;
   }
 }
@@ -822,6 +849,28 @@ body.main{
       md-tabs.md-default-theme md-tabs-wrapper,
       md-tabs md-tabs-wrapper{
         border-color: $black;
+      }
+    }
+  }
+  @include phone{
+    top: 50px;
+    bottom: 50px;
+    width: 100%;
+    .comp-images{
+      height: 160px;
+      .img{
+        width: 100%;
+        height: 160px;
+      }
+    }
+    .comp-info{
+      padding-top: 20px;
+      .meta{
+        .social{
+          .avatar{
+            top: -37px;
+          }
+        }
       }
     }
   }

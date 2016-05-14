@@ -1,0 +1,14 @@
+%ul.unstyled.filter-options
+  %li
+    %a{ng-click: "ctrl.parent.selectFilter(ctrl.parent.openFilterModal, 'all')"}
+      All
+      %span.icon.fa.fa-check{ng-show: "'all' === ctrl.parent.filter[ctrl.parent.openFilterModal]"}
+  %li{ng-repeat: "filter in ctrl.parent.filterSet"}
+    %a{ng-click: "ctrl.parent.selectFilter(ctrl.parent.openFilterModal, filter.id)"}
+      {{filter.name}}
+      %span.icon.fa.fa-check{ng-show: "filter.id === ctrl.parent.filter[ctrl.parent.openFilterModal]"}
+%md-dialog-actions
+  %md-button{ng-click: "ctrl.parent.cancelFilters()"}
+    Cancel
+  %md-button{ng-click: "ctrl.parent.confirmFilters()"}
+    Apply

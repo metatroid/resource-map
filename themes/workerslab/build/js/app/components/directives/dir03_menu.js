@@ -95,11 +95,12 @@ angular.module('resourceMap')
                 });
               });
               document.addEventListener('click', function(e){
-                e.preventDefault();
+                // e.preventDefault();
+                console.log(e.target);
                 var target = document.querySelector('#landing .overlay-content > div');
-                if(e.target === target){
+                if(e.target.closest('#landing') !== null){
                   openPage('page_map');
-                  // closeMenu();
+                  closeMenu();
                 }
               });
               document.addEventListener('keydown', function(ev){

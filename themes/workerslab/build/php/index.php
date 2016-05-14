@@ -5,7 +5,7 @@
     <title>The Workers Lab</title>
     <meta charset="UTF-8" />
     <meta name="description" />
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <link rel="stylesheet" href="/assets/css/main.css" />
     <script src="/assets/js/main.js"></script>
   </head>
