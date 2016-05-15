@@ -14,7 +14,7 @@ angular.module('resourceMap.directives', []);
 angular.module('resourceMap.filters', []);
 
 angular.module('resourceMap')
-  .config(['$httpProvider', '$compileProvider', '$mdThemingProvider', function($httpProvider, $compileProvider, $mdThemingProvider){
+  .config(['$httpProvider', '$compileProvider', '$mdThemingProvider', '$mdGestureProvider', function($httpProvider, $compileProvider, $mdThemingProvider, $mdGestureProvider){
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
     // $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -25,5 +25,6 @@ angular.module('resourceMap')
     $mdThemingProvider.theme('docs-dark', 'default')
       .primaryPalette('yellow')
       .dark();
+    $mdGestureProvider.skipClickHijack();
   }
 ]);

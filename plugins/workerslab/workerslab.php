@@ -59,8 +59,8 @@ function add_meta_to_json($data, $post, $request){
   $compZip = get_post_meta($post->ID, 'compZip', true);
   $compPhone = get_post_meta($post->ID, 'compPhone', true);
   $compWebsite = get_post_meta($post->ID, 'compWebsite', true);
-  $showMap = get_post_meta($post->ID, 'showMap', true);
-  $mapsLink = get_post_meta($post->ID, 'mapsLink', true);
+  // $showMap = get_post_meta($post->ID, 'showMap', true);
+  // $mapsLink = get_post_meta($post->ID, 'mapsLink', true);
   $lat = get_post_meta($post->ID, 'latitude', true);
   $lng = get_post_meta($post->ID, 'longitude', true);
   $industry = wp_get_post_terms($post->ID, 'industry');
@@ -87,8 +87,8 @@ function add_meta_to_json($data, $post, $request){
       'compZip' => $compZip,
       'compPhone' => $compPhone,
       'compWebsite' => $compWebsite,
-      'showMap' => $showMap,
-      'mapsLink' => $mapsLink,
+      // 'showMap' => $showMap,
+      // 'mapsLink' => $mapsLink,
       'latitude' => $lat,
       'longitude' => $lng,
       'industry' => $industry,

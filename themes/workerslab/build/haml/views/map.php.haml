@@ -1,7 +1,59 @@
+%header#pageHeader
+  .header
+    %button.toggle-btn.menu-btn
+      %span.screen-reader
+        Toggle Menu
+      %span.icon-bar
+      %span.icon-bar
+      %span.icon-bar
+    #filterBar
+      %form{ng-submit: "searchFor(search)"}
+        .input.input-select
+          %md-select{ng-model: "filter.industry", ng-change: "filterBy(filter)", aria-label: "Industry"}
+            <md-option value="" disabled>Industry</md-option>
+            <md-option value="all">All</md-option>
+            %md-option{ng-repeat: "industry in industries", ng-value: "{{industry.id}}"}
+              {{industry.name}}
+        .input.input-select
+          %md-select{ng-model: "filter.issue", ng-change: "filterBy(filter)", aria-label: "Issue"}
+            <md-option value="" disabled>Issue</md-option>
+            <md-option value="all">All</md-option>
+            %md-option{ng-repeat: "issue in issues", ng-value: "{{issue.id}}"}
+              {{issue.name}}
+        .input.input-select
+          %md-select{ng-model: "filter.year", ng-change: "filterBy(filter)", aria-label: "Year"}
+            <md-option value="" disabled>Year</md-option>
+            <md-option value="all">All</md-option>
+            %md-option{ng-repeat: "year in years", ng-value: "{{year.id}}"}
+              {{year.name}}
+        .input.input-text.input-search
+          %span.icon.fa.fa-search
+          %input{type: "text", ng-model: "search", placeholder: "enter a zip code", locator: "locator"}
+          %ul#autocomplete
+    %a.branding{ui-sref: "main", title: "Home"}
+      %img{alt: "The Workers Lab", src: "/assets/img/logo.png"}
 %map#mapbox{map-ready: "mapReady", menu-trigger: "#siteNav"}
-#filterBar{ng-class: "{open: filterSelectionsOpen === true}"}
+#filterMsg{ng-show: "filterType !== null && $state.current.name !== 'main'"}
+  .filter-msg-desktop
+    %span{ng-if: "filterChoices.length > 0 && filterType === 'filter'"}
+      Filtered by "{{filterChoices}}." Select a <img alt="map marker" src="/assets/img/marker_icon_clicked.svg"> pin to see why they stand out.
+    %span{ng-if: "filterLocation1.length > 0 && filterType === 'location'"}
+      Showing results in the {{filterLocation1}} area. Select a <img alt="map marker" src="/assets/img/marker_icon_clicked.svg"> pin to see why they stand out.
+  .filter-msg-mobile
+    %span{ng-if: "filterChoices.length > 0 && filterType === 'filter'"}
+      Showing "{{filterChoices}}" results in the area.
+    %span{ng-if: "filterLocation1.length > 0 && filterType === 'location'"}
+      Showing results in the area {{filterLocation1}}
+#filterBarDisplay{ng-class: "{open: filterSelectionsOpen === true}"}
   %a{ng-click: "toggleFilterSelections()"}
-    Filter by:
+    %span{ng-hide: "filterType === 'location'"}
+      Filter by:
+    %span.filter-choice{ng-if: "filterType === 'filter'"}
+      {{filterChoice}}
+    %span.filter-choice.location-choice{ng-if: "filterType === 'location'"}
+      %strong
+        {{filterLocation1}}
+      {{filterLocation2}}
     %span.icon.fa.fa-caret-down.pull-right
   %ul.unstyled
     %li

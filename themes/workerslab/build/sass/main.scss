@@ -77,7 +77,44 @@ img.alignright{
       position: absolute;
       top: 0;
       bottom: 0;
-      width: 100%;
+      left: 0;
+      right: 0;
+      width: auto;
+    }
+    #filterMsg{
+      top: 55px;
+      bottom: auto;
+      background-color: $black;
+      padding: 8px 15px 5px;
+      color: #fff;
+      text-align: center;
+      font-family: $antBold;
+      font-size: 10px;
+      letter-spacing: 0.4px;
+      .filter-msg-desktop{
+        @include phablet{
+          display: none;
+        }
+        img{
+          vertical-align: text-top;
+        }
+      }
+      .filter-msg-mobile{
+        @include desktop{
+          display: none;
+        }
+      }
+      @include desktop{
+        background-color: #fff;
+        color: $black;
+        font-size: 14px;
+        font-family: $antBlack;
+        letter-spacing: 0.5px;
+        box-shadow: 0 5px 5px -2px rgba(0,0,0,0.5);
+        padding: 5px 15px 10px;
+        height: 18px;
+        top: 93px;
+      }
     }
   }
   .leaflet-control-zoom{
@@ -88,16 +125,17 @@ img.alignright{
       bottom: 50px;
     }
   }
-  #filterBar{
+  #filterBarDisplay{
     display: none;
     @include phone{
       display: block;
-      position: absolute;
+      position: fixed;
       left: 0;
-      bottom: 100px;
+      bottom: 50px;
       top: auto;
       width: 100%;
       background-color: #fff;
+      z-index: 9999;
       a{
         color: $black;
         display: block;
@@ -106,7 +144,20 @@ img.alignright{
         letter-spacing: 0.5px;
         transition: color .5s ease;
       }
-      span{
+      span.filter-choice{
+        color: #d0021b;
+        margin-left: 5px;
+        &.location-choice{
+          margin-left: 0;
+          color: $black;
+          font-size: 12px;
+          strong{
+            display: block;
+            font-size: 20px;
+          }
+        }
+      }
+      span.icon{
         transform: rotate(0deg);
         transition: transform .5s ease;
       }
@@ -129,7 +180,7 @@ img.alignright{
         > a{
           color: #d0021b;
         }
-        span{
+        span.icon{
           transform: rotate(180deg);
           color: $black;
         }
@@ -152,28 +203,37 @@ img.alignright{
         position: absolute;
         right: 0;
         top: 10px;
+        color: #d0021b;
       }
     }
   }
 }
+md-dialog-actions{
+  .md-button{
+    color: #4a90e2;
+    font-family: $antBold;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    background-color: transparent !important;
+  }
+}
 body.main{
   #page_map{
-    #filterBar{
+    #filterBarDisplay{
       display: none;
     }
   }
 }
 
 #pageHeader{
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  position: relative;
   z-index: 9;
   background-color: #fff;
   padding: 16px 15px 13px;
+  height: 64px;
   @include phone{
     padding: 14px 15px;
+    height: 27px;
   }
   .header{
     display: flex;
@@ -181,10 +241,11 @@ body.main{
     flex-wrap: nowrap;
     align-items: center;
     align-content: flex-start;
-    #menu{
+    .menu-btn{
       order: 1;
       @include phone{
         order: 2;
+        opacity: 0;
       }
     }
     #filterBar{
@@ -196,42 +257,6 @@ body.main{
     }
     .branding{
       order: 3;
-    }
-    #menu{
-      border: none;
-      background: transparent;
-      display: block;
-      margin-right: 15px;
-      position: relative;
-      z-index: 1000;
-      cursor: pointer;
-      outline: none;
-      .icon-bar{
-        transition: all .5s ease-in-out;
-        transform-origin: 2px;
-        width: 21px;
-        height: 2px;
-        background-color: $black;
-        margin: 4px 0;
-        display: block;
-      }
-      &.open{
-        .icon-bar{
-          transition: opacity 0 linear;
-          &:nth-child(3){
-            opacity: 0;
-          }
-          &:nth-child(2){
-            transform: rotate(45deg);
-          }
-          &:nth-child(4){
-            transform: rotate(-45deg);
-          }
-        }
-      }
-      @include phone{
-        margin-right: 0;
-      }
     }
     #filterBar{
       form{
@@ -321,8 +346,63 @@ body.main{
     }
   }
 }
-#header{
+#menu-btn{
+  position: fixed;
+  top: 35px;
+  left: 15px;
+  z-index: 99;
+  &.open{
+    .icon-bar{
+      background-color: #fff;
+    }
+  }
+  @include phablet{
+    left: auto;
+    right: 15px;
+    top: 14px;
+  }
+}
+.menu-btn{
+  border: none;
+  background: transparent;
+  display: block;
+  margin-right: 15px;
   position: relative;
+  z-index: 1000;
+  cursor: pointer;
+  outline: none;
+  .icon-bar{
+    transition: all .5s ease-in-out;
+    transform-origin: 2px;
+    width: 21px;
+    height: 2px;
+    background-color: $black;
+    margin: 4px 0;
+    display: block;
+  }
+  &.open{
+    .icon-bar{
+      transition: opacity 0 linear;
+      &:nth-child(3){
+        opacity: 0;
+      }
+      &:nth-child(2){
+        transform: rotate(45deg);
+      }
+      &:nth-child(4){
+        transform: rotate(-45deg);
+      }
+    }
+  }
+  @include phone{
+    margin-right: 0;
+  }
+}
+#header{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 9;
 }
 #siteNav{
@@ -352,6 +432,9 @@ body.main{
     transform: translate3D(0,0,0);
     height: auto;
     padding-top: 50px;
+    @include desktop{
+      z-index: 11;
+    }
     .nav-item{
       &.nav-item-social{
         opacity: 1;
@@ -366,7 +449,7 @@ body.main{
     text-align: center;
     max-width: 700px;
     margin: 0 auto;
-    padding-top: 75px;
+    padding-top: 0;
     h1{
       font-size: 15px;
       letter-spacing: 0.09em;
@@ -443,17 +526,22 @@ body.main{
     padding: 55px 15px 0;
     height: auto;
     .nav-intro{
-      padding-top: 20px;
+      padding-top: 0;
       max-width: 100%;
       font-size: 14px;
       h1{
-        font-size: 18px;
+        font-size: 14px;
+        margin-top: 0;
+        margin-bottom: 5px;
+      }
+      p{
         margin-top: 0;
       }
     }
     .nav-item{
       &.nav-item-social{
         padding-bottom: 15px;
+        padding-top: 0;
       }
       .link{
         &.link-social{
@@ -531,10 +619,10 @@ body.main{
   &.open{
     .page{
       cursor: pointer;
-      transition: transform 0.45s, opacity 0.45s;
+      transition: transform 0.45s, opacity 0.45s, top 0.45s;
       transition-timing-function: cubic-bezier(0.6,0,0.4,1);
       @include phone{
-        top: 50px;
+        // top: 50px;
       }
     }
     .leaflet-container{
@@ -557,13 +645,13 @@ body.main{
 
 #main{
   position: fixed;
-  top: 90px;
+  top: 0px;
   bottom: 61px;
   left: 0;
   width: 100%;
   color: $black;
   @include phone{
-    top: 50px;
+    top: 0px;
     bottom: 50px;
   }
 }
@@ -581,9 +669,9 @@ body.main{
     z-index: 8;
     .overlay-content{
       > div{
-        padding-top: 30px;
         h1{
           margin-top: 0;
+          padding-top: 30px;
         }
       }
       @include phone{
@@ -712,6 +800,12 @@ body.main{
   height: auto;
   padding: 0;
   overflow: hidden;
+  &.filtered{
+    top: 123px;
+    @include phone{
+      top: 81px;
+    }
+  }
   &.full-content{
     md-content{
       height: 100%;
@@ -749,6 +843,10 @@ body.main{
     left: 25px;
     z-index: 1;
     cursor: pointer;
+    @include phone{
+      top: 15px;
+      left: 15px;
+    }
   }
   .comp-images{
     position: relative;

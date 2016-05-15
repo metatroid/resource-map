@@ -65,16 +65,16 @@ $cmb->add_field(array(
   'id' => 'compWebsite'
 ));
 //
-$cmb->add_field(array(
-  'name' => 'Show Mapbox',
-  'type' => 'checkbox',
-  'id' => 'showMap'
-));
+// $cmb->add_field(array(
+//   'name' => 'Show Mapbox',
+//   'type' => 'checkbox',
+//   'id' => 'showMap'
+// ));
 //
-$cmb->add_field(array(
-  'name' => 'Show Mapbox Link',
-  'type' => 'checkbox',
-  'id' => 'mapsLink'
-));
+// $cmb->add_field(array(
+//   'name' => 'Show Mapbox Link',
+//   'type' => 'checkbox',
+//   'id' => 'mapsLink'
+// ));
 
 ?>

@@ -18,7 +18,7 @@ angular.module('resourceMap')
                 // data.features[0].
                 data.features.forEach(function(place){
                   var li = document.createElement("li");
-                  li.innerHTML = "<a ng-click='setMapView("+place.center+")'>"+place.place_name+"</a>";
+                  li.innerHTML = "<a ng-click='mapLocator(\""+place.center+"\", \""+place.place_name+"\")'>"+place.place_name+"</a>";
                   htmlFrag.appendChild(li);
                 });
                 ul.innerHTML = "";

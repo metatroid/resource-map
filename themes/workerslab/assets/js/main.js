@@ -37325,6 +37325,329 @@ ngAriaModule.directive('ngShow', ['$aria', function($aria) {
 
 })(window, window.angular);
 
+/**
+ * @license AngularJS v1.5.5
+ * (c) 2010-2016 Google, Inc. http://angularjs.org
+ * License: MIT
+ */
+(function(window, angular) {'use strict';
+
+/**
+ * @ngdoc module
+ * @name ngCookies
+ * @description
+ *
+ * # ngCookies
+ *
+ * The `ngCookies` module provides a convenient wrapper for reading and writing browser cookies.
+ *
+ *
+ * <div doc-module-components="ngCookies"></div>
+ *
+ * See {@link ngCookies.$cookies `$cookies`} for usage.
+ */
+
+
+angular.module('ngCookies', ['ng']).
+  /**
+   * @ngdoc provider
+   * @name $cookiesProvider
+   * @description
+   * Use `$cookiesProvider` to change the default behavior of the {@link ngCookies.$cookies $cookies} service.
+   * */
+   provider('$cookies', [function $CookiesProvider() {
+    /**
+     * @ngdoc property
+     * @name $cookiesProvider#defaults
+     * @description
+     *
+     * Object containing default options to pass when setting cookies.
+     *
+     * The object may have following properties:
+     *
+     * - **path** - `{string}` - The cookie will be available only for this path and its
+     *   sub-paths. By default, this is the URL that appears in your `<base>` tag.
+     * - **domain** - `{string}` - The cookie will be available only for this domain and
+     *   its sub-domains. For security reasons the user agent will not accept the cookie
+     *   if the current domain is not a sub-domain of this domain or equal to it.
+     * - **expires** - `{string|Date}` - String of the form "Wdy, DD Mon YYYY HH:MM:SS GMT"
+     *   or a Date object indicating the exact date/time this cookie will expire.
+     * - **secure** - `{boolean}` - If `true`, then the cookie will only be available through a
+     *   secured connection.
+     *
+     * Note: By default, the address that appears in your `<base>` tag will be used as the path.
+     * This is important so that cookies will be visible for all routes when html5mode is enabled.
+     *
+     **/
+    var defaults = this.defaults = {};
+
+    function calcOptions(options) {
+      return options ? angular.extend({}, defaults, options) : defaults;
+    }
+
+    /**
+     * @ngdoc service
+     * @name $cookies
+     *
+     * @description
+     * Provides read/write access to browser's cookies.
+     *
+     * <div class="alert alert-info">
+     * Up until Angular 1.3, `$cookies` exposed properties that represented the
+     * current browser cookie values. In version 1.4, this behavior has changed, and
+     * `$cookies` now provides a standard api of getters, setters etc.
+     * </div>
+     *
+     * Requires the {@link ngCookies `ngCookies`} module to be installed.
+     *
+     * @example
+     *
+     * ```js
+     * angular.module('cookiesExample', ['ngCookies'])
+     *   .controller('ExampleController', ['$cookies', function($cookies) {
+     *     // Retrieving a cookie
+     *     var favoriteCookie = $cookies.get('myFavorite');
+     *     // Setting a cookie
+     *     $cookies.put('myFavorite', 'oatmeal');
+     *   }]);
+     * ```
+     */
+    this.$get = ['$$cookieReader', '$$cookieWriter', function($$cookieReader, $$cookieWriter) {
+      return {
+        /**
+         * @ngdoc method
+         * @name $cookies#get
+         *
+         * @description
+         * Returns the value of given cookie key
+         *
+         * @param {string} key Id to use for lookup.
+         * @returns {string} Raw cookie value.
+         */
+        get: function(key) {
+          return $$cookieReader()[key];
+        },
+
+        /**
+         * @ngdoc method
+         * @name $cookies#getObject
+         *
+         * @description
+         * Returns the deserialized value of given cookie key
+         *
+         * @param {string} key Id to use for lookup.
+         * @returns {Object} Deserialized cookie value.
+         */
+        getObject: function(key) {
+          var value = this.get(key);
+          return value ? angular.fromJson(value) : value;
+        },
+
+        /**
+         * @ngdoc method
+         * @name $cookies#getAll
+         *
+         * @description
+         * Returns a key value object with all the cookies
+         *
+         * @returns {Object} All cookies
+         */
+        getAll: function() {
+          return $$cookieReader();
+        },
+
+        /**
+         * @ngdoc method
+         * @name $cookies#put
+         *
+         * @description
+         * Sets a value for given cookie key
+         *
+         * @param {string} key Id for the `value`.
+         * @param {string} value Raw value to be stored.
+         * @param {Object=} options Options object.
+         *    See {@link ngCookies.$cookiesProvider#defaults $cookiesProvider.defaults}
+         */
+        put: function(key, value, options) {
+          $$cookieWriter(key, value, calcOptions(options));
+        },
+
+        /**
+         * @ngdoc method
+         * @name $cookies#putObject
+         *
+         * @description
+         * Serializes and sets a value for given cookie key
+         *
+         * @param {string} key Id for the `value`.
+         * @param {Object} value Value to be stored.
+         * @param {Object=} options Options object.
+         *    See {@link ngCookies.$cookiesProvider#defaults $cookiesProvider.defaults}
+         */
+        putObject: function(key, value, options) {
+          this.put(key, angular.toJson(value), options);
+        },
+
+        /**
+         * @ngdoc method
+         * @name $cookies#remove
+         *
+         * @description
+         * Remove given cookie
+         *
+         * @param {string} key Id of the key-value pair to delete.
+         * @param {Object=} options Options object.
+         *    See {@link ngCookies.$cookiesProvider#defaults $cookiesProvider.defaults}
+         */
+        remove: function(key, options) {
+          $$cookieWriter(key, undefined, calcOptions(options));
+        }
+      };
+    }];
+  }]);
+
+angular.module('ngCookies').
+/**
+ * @ngdoc service
+ * @name $cookieStore
+ * @deprecated
+ * @requires $cookies
+ *
+ * @description
+ * Provides a key-value (string-object) storage, that is backed by session cookies.
+ * Objects put or retrieved from this storage are automatically serialized or
+ * deserialized by angular's toJson/fromJson.
+ *
+ * Requires the {@link ngCookies `ngCookies`} module to be installed.
+ *
+ * <div class="alert alert-danger">
+ * **Note:** The $cookieStore service is **deprecated**.
+ * Please use the {@link ngCookies.$cookies `$cookies`} service instead.
+ * </div>
+ *
+ * @example
+ *
+ * ```js
+ * angular.module('cookieStoreExample', ['ngCookies'])
+ *   .controller('ExampleController', ['$cookieStore', function($cookieStore) {
+ *     // Put cookie
+ *     $cookieStore.put('myFavorite','oatmeal');
+ *     // Get cookie
+ *     var favoriteCookie = $cookieStore.get('myFavorite');
+ *     // Removing a cookie
+ *     $cookieStore.remove('myFavorite');
+ *   }]);
+ * ```
+ */
+ factory('$cookieStore', ['$cookies', function($cookies) {
+
+    return {
+      /**
+       * @ngdoc method
+       * @name $cookieStore#get
+       *
+       * @description
+       * Returns the value of given cookie key
+       *
+       * @param {string} key Id to use for lookup.
+       * @returns {Object} Deserialized cookie value, undefined if the cookie does not exist.
+       */
+      get: function(key) {
+        return $cookies.getObject(key);
+      },
+
+      /**
+       * @ngdoc method
+       * @name $cookieStore#put
+       *
+       * @description
+       * Sets a value for given cookie key
+       *
+       * @param {string} key Id for the `value`.
+       * @param {Object} value Value to be stored.
+       */
+      put: function(key, value) {
+        $cookies.putObject(key, value);
+      },
+
+      /**
+       * @ngdoc method
+       * @name $cookieStore#remove
+       *
+       * @description
+       * Remove given cookie
+       *
+       * @param {string} key Id of the key-value pair to delete.
+       */
+      remove: function(key) {
+        $cookies.remove(key);
+      }
+    };
+
+  }]);
+
+/**
+ * @name $$cookieWriter
+ * @requires $document
+ *
+ * @description
+ * This is a private service for writing cookies
+ *
+ * @param {string} name Cookie name
+ * @param {string=} value Cookie value (if undefined, cookie will be deleted)
+ * @param {Object=} options Object with options that need to be stored for the cookie.
+ */
+function $$CookieWriter($document, $log, $browser) {
+  var cookiePath = $browser.baseHref();
+  var rawDocument = $document[0];
+
+  function buildCookieString(name, value, options) {
+    var path, expires;
+    options = options || {};
+    expires = options.expires;
+    path = angular.isDefined(options.path) ? options.path : cookiePath;
+    if (angular.isUndefined(value)) {
+      expires = 'Thu, 01 Jan 1970 00:00:00 GMT';
+      value = '';
+    }
+    if (angular.isString(expires)) {
+      expires = new Date(expires);
+    }
+
+    var str = encodeURIComponent(name) + '=' + encodeURIComponent(value);
+    str += path ? ';path=' + path : '';
+    str += options.domain ? ';domain=' + options.domain : '';
+    str += expires ? ';expires=' + expires.toUTCString() : '';
+    str += options.secure ? ';secure' : '';
+
+    // per http://www.ietf.org/rfc/rfc2109.txt browser must allow at minimum:
+    // - 300 cookies
+    // - 20 cookies per unique domain
+    // - 4096 bytes per cookie
+    var cookieLength = str.length + 1;
+    if (cookieLength > 4096) {
+      $log.warn("Cookie '" + name +
+        "' possibly not set or overflowed because it was too large (" +
+        cookieLength + " > 4096 bytes)!");
+    }
+
+    return str;
+  }
+
+  return function(name, value, options) {
+    rawDocument.cookie = buildCookieString(name, value, options);
+  };
+}
+
+$$CookieWriter.$inject = ['$document', '$log', '$browser'];
+
+angular.module('ngCookies').provider('$$cookieWriter', function $$CookieWriterProvider() {
+  this.$get = $$CookieWriter;
+});
+
+
+})(window, window.angular);
+
 /*!
  * Angular Material Design
  * https://github.com/angular/material
@@ -62186,329 +62509,6 @@ angular.module("material.core").constant("$MD_THEME_CSS", "md-autocomplete.md-TH
 
 
 })(window, window.angular);;window.ngMaterial={version:{full: "1.0.7"}};
-/**
- * @license AngularJS v1.5.5
- * (c) 2010-2016 Google, Inc. http://angularjs.org
- * License: MIT
- */
-(function(window, angular) {'use strict';
-
-/**
- * @ngdoc module
- * @name ngCookies
- * @description
- *
- * # ngCookies
- *
- * The `ngCookies` module provides a convenient wrapper for reading and writing browser cookies.
- *
- *
- * <div doc-module-components="ngCookies"></div>
- *
- * See {@link ngCookies.$cookies `$cookies`} for usage.
- */
-
-
-angular.module('ngCookies', ['ng']).
-  /**
-   * @ngdoc provider
-   * @name $cookiesProvider
-   * @description
-   * Use `$cookiesProvider` to change the default behavior of the {@link ngCookies.$cookies $cookies} service.
-   * */
-   provider('$cookies', [function $CookiesProvider() {
-    /**
-     * @ngdoc property
-     * @name $cookiesProvider#defaults
-     * @description
-     *
-     * Object containing default options to pass when setting cookies.
-     *
-     * The object may have following properties:
-     *
-     * - **path** - `{string}` - The cookie will be available only for this path and its
-     *   sub-paths. By default, this is the URL that appears in your `<base>` tag.
-     * - **domain** - `{string}` - The cookie will be available only for this domain and
-     *   its sub-domains. For security reasons the user agent will not accept the cookie
-     *   if the current domain is not a sub-domain of this domain or equal to it.
-     * - **expires** - `{string|Date}` - String of the form "Wdy, DD Mon YYYY HH:MM:SS GMT"
-     *   or a Date object indicating the exact date/time this cookie will expire.
-     * - **secure** - `{boolean}` - If `true`, then the cookie will only be available through a
-     *   secured connection.
-     *
-     * Note: By default, the address that appears in your `<base>` tag will be used as the path.
-     * This is important so that cookies will be visible for all routes when html5mode is enabled.
-     *
-     **/
-    var defaults = this.defaults = {};
-
-    function calcOptions(options) {
-      return options ? angular.extend({}, defaults, options) : defaults;
-    }
-
-    /**
-     * @ngdoc service
-     * @name $cookies
-     *
-     * @description
-     * Provides read/write access to browser's cookies.
-     *
-     * <div class="alert alert-info">
-     * Up until Angular 1.3, `$cookies` exposed properties that represented the
-     * current browser cookie values. In version 1.4, this behavior has changed, and
-     * `$cookies` now provides a standard api of getters, setters etc.
-     * </div>
-     *
-     * Requires the {@link ngCookies `ngCookies`} module to be installed.
-     *
-     * @example
-     *
-     * ```js
-     * angular.module('cookiesExample', ['ngCookies'])
-     *   .controller('ExampleController', ['$cookies', function($cookies) {
-     *     // Retrieving a cookie
-     *     var favoriteCookie = $cookies.get('myFavorite');
-     *     // Setting a cookie
-     *     $cookies.put('myFavorite', 'oatmeal');
-     *   }]);
-     * ```
-     */
-    this.$get = ['$$cookieReader', '$$cookieWriter', function($$cookieReader, $$cookieWriter) {
-      return {
-        /**
-         * @ngdoc method
-         * @name $cookies#get
-         *
-         * @description
-         * Returns the value of given cookie key
-         *
-         * @param {string} key Id to use for lookup.
-         * @returns {string} Raw cookie value.
-         */
-        get: function(key) {
-          return $$cookieReader()[key];
-        },
-
-        /**
-         * @ngdoc method
-         * @name $cookies#getObject
-         *
-         * @description
-         * Returns the deserialized value of given cookie key
-         *
-         * @param {string} key Id to use for lookup.
-         * @returns {Object} Deserialized cookie value.
-         */
-        getObject: function(key) {
-          var value = this.get(key);
-          return value ? angular.fromJson(value) : value;
-        },
-
-        /**
-         * @ngdoc method
-         * @name $cookies#getAll
-         *
-         * @description
-         * Returns a key value object with all the cookies
-         *
-         * @returns {Object} All cookies
-         */
-        getAll: function() {
-          return $$cookieReader();
-        },
-
-        /**
-         * @ngdoc method
-         * @name $cookies#put
-         *
-         * @description
-         * Sets a value for given cookie key
-         *
-         * @param {string} key Id for the `value`.
-         * @param {string} value Raw value to be stored.
-         * @param {Object=} options Options object.
-         *    See {@link ngCookies.$cookiesProvider#defaults $cookiesProvider.defaults}
-         */
-        put: function(key, value, options) {
-          $$cookieWriter(key, value, calcOptions(options));
-        },
-
-        /**
-         * @ngdoc method
-         * @name $cookies#putObject
-         *
-         * @description
-         * Serializes and sets a value for given cookie key
-         *
-         * @param {string} key Id for the `value`.
-         * @param {Object} value Value to be stored.
-         * @param {Object=} options Options object.
-         *    See {@link ngCookies.$cookiesProvider#defaults $cookiesProvider.defaults}
-         */
-        putObject: function(key, value, options) {
-          this.put(key, angular.toJson(value), options);
-        },
-
-        /**
-         * @ngdoc method
-         * @name $cookies#remove
-         *
-         * @description
-         * Remove given cookie
-         *
-         * @param {string} key Id of the key-value pair to delete.
-         * @param {Object=} options Options object.
-         *    See {@link ngCookies.$cookiesProvider#defaults $cookiesProvider.defaults}
-         */
-        remove: function(key, options) {
-          $$cookieWriter(key, undefined, calcOptions(options));
-        }
-      };
-    }];
-  }]);
-
-angular.module('ngCookies').
-/**
- * @ngdoc service
- * @name $cookieStore
- * @deprecated
- * @requires $cookies
- *
- * @description
- * Provides a key-value (string-object) storage, that is backed by session cookies.
- * Objects put or retrieved from this storage are automatically serialized or
- * deserialized by angular's toJson/fromJson.
- *
- * Requires the {@link ngCookies `ngCookies`} module to be installed.
- *
- * <div class="alert alert-danger">
- * **Note:** The $cookieStore service is **deprecated**.
- * Please use the {@link ngCookies.$cookies `$cookies`} service instead.
- * </div>
- *
- * @example
- *
- * ```js
- * angular.module('cookieStoreExample', ['ngCookies'])
- *   .controller('ExampleController', ['$cookieStore', function($cookieStore) {
- *     // Put cookie
- *     $cookieStore.put('myFavorite','oatmeal');
- *     // Get cookie
- *     var favoriteCookie = $cookieStore.get('myFavorite');
- *     // Removing a cookie
- *     $cookieStore.remove('myFavorite');
- *   }]);
- * ```
- */
- factory('$cookieStore', ['$cookies', function($cookies) {
-
-    return {
-      /**
-       * @ngdoc method
-       * @name $cookieStore#get
-       *
-       * @description
-       * Returns the value of given cookie key
-       *
-       * @param {string} key Id to use for lookup.
-       * @returns {Object} Deserialized cookie value, undefined if the cookie does not exist.
-       */
-      get: function(key) {
-        return $cookies.getObject(key);
-      },
-
-      /**
-       * @ngdoc method
-       * @name $cookieStore#put
-       *
-       * @description
-       * Sets a value for given cookie key
-       *
-       * @param {string} key Id for the `value`.
-       * @param {Object} value Value to be stored.
-       */
-      put: function(key, value) {
-        $cookies.putObject(key, value);
-      },
-
-      /**
-       * @ngdoc method
-       * @name $cookieStore#remove
-       *
-       * @description
-       * Remove given cookie
-       *
-       * @param {string} key Id of the key-value pair to delete.
-       */
-      remove: function(key) {
-        $cookies.remove(key);
-      }
-    };
-
-  }]);
-
-/**
- * @name $$cookieWriter
- * @requires $document
- *
- * @description
- * This is a private service for writing cookies
- *
- * @param {string} name Cookie name
- * @param {string=} value Cookie value (if undefined, cookie will be deleted)
- * @param {Object=} options Object with options that need to be stored for the cookie.
- */
-function $$CookieWriter($document, $log, $browser) {
-  var cookiePath = $browser.baseHref();
-  var rawDocument = $document[0];
-
-  function buildCookieString(name, value, options) {
-    var path, expires;
-    options = options || {};
-    expires = options.expires;
-    path = angular.isDefined(options.path) ? options.path : cookiePath;
-    if (angular.isUndefined(value)) {
-      expires = 'Thu, 01 Jan 1970 00:00:00 GMT';
-      value = '';
-    }
-    if (angular.isString(expires)) {
-      expires = new Date(expires);
-    }
-
-    var str = encodeURIComponent(name) + '=' + encodeURIComponent(value);
-    str += path ? ';path=' + path : '';
-    str += options.domain ? ';domain=' + options.domain : '';
-    str += expires ? ';expires=' + expires.toUTCString() : '';
-    str += options.secure ? ';secure' : '';
-
-    // per http://www.ietf.org/rfc/rfc2109.txt browser must allow at minimum:
-    // - 300 cookies
-    // - 20 cookies per unique domain
-    // - 4096 bytes per cookie
-    var cookieLength = str.length + 1;
-    if (cookieLength > 4096) {
-      $log.warn("Cookie '" + name +
-        "' possibly not set or overflowed because it was too large (" +
-        cookieLength + " > 4096 bytes)!");
-    }
-
-    return str;
-  }
-
-  return function(name, value, options) {
-    rawDocument.cookie = buildCookieString(name, value, options);
-  };
-}
-
-$$CookieWriter.$inject = ['$document', '$log', '$browser'];
-
-angular.module('ngCookies').provider('$$cookieWriter', function $$CookieWriterProvider() {
-  this.$get = $$CookieWriter;
-});
-
-
-})(window, window.angular);
-
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 function corslite(n,t,o){function e(n){return n>=200&&300>n||304===n}function i(){void 0===r.status||e(r.status)?t.call(r,null,r):t.call(r,r,null)}var l=!1;if("undefined"==typeof window.XMLHttpRequest)return t(Error("Browser not supported"));if("undefined"==typeof o){var u=n.match(/^\s*https?:\/\/[^\/]*/);o=u&&u[0]!==location.protocol+"//"+location.domain+(location.port?":"+location.port:"")}var r=new window.XMLHttpRequest;if(o&&!("withCredentials"in r)){r=new window.XDomainRequest;var a=t;t=function(){if(l)a.apply(this,arguments);else{var n=this,t=arguments;setTimeout(function(){a.apply(n,t)},0)}}}return"onload"in r?r.onload=i:r.onreadystatechange=function(){4===r.readyState&&i()},r.onerror=function(n){t.call(this,n||!0,null),t=function(){}},r.onprogress=function(){},r.ontimeout=function(n){t.call(this,n,null),t=function(){}},r.onabort=function(n){t.call(this,n,null),t=function(){}},r.open("GET",n,!0),r.send(null),l=!0,r}"undefined"!=typeof module&&(module.exports=corslite);
 },{}],2:[function(require,module,exports){
@@ -67960,471 +67960,6 @@ return Flickity;
 /*! modernizr 3.3.1 (Custom Build) | MIT *
  * http://modernizr.com/download/?-csstransitions-prefixed-setclasses !*/
 !function(e,n,t){function r(e,n){return typeof e===n}function o(){var e,n,t,o,s,i,a;for(var f in C)if(C.hasOwnProperty(f)){if(e=[],n=C[f],n.name&&(e.push(n.name.toLowerCase()),n.options&&n.options.aliases&&n.options.aliases.length))for(t=0;t<n.options.aliases.length;t++)e.push(n.options.aliases[t].toLowerCase());for(o=r(n.fn,"function")?n.fn():n.fn,s=0;s<e.length;s++)i=e[s],a=i.split("."),1===a.length?Modernizr[a[0]]=o:(!Modernizr[a[0]]||Modernizr[a[0]]instanceof Boolean||(Modernizr[a[0]]=new Boolean(Modernizr[a[0]])),Modernizr[a[0]][a[1]]=o),g.push((o?"":"no-")+a.join("-"))}}function s(e){var n=w.className,t=Modernizr._config.classPrefix||"";if(x&&(n=n.baseVal),Modernizr._config.enableJSClass){var r=new RegExp("(^|\\s)"+t+"no-js(\\s|$)");n=n.replace(r,"$1"+t+"js$2")}Modernizr._config.enableClasses&&(n+=" "+t+e.join(" "+t),x?w.className.baseVal=n:w.className=n)}function i(e){return e.replace(/([a-z])-([a-z])/g,function(e,n,t){return n+t.toUpperCase()}).replace(/^-/,"")}function a(e,n){return!!~(""+e).indexOf(n)}function f(){return"function"!=typeof n.createElement?n.createElement(arguments[0]):x?n.createElementNS.call(n,"http://www.w3.org/2000/svg",arguments[0]):n.createElement.apply(n,arguments)}function l(e,n){return function(){return e.apply(n,arguments)}}function u(e,n,t){var o;for(var s in e)if(e[s]in n)return t===!1?e[s]:(o=n[e[s]],r(o,"function")?l(o,t||n):o);return!1}function p(e){return e.replace(/([A-Z])/g,function(e,n){return"-"+n.toLowerCase()}).replace(/^ms-/,"-ms-")}function d(){var e=n.body;return e||(e=f(x?"svg":"body"),e.fake=!0),e}function c(e,t,r,o){var s,i,a,l,u="modernizr",p=f("div"),c=d();if(parseInt(r,10))for(;r--;)a=f("div"),a.id=o?o[r]:u+(r+1),p.appendChild(a);return s=f("style"),s.type="text/css",s.id="s"+u,(c.fake?c:p).appendChild(s),c.appendChild(p),s.styleSheet?s.styleSheet.cssText=e:s.appendChild(n.createTextNode(e)),p.id=u,c.fake&&(c.style.background="",c.style.overflow="hidden",l=w.style.overflow,w.style.overflow="hidden",w.appendChild(c)),i=t(p,e),c.fake?(c.parentNode.removeChild(c),w.style.overflow=l,w.offsetHeight):p.parentNode.removeChild(p),!!i}function m(n,r){var o=n.length;if("CSS"in e&&"supports"in e.CSS){for(;o--;)if(e.CSS.supports(p(n[o]),r))return!0;return!1}if("CSSSupportsRule"in e){for(var s=[];o--;)s.push("("+p(n[o])+":"+r+")");return s=s.join(" or "),c("@supports ("+s+") { #modernizr { position: absolute; } }",function(e){return"absolute"==getComputedStyle(e,null).position})}return t}function v(e,n,o,s){function l(){p&&(delete N.style,delete N.modElem)}if(s=r(s,"undefined")?!1:s,!r(o,"undefined")){var u=m(e,o);if(!r(u,"undefined"))return u}for(var p,d,c,v,h,y=["modernizr","tspan"];!N.style;)p=!0,N.modElem=f(y.shift()),N.style=N.modElem.style;for(c=e.length,d=0;c>d;d++)if(v=e[d],h=N.style[v],a(v,"-")&&(v=i(v)),N.style[v]!==t){if(s||r(o,"undefined"))return l(),"pfx"==n?v:!0;try{N.style[v]=o}catch(g){}if(N.style[v]!=h)return l(),"pfx"==n?v:!0}return l(),!1}function h(e,n,t,o,s){var i=e.charAt(0).toUpperCase()+e.slice(1),a=(e+" "+b.join(i+" ")+i).split(" ");return r(n,"string")||r(n,"undefined")?v(a,n,o,s):(a=(e+" "+P.join(i+" ")+i).split(" "),u(a,n,t))}function y(e,n,r){return h(e,t,t,n,r)}var g=[],C=[],_={_version:"3.3.1",_config:{classPrefix:"",enableClasses:!0,enableJSClass:!0,usePrefixes:!0},_q:[],on:function(e,n){var t=this;setTimeout(function(){n(t[e])},0)},addTest:function(e,n,t){C.push({name:e,fn:n,options:t})},addAsyncTest:function(e){C.push({name:null,fn:e})}},Modernizr=function(){};Modernizr.prototype=_,Modernizr=new Modernizr;var w=n.documentElement,x="svg"===w.nodeName.toLowerCase(),S="Moz O ms Webkit",b=_._config.usePrefixes?S.split(" "):[];_._cssomPrefixes=b;var E=function(n){var r,o=prefixes.length,s=e.CSSRule;if("undefined"==typeof s)return t;if(!n)return!1;if(n=n.replace(/^@/,""),r=n.replace(/-/g,"_").toUpperCase()+"_RULE",r in s)return"@"+n;for(var i=0;o>i;i++){var a=prefixes[i],f=a.toUpperCase()+"_"+r;if(f in s)return"@-"+a.toLowerCase()+"-"+n}return!1};_.atRule=E;var P=_._config.usePrefixes?S.toLowerCase().split(" "):[];_._domPrefixes=P;var z={elem:f("modernizr")};Modernizr._q.push(function(){delete z.elem});var N={style:z.elem.style};Modernizr._q.unshift(function(){delete N.style}),_.testAllProps=h;_.prefixed=function(e,n,t){return 0===e.indexOf("@")?E(e):(-1!=e.indexOf("-")&&(e=i(e)),n?h(e,n,t):h(e,"pfx"))};_.testAllProps=y,Modernizr.addTest("csstransitions",y("transition","all",!0)),o(),s(g),delete _.addTest,delete _.addAsyncTest;for(var T=0;T<Modernizr._q.length;T++)Modernizr._q[T]();e.Modernizr=Modernizr}(window,document);
-/*!
- * viewport-units-buggyfill v0.6.0
- * @web: https://github.com/rodneyrehm/viewport-units-buggyfill/
- * @author: Rodney Rehm - http://rodneyrehm.de/en/
- */
-
-(function (root, factory) {
-  'use strict';
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define([], factory);
-  } else if (typeof exports === 'object') {
-    // Node. Does not work with strict CommonJS, but
-    // only CommonJS-like enviroments that support module.exports,
-    // like Node.
-    module.exports = factory();
-  } else {
-    // Browser globals (root is window)
-    root.viewportUnitsBuggyfill = factory();
-  }
-}(this, function () {
-  'use strict';
-  /*global document, window, navigator, location, XMLHttpRequest, XDomainRequest, CustomEvent*/
-
-  var initialized = false;
-  var options;
-  var userAgent = window.navigator.userAgent;
-  var viewportUnitExpression = /([+-]?[0-9.]+)(vh|vw|vmin|vmax)/g;
-  var forEach = [].forEach;
-  var dimensions;
-  var declarations;
-  var styleNode;
-  var isBuggyIE = /MSIE [0-9]\./i.test(userAgent);
-  var isOldIE = /MSIE [0-8]\./i.test(userAgent);
-  var isOperaMini = userAgent.indexOf('Opera Mini') > -1;
-
-  var isMobileSafari = /(iPhone|iPod|iPad).+AppleWebKit/i.test(userAgent) && (function() {
-    // Regexp for iOS-version tested against the following userAgent strings:
-    // Example WebView UserAgents:
-    // * iOS Chrome on iOS8: "Mozilla/5.0 (iPad; CPU OS 8_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) CriOS/39.0.2171.50 Mobile/12B410 Safari/600.1.4"
-    // * iOS Facebook on iOS7: "Mozilla/5.0 (iPhone; CPU iPhone OS 7_1_1 like Mac OS X) AppleWebKit/537.51.2 (KHTML, like Gecko) Mobile/11D201 [FBAN/FBIOS;FBAV/12.1.0.24.20; FBBV/3214247; FBDV/iPhone6,1;FBMD/iPhone; FBSN/iPhone OS;FBSV/7.1.1; FBSS/2; FBCR/AT&T;FBID/phone;FBLC/en_US;FBOP/5]"
-    // Example Safari UserAgents:
-    // * Safari iOS8: "Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4"
-    // * Safari iOS7: "Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A4449d Safari/9537.53"
-    var iOSversion = userAgent.match(/OS (\d)/);
-    // viewport units work fine in mobile Safari and webView on iOS 8+
-    return iOSversion && iOSversion.length>1 && parseInt(iOSversion[1]) < 10;
-  })();
-
-  var isBadStockAndroid = (function() {
-    // Android stock browser test derived from
-    // http://stackoverflow.com/questions/24926221/distinguish-android-chrome-from-stock-browser-stock-browsers-user-agent-contai
-    var isAndroid = userAgent.indexOf(' Android ') > -1;
-    if (!isAndroid) {
-      return false;
-    }
-
-    var isStockAndroid = userAgent.indexOf('Version/') > -1;
-    if (!isStockAndroid) {
-      return false;
-    }
-
-    var versionNumber = parseFloat((userAgent.match('Android ([0-9.]+)') || [])[1]);
-    // anything below 4.4 uses WebKit without *any* viewport support,
-    // 4.4 has issues with viewport units within calc()
-    return versionNumber <= 4.4;
-  })();
-
-  // added check for IE10, IE11 and Edge < 20, since it *still* doesn't understand vmax
-  // http://caniuse.com/#feat=viewport-units
-  if (!isBuggyIE) {
-    isBuggyIE = !!navigator.userAgent.match(/MSIE 10\.|Trident.*rv[ :]*1[01]\.| Edge\/1\d\./);
-  }
-
-  // Polyfill for creating CustomEvents on IE9/10/11
-  // from https://github.com/krambuhl/custom-event-polyfill
-  try {
-    new CustomEvent('test');
-  } catch(e) {
-    var CustomEvent = function(event, params) {
-      var evt;
-      params = params || {
-        bubbles: false,
-        cancelable: false,
-        detail: undefined
-      };
-
-      evt = document.createEvent('CustomEvent');
-      evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-      return evt;
-    };
-    CustomEvent.prototype = window.Event.prototype;
-    window.CustomEvent = CustomEvent; // expose definition to window
-  }
-
-  function debounce(func, wait) {
-    var timeout;
-    return function() {
-      var context = this;
-      var args = arguments;
-      var callback = function() {
-        func.apply(context, args);
-      };
-
-      clearTimeout(timeout);
-      timeout = setTimeout(callback, wait);
-    };
-  }
-
-  // from http://stackoverflow.com/questions/326069/how-to-identify-if-a-webpage-is-being-loaded-inside-an-iframe-or-directly-into-t
-  function inIframe() {
-    try {
-      return window.self !== window.top;
-    } catch (e) {
-      return true;
-    }
-  }
-
-  function initialize(initOptions) {
-    if (initialized) {
-      return;
-    }
-
-    if (initOptions === true) {
-      initOptions = {
-        force: true
-      };
-    }
-
-    options = initOptions || {};
-    options.isMobileSafari = isMobileSafari;
-    options.isBadStockAndroid = isBadStockAndroid;
-
-    if (options.ignoreVmax && !options.force && !isOldIE) {
-      // modern IE (10 and up) do not support vmin/vmax,
-      // but chances are this unit is not even used, so
-      // allow overwriting the "hacktivation"
-      // https://github.com/rodneyrehm/viewport-units-buggyfill/issues/56
-      isBuggyIE = false;
-    }
-
-    if (isOldIE || (!options.force && !isMobileSafari && !isBuggyIE && !isBadStockAndroid && !isOperaMini && (!options.hacks || !options.hacks.required(options)))) {
-      // this buggyfill only applies to mobile safari, IE9-10 and the Stock Android Browser.
-      if (window.console && isOldIE) {
-        console.info('viewport-units-buggyfill requires a proper CSSOM and basic viewport unit support, which are not available in IE8 and below');
-      }
-
-      return {
-        init: function () {}
-      };
-    }
-
-    // fire a custom event that buggyfill was initialize
-    window.dispatchEvent(new CustomEvent('viewport-units-buggyfill-init'));
-
-    options.hacks && options.hacks.initialize(options);
-
-    initialized = true;
-    styleNode = document.createElement('style');
-    styleNode.id = 'patched-viewport';
-    document.head.appendChild(styleNode);
-
-    // Issue #6: Cross Origin Stylesheets are not accessible through CSSOM,
-    // therefore download and inject them as <style> to circumvent SOP.
-    importCrossOriginLinks(function() {
-      var _refresh = debounce(refresh, options.refreshDebounceWait || 100);
-      // doing a full refresh rather than updateStyles because an orientationchange
-      // could activate different stylesheets
-      window.addEventListener('orientationchange', _refresh, true);
-      // orientationchange might have happened while in a different window
-      window.addEventListener('pageshow', _refresh, true);
-
-      if (options.force || isBuggyIE || inIframe()) {
-        window.addEventListener('resize', _refresh, true);
-        options._listeningToResize = true;
-      }
-
-      options.hacks && options.hacks.initializeEvents(options, refresh, _refresh);
-
-      refresh();
-    });
-  }
-
-  function updateStyles() {
-    styleNode.textContent = getReplacedViewportUnits();
-    // move to the end in case inline <style>s were added dynamically
-    styleNode.parentNode.appendChild(styleNode);
-    // fire a custom event that styles were updated
-    window.dispatchEvent(new CustomEvent('viewport-units-buggyfill-style'));
-  }
-
-  function refresh() {
-    if (!initialized) {
-      return;
-    }
-
-    findProperties();
-
-    // iOS Safari will report window.innerWidth and .innerHeight as 0 unless a timeout is used here.
-    // TODO: figure out WHY innerWidth === 0
-    setTimeout(function() {
-      updateStyles();
-    }, 1);
-  }
-  
-  // http://stackoverflow.com/a/23613052
-  function processStylesheet(ss) {
-    // cssRules respects same-origin policy, as per
-    // https://code.google.com/p/chromium/issues/detail?id=49001#c10.
-    try {
-      if (!ss.cssRules) { return; }
-    } catch(e) {
-      if (e.name !== 'SecurityError') { throw e; }
-      return;
-    }
-    // ss.cssRules is available, so proceed with desired operations.
-    var rules = [];
-    for (var i = 0; i < ss.cssRules.length; i++) {
-      var rule = ss.cssRules[i];
-      rules.push(rule);
-    }
-    return rules;
-  }
-
-  function findProperties() {
-    declarations = [];
-    forEach.call(document.styleSheets, function(sheet) {
-      var cssRules = processStylesheet(sheet);
-
-      if (!cssRules || sheet.ownerNode.id === 'patched-viewport' || sheet.ownerNode.getAttribute('data-viewport-units-buggyfill') === 'ignore') {
-        // skip entire sheet because no rules are present, it's supposed to be ignored or it's the target-element of the buggyfill
-        return;
-      }
-
-      if (sheet.media && sheet.media.mediaText && window.matchMedia && !window.matchMedia(sheet.media.mediaText).matches) {
-        // skip entire sheet because media attribute doesn't match
-        return;
-      }
-
-      forEach.call(cssRules, findDeclarations);
-    });
-
-    return declarations;
-  }
-
-  function findDeclarations(rule) {
-    if (rule.type === 7) {
-      var value;
-
-      // there may be a case where accessing cssText throws an error.
-      // I could not reproduce this issue, but the worst that can happen
-      // this way is an animation not running properly.
-      // not awesome, but probably better than a script error
-      // see https://github.com/rodneyrehm/viewport-units-buggyfill/issues/21
-      try {
-        value = rule.cssText;
-      } catch(e) {
-        return;
-      }
-
-      viewportUnitExpression.lastIndex = 0;
-      if (viewportUnitExpression.test(value)) {
-        // KeyframesRule does not have a CSS-PropertyName
-        declarations.push([rule, null, value]);
-        options.hacks && options.hacks.findDeclarations(declarations, rule, null, value);
-      }
-
-      return;
-    }
-
-    if (!rule.style) {
-      if (!rule.cssRules) {
-        return;
-      }
-
-      forEach.call(rule.cssRules, function(_rule) {
-        findDeclarations(_rule);
-      });
-
-      return;
-    }
-
-    forEach.call(rule.style, function(name) {
-      var value = rule.style.getPropertyValue(name);
-      // preserve those !important rules
-      if (rule.style.getPropertyPriority(name)) {
-        value += ' !important';
-      }
-
-      viewportUnitExpression.lastIndex = 0;
-      if (viewportUnitExpression.test(value)) {
-        declarations.push([rule, name, value]);
-        options.hacks && options.hacks.findDeclarations(declarations, rule, name, value);
-      }
-    });
-  }
-
-  function getReplacedViewportUnits() {
-    dimensions = getViewport();
-
-    var css = [];
-    var buffer = [];
-    var open;
-    var close;
-
-    declarations.forEach(function(item) {
-      var _item = overwriteDeclaration.apply(null, item);
-      var _open = _item.selector.length ? (_item.selector.join(' {\n') + ' {\n') : '';
-      var _close = new Array(_item.selector.length + 1).join('\n}');
-
-      if (!_open || _open !== open) {
-        if (buffer.length) {
-          css.push(open + buffer.join('\n') + close);
-          buffer.length = 0;
-        }
-
-        if (_open) {
-          open = _open;
-          close = _close;
-          buffer.push(_item.content);
-        } else {
-          css.push(_item.content);
-          open = null;
-          close = null;
-        }
-
-        return;
-      }
-
-      if (_open && !open) {
-        open = _open;
-        close = _close;
-      }
-
-      buffer.push(_item.content);
-    });
-
-    if (buffer.length) {
-      css.push(open + buffer.join('\n') + close);
-    }
-
-    // Opera Mini messes up on the content hack (it replaces the DOM node's innerHTML with the value).
-    // This fixes it. We test for Opera Mini only since it is the most expensive CSS selector
-    // see https://developer.mozilla.org/en-US/docs/Web/CSS/Universal_selectors
-    if (isOperaMini) {
-      css.push('* { content: normal !important; }');
-    }
-
-    return css.join('\n\n');
-  }
-
-  function overwriteDeclaration(rule, name, value) {
-    var _value;
-    var _selectors = [];
-
-    _value = value.replace(viewportUnitExpression, replaceValues);
-
-    if (options.hacks) {
-      _value = options.hacks.overwriteDeclaration(rule, name, _value);
-    }
-
-    if (name) {
-      // skipping KeyframesRule
-      _selectors.push(rule.selectorText);
-      _value = name + ': ' + _value + ';';
-    }
-
-    var _rule = rule.parentRule;
-    while (_rule) {
-      _selectors.unshift('@media ' + _rule.media.mediaText);
-      _rule = _rule.parentRule;
-    }
-
-    return {
-      selector: _selectors,
-      content: _value
-    };
-  }
-
-  function replaceValues(match, number, unit) {
-    var _base = dimensions[unit];
-    var _number = parseFloat(number) / 100;
-    return (_number * _base) + 'px';
-  }
-
-  function getViewport() {
-    var vh = window.innerHeight;
-    var vw = window.innerWidth;
-
-    return {
-      vh: vh,
-      vw: vw,
-      vmax: Math.max(vw, vh),
-      vmin: Math.min(vw, vh)
-    };
-  }
-
-  function importCrossOriginLinks(next) {
-    var _waiting = 0;
-    var decrease = function() {
-      _waiting--;
-      if (!_waiting) {
-        next();
-      }
-    };
-
-    forEach.call(document.styleSheets, function(sheet) {
-      if (!sheet.href || origin(sheet.href) === origin(location.href) || sheet.ownerNode.getAttribute('data-viewport-units-buggyfill') === 'ignore') {
-        // skip <style> and <link> from same origin or explicitly declared to ignore
-        return;
-      }
-
-      _waiting++;
-      convertLinkToStyle(sheet.ownerNode, decrease);
-    });
-
-    if (!_waiting) {
-      next();
-    }
-  }
-
-  function origin(url) {
-    return url.slice(0, url.indexOf('/', url.indexOf('://') + 3));
-  }
-
-  function convertLinkToStyle(link, next) {
-    getCors(link.href, function() {
-      var style = document.createElement('style');
-      style.media = link.media;
-      style.setAttribute('data-href', link.href);
-      style.textContent = this.responseText;
-      link.parentNode.replaceChild(style, link);
-      next();
-    }, next);
-  }
-
-  function getCors(url, success, error) {
-    var xhr = new XMLHttpRequest();
-    if ('withCredentials' in xhr) {
-      // XHR for Chrome/Firefox/Opera/Safari.
-      xhr.open('GET', url, true);
-    } else if (typeof XDomainRequest !== 'undefined') {
-      // XDomainRequest for IE.
-      xhr = new XDomainRequest();
-      xhr.open('GET', url);
-    } else {
-      throw new Error('cross-domain XHR not supported');
-    }
-
-    xhr.onload = success;
-    xhr.onerror = error;
-    xhr.send();
-    return xhr;
-  }
-
-  return {
-    version: '0.6.0',
-    findProperties: findProperties,
-    getCss: getReplacedViewportUnits,
-    init: initialize,
-    refresh: refresh
-  };
-
-}));
-
 angular.module('resourceMap', [
                'ngMaterial',
                'ngCookies',
@@ -68441,7 +67976,7 @@ angular.module('resourceMap.directives', []);
 angular.module('resourceMap.filters', []);
 
 angular.module('resourceMap')
-  .config(['$httpProvider', '$compileProvider', '$mdThemingProvider', function($httpProvider, $compileProvider, $mdThemingProvider){
+  .config(['$httpProvider', '$compileProvider', '$mdThemingProvider', '$mdGestureProvider', function($httpProvider, $compileProvider, $mdThemingProvider, $mdGestureProvider){
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
     // $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -68452,6 +67987,7 @@ angular.module('resourceMap')
     $mdThemingProvider.theme('docs-dark', 'default')
       .primaryPalette('yellow')
       .dark();
+    $mdGestureProvider.skipClickHijack();
   }
 ]);
 angular.module('resourceMap.controllers', []);
@@ -68479,7 +68015,26 @@ function waitForEl(selector, fn){
     fn();
   }
 }
-
+Array.prototype.clean = function(deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+};
+Array.prototype.getUnique = function(){
+   var u = {}, a = [];
+   for(var i = 0, l = this.length; i < l; ++i){
+      if(u.hasOwnProperty(this[i])) {
+         continue;
+      }
+      a.push(this[i]);
+      u[this[i]] = 1;
+   }
+   return a;
+};
 angular.module('resourceMap.controllers')
   .controller('mainCtrl', ['$scope', 
                            '$rootScope',
@@ -68506,26 +68061,15 @@ angular.module('resourceMap.controllers')
         msgSrv.setState('companyView', {slug: slug});
       }
       $scope.showLandingOverlay = true;
-      //get WP pages
+      //
       $scope.pages = [];
       var pageHandler = function(data){
         $scope.pages = data;
-        // function loadMap(){
-        //   var mapEl = document.getElementById('page_map');
-        //   if(mapEl === null){
-        //     $timeout(loadMap, 500);
-        //   } else {
-        //     mapEl.innerHTML = "<div id=\"map\" ui-view=\"map\" autoscroll=\"true\" class=\"page-content\"></div>";
-        //     $compile(document.getElementById('map'))($scope);
-        //   }
-        // }
-        // loadMap();
       };
       apiSrv.getPages('menu_order', 'ASC', pageHandler, function(err){
         $log.error(err);
       });
-
-      //category/filtering
+      //
       $scope.issues = [];
       $scope.industries = [];
       $scope.categories = [];
@@ -68553,8 +68097,6 @@ angular.module('resourceMap.controllers')
       apiSrv.getYears(yearHandler, function(err){
         $log.error(err);
       });
-      //
-      $scope.searchLocation = function(terms){};
       //
       var markers;
       $scope.mapReady = function(map){
@@ -68599,7 +68141,6 @@ angular.module('resourceMap.controllers')
           var compId = e.layer.feature.properties.compid,
               compTitle = e.layer.feature.properties.title;
           var compSlug = e.layer.feature.properties.slug;
-          // $log.info(e.layer.feature.properties);
           msgSrv.setState('companyView', {slug: compSlug});
           $state.go("map.companyView", {slug: compSlug});
         });
@@ -68609,13 +68150,6 @@ angular.module('resourceMap.controllers')
         apiSrv.getJson(function(data){
           geojson = data;
           _geojson = data;
-          for(var i=0;i<_geojson.length;i++){
-            if(_geojson[i].properties.compSlug === $state.params.slug){
-              // _geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon_clicked.svg";
-              // _geojson[i].properties.icon.iconSize = [44,62];
-              // _geojson[i].properties.icon.iconAnchor = [25,60];
-            }
-          }
           if($state.current.name === "map.companyView"){
             markers.setGeoJSON(_geojson);
             markers.eachLayer(function(marker){
@@ -68641,25 +68175,19 @@ angular.module('resourceMap.controllers')
             $scope.showCompany(msgSrv.state.args.slug);
             break;
           default:
-            // $log.info(msgSrv.state);
             break;
         }
       });
       $scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){
         $timeout(function(){
           var bodyClass = toState.name;
-          // var bodyClass = $rootScope.$state.current.name;
-          // document.body.classList.add(bodyClass);
           document.body.className = bodyClass;
-          // $log.info(bodyClass);
         }, 100);
         switch(toState.name){
           case "map.companyView":
             if(!overlay){$scope.showCompany(toParams.slug);}
-            // $log.info(toParams);
             break;
           default:
-            // $log.info(msgSrv.state);
             break;
         }
       });
@@ -68688,16 +68216,13 @@ angular.module('resourceMap.controllers')
           },
           controllerAs: 'ctrl',
           templateUrl: '/wp-content/themes/workerslab/views/company_detail.php',
-          // parent: angular.element(document.querySelector('#main')),
           clickOutsideToClose: true
         }).finally(function(){
           mLayer.setGeoJSON(geojson);
           for(var i=0;i<geojson.length;i++){
-            // if(geojson[i].properties.compSlug === $state.params.slug){
-              geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
-              geojson[i].properties.icon.iconSize = [22,31];
-              geojson[i].properties.icon.iconAnchor = [11,31];
-            // }
+            geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
+            geojson[i].properties.icon.iconSize = [22,31];
+            geojson[i].properties.icon.iconAnchor = [11,31];
           }
           if($state.current.name === "map"){
             mLayer.setGeoJSON(geojson);
@@ -68707,36 +68232,54 @@ angular.module('resourceMap.controllers')
         });
       };
       //
-      // $scope.showCompany = function(slug){
-      //   overlay = true;
-      //   msgSrv.setScope('mainCtrl', $scope);
-      //   msgSrv.setVars({slug: slug});
-      //   $mdBottomSheet.show({
-      //     controller: 'compCtrl',
-      //     controllerAs: 'ctrl',
-      //     templateUrl: '/wp-content/themes/workerslab/views/company_detail.php',
-      //     parent: angular.element(document.querySelector('#main')),
-      //     clickOutsideToClose: true
-      //   }).finally(function(){
-      //     mLayer.setGeoJSON(geojson);
-      //     for(var i=0;i<geojson.length;i++){
-      //       // if(geojson[i].properties.compSlug === $state.params.slug){
-      //         geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
-      //         geojson[i].properties.icon.iconSize = [22,31];
-      //         geojson[i].properties.icon.iconAnchor = [11,31];
-      //       // }
-      //     }
-      //     if($state.current.name === "map"){
-      //       mLayer.setGeoJSON(geojson);
-      //     }
-      //     $state.go("map");
-      //   });
-      // };
-      //
       $scope.companyActive = false;
       var companyHandler = function(data){
         $scope.companyActive = true;
         $scope.company = data;
+      };
+      //
+      var getFilterChoices = function(filters){
+        var choices = [];
+        for(var category in filters){
+          var id = filters[category];
+          var name = '';
+          switch(category){
+            case "issue":
+              for(var i=0;i<$scope.issues.length;i++){
+                if($scope.issues[i].id === id){
+                  name = $scope.issues[i].name;
+                }
+              }
+              if(id === 'all'){
+                name = 'all';
+              }
+              break;
+            case "industry":
+              for(var i=0;i<$scope.industries.length;i++){
+                if($scope.industries[i].id === id){
+                  name = $scope.industries[i].name;
+                }
+              }
+              if(id === 'all'){
+                name = 'all';
+              }
+              break;
+            case "year":
+              for(var i=0;i<$scope.years.length;i++){
+                if($scope.years[i].id === id){
+                  name = $scope.years[i].name;
+                }
+              }
+              if(id === 'all'){
+                name = 'all';
+              }
+              break;
+            default:
+              break;
+          }
+          choices.push(name);
+        }
+        return choices;
       };
       //
       $scope.filterBy = function(opts){
@@ -68766,6 +68309,14 @@ angular.module('resourceMap.controllers')
               return (f.properties.year.indexOf(opts.year) !== -1);
             }
           });
+          $scope.filterType = 'filter';
+          var filterChoicesArray = getFilterChoices($scope.filter);
+          filterChoicesArray = filterChoicesArray.clean('');
+          filterChoicesArray = filterChoicesArray.getUnique();
+          if(filterChoicesArray.length >= 2){
+            filterChoicesArray.splice(filterChoicesArray.length-1, 0, "&");
+          }
+          $scope.filterChoices = filterChoicesArray.join(", ").replace("&,", "&");
           mapObj.fitBounds(markers.getBounds());
         }, 0);
       };
@@ -68785,13 +68336,30 @@ angular.module('resourceMap.controllers')
               var lat = data.results[0].geometry.location.lat;
               var lng = data.results[0].geometry.location.lng;
               $scope.setMapView(lng,lat);
+              $scope.filterType = 'location';
+              $scope.filterChoice = '';
+              var filterLocationParts = data.results[0].formatted_address;
+              var filterLocationArray = filterLocationParts.split(", ");
+              $scope.filterLocation1 = filterLocationArray[0];
+              $scope.filterLocation2 = filterLocationArray.slice(1, -1).join(", ");
+              document.getElementById("autocomplete").innerHTML = "";
             }
           }, function(err){
             $log.error(err);
           });
         }, 0);
       };
-      //get WP options
+      $scope.mapLocator = function(location, name){
+        var locationParts = location.split(",");
+        $scope.setMapView(locationParts[0], locationParts[1]);
+        $scope.filterType = 'location';
+        $scope.filterChoice = '';
+        var filterLocationArray = name.split(", ");
+        $scope.filterLocation1 = filterLocationArray[0];
+        $scope.filterLocation2 = filterLocationArray.slice(1, -1).join(", ");
+        document.getElementById("autocomplete").innerHTML = "";
+      };
+      //
       $scope.settings = [];
       var optHandler = function(data){
         $scope.settings = data;
@@ -68799,7 +68367,6 @@ angular.module('resourceMap.controllers')
       apiSrv.getOptions(optHandler, function(err){
         $log.error(err);
       });
-
       //
       $scope.setMapView = function(lng,lat){
         if($state.current.name !== "map"){
@@ -68815,8 +68382,14 @@ angular.module('resourceMap.controllers')
         }, 0);
       };
       //
-      $scope.selectFilter = function(name, id){
+      $scope.filterType = null;
+      $scope.filterChoice = '';
+      $scope.filterLocation = '';
+      $scope.selectFilter = function(name, id, filterName){
         $scope.filter[name] = id;
+        $scope.filterChoice = filterName;
+        $scope.filterLocation = '';
+        $scope.filterType = null;
       };
       $scope.cancelFilters = function(){
         $mdDialog.cancel();
@@ -68904,6 +68477,202 @@ angular.module('resourceMap.controllers')
 //     }
 //   ])
 // ;
+angular.module('resourceMap.states')
+  .run(['$rootScope', 
+        '$state', 
+        '$stateParams', 
+    function($rootScope, $state, $stateParams){
+      $rootScope.$state = $state;
+      $rootScope.$stateParams = $stateParams;
+    }
+  ])
+  .config(['$stateProvider', 
+           '$urlRouterProvider', 
+    function($stateProvider, $urlRouterProvider){
+      var templateDir = '/wp-content/themes/workerslab/views';
+
+      $urlRouterProvider.otherwise('/');
+
+      $stateProvider
+        .state('main', {
+          url: '/',
+          views: {
+            'main': {
+              templateUrl: templateDir + '/main.php'
+            },
+            'header':{
+              templateUrl: templateDir + '/header.php'
+            },
+            'map@main': {
+              templateUrl: templateDir + '/map.php'
+            },
+            'landing': {
+              templateUrl: templateDir + '/landing.php'
+            },
+            'footer':{
+              templateUrl: templateDir + '/footer.php'
+            },
+          }
+        })
+        .state('map', {
+          url: '/map',
+          views: {
+            'main': {
+              templateUrl: templateDir + '/main.php'
+            },
+            'header': {
+              templateUrl: templateDir + '/header.php'
+            },
+            'map@map': {
+              templateUrl: templateDir + '/map.php'
+            },
+            'footer':{
+              templateUrl: templateDir + '/footer.php'
+            }
+          }
+        })
+        .state('map.companyView', {
+          url: '/companies/:slug'
+        })
+      ;
+    }
+  ])
+;
+angular.module('resourceMap.services')
+  .factory('apiSrv', ['$http', 
+    function($http){
+      var apiSrv = {};
+      apiSrv.getJson = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-content/plugins/workerslab/companies.json'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getOptions = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/options'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getPages = function(order, direction, successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/pages?filter[orderby]='+order+'&filter[order]='+direction
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getCompanies = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/company'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getCompany = function(slug, successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/company?filter[name]='+slug
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getIndustries = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/industry'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getIssues = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/issue'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getYears = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/year'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getCoords = function(terms, successFn, errorFn){
+        var apiKey = "AIzaSyDCeNiQn5pxEpsoOGBIRChItBfGSYwe2VY";
+        var lookup = encodeURI(terms);
+        var apiUrl = "https://maps.googleapis.com/maps/api/geocode/json?key="+apiKey+"&address="+lookup;
+        return $http({
+          method: 'GET',
+          url: apiUrl
+        }).success(successFn).error(errorFn);
+      };
+      return apiSrv;
+    }
+  ])
+;
+angular.module('resourceMap.services')
+  .factory('msgSrv', ['$rootScope',
+    function($rootScope){
+      var msgSrv = {};
+      msgSrv.state = {};
+      msgSrv.appScope = {};
+      msgSrv.vars = {};
+      msgSrv.setState = function(stateLabel, data){
+        msgSrv.state = {
+          fn: stateLabel,
+          args: data
+        };
+        $rootScope.$broadcast('updateState');
+      };
+      msgSrv.setScope = function(key, value){
+        msgSrv.appScope[key] = value;
+      };
+      msgSrv.getScope = function(key){
+        return msgSrv.appScope[key];
+      };
+      msgSrv.setVars = function(obj){
+        msgSrv.vars = obj;
+      };
+      msgSrv.getVars = function(){
+        return msgSrv.vars;
+      };
+      return msgSrv;
+    }
+  ])
+;
+angular.module('resourceMap.filters')
+  .filter('telephone', 
+    function(){
+      return function(telephone){
+        if(!telephone){
+          return "";
+        }
+        var value = telephone.toString().trim().replace(/^\+/, '');
+        if(value.match(/[^0-9]/)){
+          return telephone;
+        }
+        var country, city, number;
+        switch(value.length){
+          case 10:
+            country = 1;
+            city = value.slice(0,3);
+            number = value.slice(3);
+            break;
+          case 11:
+            country = value[0];
+            city = value.slice(1,4);
+            number = value.slice(4);
+            break;
+          case 12:
+            country = value.slice(0,3);
+            city = value.slice(3,5);
+            number = value.slice(5);
+            break;
+          default:
+            return telephone;
+        }
+        if(country === 1){
+          country = "";
+        }
+        number = number.slice(0, 3) + '-' + number.slice(3);
+        return (country + " (" + city + ") " + number).trim();
+      };
+    }
+  )
+;
 var smoothScroll = function(element, options){
   options = options || {};
   var duration = 800,
@@ -69059,7 +68828,7 @@ angular.module('resourceMap')
                 pages = [].slice.call(stack.children),
                 pagesTotal = pages.length,
                 current = 0,
-                menuCtrl = document.querySelector('.toggle-btn'),
+                menuCtrl = document.querySelector('#menu-btn'),
                 nav = document.querySelector('#siteNav'),
                 navItems = [].slice.call(nav.querySelectorAll(".link-page"));
             isMenuOpen = false;
@@ -69103,7 +68872,9 @@ angular.module('resourceMap')
               }
             }
             function initEvents(){
-              menuCtrl.addEventListener('click', toggleMenu);
+              // for(var i=0;i<menuCtrl.length;i++){
+                menuCtrl.addEventListener('click', toggleMenu);
+              // }
               navItems.forEach(function(item){
                 var pageId = item.getAttribute('href').slice(1);
                 item.addEventListener('click', function(ev){
@@ -69122,7 +68893,6 @@ angular.module('resourceMap')
               });
               document.addEventListener('click', function(e){
                 // e.preventDefault();
-                console.log(e.target);
                 var target = document.querySelector('#landing .overlay-content > div');
                 if(e.target.closest('#landing') !== null){
                   openPage('page_map');
@@ -69148,7 +68918,9 @@ angular.module('resourceMap')
               }
             }
             function openMenu(){
-              menuCtrl.classList.add('open');
+              // for(var i=0;i<menuCtrl.length;i++){
+                menuCtrl.classList.add('open');
+              // }
               stack.classList.add('open');
               nav.classList.add('open');
               if(document.getElementById("landing") !== null){
@@ -69159,6 +68931,7 @@ angular.module('resourceMap')
                 var page = pages[stackPagesIdxs[i]];
                 page.style.WebkitTransform = 'translate3d(0, 75%, ' + parseInt(-1 * 200 - 50*i) + 'px)'; // -200px, -230px, -260px
                 page.style.transform = 'translate3d(0, 75%, ' + parseInt(-1 * 200 - 50*i) + 'px)';
+                page.style.top = '50px';
               }
             }
             closeMenu = function(){
@@ -69170,6 +68943,7 @@ angular.module('resourceMap')
                   stackPagesIdxs = getStackPagesIdxs(futureCurrent);
               futurePage.style.WebkitTransform = 'translate3d(0, 0, 0)';
               futurePage.style.transform = 'translate3d(0, 0, 0)';
+              futurePage.style.top = '0px';
               futurePage.style.opacity = 1;
               for(var i=0;i<stackPagesIdxs.length;++i){
                 var page = pages[stackPagesIdxs[i]];
@@ -69179,7 +68953,9 @@ angular.module('resourceMap')
               if(id){
                 current = futureCurrent;
               }
-              menuCtrl.classList.remove("open");
+              // for(var i=0;i<menuCtrl.length;i++){
+                menuCtrl.classList.remove('open');
+              // }
               nav.classList.remove("open");
               if(document.getElementById("landing") !== null){
                 document.getElementById("landing").parentNode.classList.remove("menu-open");
@@ -69254,7 +69030,7 @@ angular.module('resourceMap')
                 // data.features[0].
                 data.features.forEach(function(place){
                   var li = document.createElement("li");
-                  li.innerHTML = "<a ng-click='setMapView("+place.center+")'>"+place.place_name+"</a>";
+                  li.innerHTML = "<a ng-click='mapLocator(\""+place.center+"\", \""+place.place_name+"\")'>"+place.place_name+"</a>";
                   htmlFrag.appendChild(li);
                 });
                 ul.innerHTML = "";
@@ -69314,200 +69090,4 @@ angular.module('resourceMap.directives')
       };
     }
   )
-;
-angular.module('resourceMap.filters')
-  .filter('telephone', 
-    function(){
-      return function(telephone){
-        if(!telephone){
-          return "";
-        }
-        var value = telephone.toString().trim().replace(/^\+/, '');
-        if(value.match(/[^0-9]/)){
-          return telephone;
-        }
-        var country, city, number;
-        switch(value.length){
-          case 10:
-            country = 1;
-            city = value.slice(0,3);
-            number = value.slice(3);
-            break;
-          case 11:
-            country = value[0];
-            city = value.slice(1,4);
-            number = value.slice(4);
-            break;
-          case 12:
-            country = value.slice(0,3);
-            city = value.slice(3,5);
-            number = value.slice(5);
-            break;
-          default:
-            return telephone;
-        }
-        if(country === 1){
-          country = "";
-        }
-        number = number.slice(0, 3) + '-' + number.slice(3);
-        return (country + " (" + city + ") " + number).trim();
-      };
-    }
-  )
-;
-angular.module('resourceMap.services')
-  .factory('apiSrv', ['$http', 
-    function($http){
-      var apiSrv = {};
-      apiSrv.getJson = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-content/plugins/workerslab/companies.json'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getOptions = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/options'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getPages = function(order, direction, successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/pages?filter[orderby]='+order+'&filter[order]='+direction
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getCompanies = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/company'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getCompany = function(slug, successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/company?filter[name]='+slug
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getIndustries = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/industry'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getIssues = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/issue'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getYears = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/year'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getCoords = function(terms, successFn, errorFn){
-        var apiKey = "AIzaSyDCeNiQn5pxEpsoOGBIRChItBfGSYwe2VY";
-        var lookup = encodeURI(terms);
-        var apiUrl = "https://maps.googleapis.com/maps/api/geocode/json?key="+apiKey+"&address="+lookup;
-        return $http({
-          method: 'GET',
-          url: apiUrl
-        }).success(successFn).error(errorFn);
-      };
-      return apiSrv;
-    }
-  ])
-;
-angular.module('resourceMap.services')
-  .factory('msgSrv', ['$rootScope',
-    function($rootScope){
-      var msgSrv = {};
-      msgSrv.state = {};
-      msgSrv.appScope = {};
-      msgSrv.vars = {};
-      msgSrv.setState = function(stateLabel, data){
-        msgSrv.state = {
-          fn: stateLabel,
-          args: data
-        };
-        $rootScope.$broadcast('updateState');
-      };
-      msgSrv.setScope = function(key, value){
-        msgSrv.appScope[key] = value;
-      };
-      msgSrv.getScope = function(key){
-        return msgSrv.appScope[key];
-      };
-      msgSrv.setVars = function(obj){
-        msgSrv.vars = obj;
-      };
-      msgSrv.getVars = function(){
-        return msgSrv.vars;
-      };
-      return msgSrv;
-    }
-  ])
-;
-angular.module('resourceMap.states')
-  .run(['$rootScope', 
-        '$state', 
-        '$stateParams', 
-    function($rootScope, $state, $stateParams){
-      $rootScope.$state = $state;
-      $rootScope.$stateParams = $stateParams;
-    }
-  ])
-  .config(['$stateProvider', 
-           '$urlRouterProvider', 
-    function($stateProvider, $urlRouterProvider){
-      var templateDir = '/wp-content/themes/workerslab/views';
-
-      $urlRouterProvider.otherwise('/');
-
-      $stateProvider
-        .state('main', {
-          url: '/',
-          views: {
-            'main': {
-              templateUrl: templateDir + '/main.php'
-            },
-            'header':{
-              templateUrl: templateDir + '/header.php'
-            },
-            'map@main': {
-              templateUrl: templateDir + '/map.php'
-            },
-            'landing': {
-              templateUrl: templateDir + '/landing.php'
-            },
-            'footer':{
-              templateUrl: templateDir + '/footer.php'
-            },
-          }
-        })
-        .state('map', {
-          url: '/map',
-          views: {
-            'main': {
-              templateUrl: templateDir + '/main.php'
-            },
-            'header': {
-              templateUrl: templateDir + '/header.php'
-            },
-            'map@map': {
-              templateUrl: templateDir + '/map.php'
-            },
-            'footer':{
-              templateUrl: templateDir + '/footer.php'
-            }
-          }
-        })
-        .state('map.companyView', {
-          url: '/companies/:slug'
-        })
-      ;
-    }
-  ])
 ;

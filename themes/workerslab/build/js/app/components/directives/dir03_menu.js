@@ -33,7 +33,7 @@ angular.module('resourceMap')
                 pages = [].slice.call(stack.children),
                 pagesTotal = pages.length,
                 current = 0,
-                menuCtrl = document.querySelector('.toggle-btn'),
+                menuCtrl = document.querySelector('#menu-btn'),
                 nav = document.querySelector('#siteNav'),
                 navItems = [].slice.call(nav.querySelectorAll(".link-page"));
             isMenuOpen = false;
@@ -77,7 +77,9 @@ angular.module('resourceMap')
               }
             }
             function initEvents(){
-              menuCtrl.addEventListener('click', toggleMenu);
+              // for(var i=0;i<menuCtrl.length;i++){
+                menuCtrl.addEventListener('click', toggleMenu);
+              // }
               navItems.forEach(function(item){
                 var pageId = item.getAttribute('href').slice(1);
                 item.addEventListener('click', function(ev){
@@ -96,7 +98,6 @@ angular.module('resourceMap')
               });
               document.addEventListener('click', function(e){
                 // e.preventDefault();
-                console.log(e.target);
                 var target = document.querySelector('#landing .overlay-content > div');
                 if(e.target.closest('#landing') !== null){
                   openPage('page_map');
@@ -122,7 +123,9 @@ angular.module('resourceMap')
               }
             }
             function openMenu(){
-              menuCtrl.classList.add('open');
+              // for(var i=0;i<menuCtrl.length;i++){
+                menuCtrl.classList.add('open');
+              // }
               stack.classList.add('open');
               nav.classList.add('open');
               if(document.getElementById("landing") !== null){
@@ -133,6 +136,7 @@ angular.module('resourceMap')
                 var page = pages[stackPagesIdxs[i]];
                 page.style.WebkitTransform = 'translate3d(0, 75%, ' + parseInt(-1 * 200 - 50*i) + 'px)'; // -200px, -230px, -260px
                 page.style.transform = 'translate3d(0, 75%, ' + parseInt(-1 * 200 - 50*i) + 'px)';
+                page.style.top = '50px';
               }
             }
             closeMenu = function(){
@@ -144,6 +148,7 @@ angular.module('resourceMap')
                   stackPagesIdxs = getStackPagesIdxs(futureCurrent);
               futurePage.style.WebkitTransform = 'translate3d(0, 0, 0)';
               futurePage.style.transform = 'translate3d(0, 0, 0)';
+              futurePage.style.top = '0px';
               futurePage.style.opacity = 1;
               for(var i=0;i<stackPagesIdxs.length;++i){
                 var page = pages[stackPagesIdxs[i]];
@@ -153,7 +158,9 @@ angular.module('resourceMap')
               if(id){
                 current = futureCurrent;
               }
-              menuCtrl.classList.remove("open");
+              // for(var i=0;i<menuCtrl.length;i++){
+                menuCtrl.classList.remove('open');
+              // }
               nav.classList.remove("open");
               if(document.getElementById("landing") !== null){
                 document.getElementById("landing").parentNode.classList.remove("menu-open");

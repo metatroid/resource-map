@@ -24,26 +24,15 @@ angular.module('resourceMap.controllers')
         msgSrv.setState('companyView', {slug: slug});
       }
       $scope.showLandingOverlay = true;
-      //get WP pages
+      //
       $scope.pages = [];
       var pageHandler = function(data){
         $scope.pages = data;
-        // function loadMap(){
-        //   var mapEl = document.getElementById('page_map');
-        //   if(mapEl === null){
-        //     $timeout(loadMap, 500);
-        //   } else {
-        //     mapEl.innerHTML = "<div id=\"map\" ui-view=\"map\" autoscroll=\"true\" class=\"page-content\"></div>";
-        //     $compile(document.getElementById('map'))($scope);
-        //   }
-        // }
-        // loadMap();
       };
       apiSrv.getPages('menu_order', 'ASC', pageHandler, function(err){
         $log.error(err);
       });
-
-      //category/filtering
+      //
       $scope.issues = [];
       $scope.industries = [];
       $scope.categories = [];
@@ -71,8 +60,6 @@ angular.module('resourceMap.controllers')
       apiSrv.getYears(yearHandler, function(err){
         $log.error(err);
       });
-      //
-      $scope.searchLocation = function(terms){};
       //
       var markers;
       $scope.mapReady = function(map){
@@ -117,7 +104,6 @@ angular.module('resourceMap.controllers')
           var compId = e.layer.feature.properties.compid,
               compTitle = e.layer.feature.properties.title;
           var compSlug = e.layer.feature.properties.slug;
-          // $log.info(e.layer.feature.properties);
           msgSrv.setState('companyView', {slug: compSlug});
           $state.go("map.companyView", {slug: compSlug});
         });
@@ -127,13 +113,6 @@ angular.module('resourceMap.controllers')
         apiSrv.getJson(function(data){
           geojson = data;
           _geojson = data;
-          for(var i=0;i<_geojson.length;i++){
-            if(_geojson[i].properties.compSlug === $state.params.slug){
-              // _geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon_clicked.svg";
-              // _geojson[i].properties.icon.iconSize = [44,62];
-              // _geojson[i].properties.icon.iconAnchor = [25,60];
-            }
-          }
           if($state.current.name === "map.companyView"){
             markers.setGeoJSON(_geojson);
             markers.eachLayer(function(marker){
@@ -159,25 +138,19 @@ angular.module('resourceMap.controllers')
             $scope.showCompany(msgSrv.state.args.slug);
             break;
           default:
-            // $log.info(msgSrv.state);
             break;
         }
       });
       $scope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){
         $timeout(function(){
           var bodyClass = toState.name;
-          // var bodyClass = $rootScope.$state.current.name;
-          // document.body.classList.add(bodyClass);
           document.body.className = bodyClass;
-          // $log.info(bodyClass);
         }, 100);
         switch(toState.name){
           case "map.companyView":
             if(!overlay){$scope.showCompany(toParams.slug);}
-            // $log.info(toParams);
             break;
           default:
-            // $log.info(msgSrv.state);
             break;
         }
       });
@@ -206,16 +179,13 @@ angular.module('resourceMap.controllers')
           },
           controllerAs: 'ctrl',
           templateUrl: '/wp-content/themes/workerslab/views/company_detail.php',
-          // parent: angular.element(document.querySelector('#main')),
           clickOutsideToClose: true
         }).finally(function(){
           mLayer.setGeoJSON(geojson);
           for(var i=0;i<geojson.length;i++){
-            // if(geojson[i].properties.compSlug === $state.params.slug){
-              geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
-              geojson[i].properties.icon.iconSize = [22,31];
-              geojson[i].properties.icon.iconAnchor = [11,31];
-            // }
+            geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
+            geojson[i].properties.icon.iconSize = [22,31];
+            geojson[i].properties.icon.iconAnchor = [11,31];
           }
           if($state.current.name === "map"){
             mLayer.setGeoJSON(geojson);
@@ -225,36 +195,54 @@ angular.module('resourceMap.controllers')
         });
       };
       //
-      // $scope.showCompany = function(slug){
-      //   overlay = true;
-      //   msgSrv.setScope('mainCtrl', $scope);
-      //   msgSrv.setVars({slug: slug});
-      //   $mdBottomSheet.show({
-      //     controller: 'compCtrl',
-      //     controllerAs: 'ctrl',
-      //     templateUrl: '/wp-content/themes/workerslab/views/company_detail.php',
-      //     parent: angular.element(document.querySelector('#main')),
-      //     clickOutsideToClose: true
-      //   }).finally(function(){
-      //     mLayer.setGeoJSON(geojson);
-      //     for(var i=0;i<geojson.length;i++){
-      //       // if(geojson[i].properties.compSlug === $state.params.slug){
-      //         geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
-      //         geojson[i].properties.icon.iconSize = [22,31];
-      //         geojson[i].properties.icon.iconAnchor = [11,31];
-      //       // }
-      //     }
-      //     if($state.current.name === "map"){
-      //       mLayer.setGeoJSON(geojson);
-      //     }
-      //     $state.go("map");
-      //   });
-      // };
-      //
       $scope.companyActive = false;
       var companyHandler = function(data){
         $scope.companyActive = true;
         $scope.company = data;
+      };
+      //
+      var getFilterChoices = function(filters){
+        var choices = [];
+        for(var category in filters){
+          var id = filters[category];
+          var name = '';
+          switch(category){
+            case "issue":
+              for(var i=0;i<$scope.issues.length;i++){
+                if($scope.issues[i].id === id){
+                  name = $scope.issues[i].name;
+                }
+              }
+              if(id === 'all'){
+                name = 'all';
+              }
+              break;
+            case "industry":
+              for(var i=0;i<$scope.industries.length;i++){
+                if($scope.industries[i].id === id){
+                  name = $scope.industries[i].name;
+                }
+              }
+              if(id === 'all'){
+                name = 'all';
+              }
+              break;
+            case "year":
+              for(var i=0;i<$scope.years.length;i++){
+                if($scope.years[i].id === id){
+                  name = $scope.years[i].name;
+                }
+              }
+              if(id === 'all'){
+                name = 'all';
+              }
+              break;
+            default:
+              break;
+          }
+          choices.push(name);
+        }
+        return choices;
       };
       //
       $scope.filterBy = function(opts){
@@ -284,6 +272,14 @@ angular.module('resourceMap.controllers')
               return (f.properties.year.indexOf(opts.year) !== -1);
             }
           });
+          $scope.filterType = 'filter';
+          var filterChoicesArray = getFilterChoices($scope.filter);
+          filterChoicesArray = filterChoicesArray.clean('');
+          filterChoicesArray = filterChoicesArray.getUnique();
+          if(filterChoicesArray.length >= 2){
+            filterChoicesArray.splice(filterChoicesArray.length-1, 0, "&");
+          }
+          $scope.filterChoices = filterChoicesArray.join(", ").replace("&,", "&");
           mapObj.fitBounds(markers.getBounds());
         }, 0);
       };
@@ -303,13 +299,30 @@ angular.module('resourceMap.controllers')
               var lat = data.results[0].geometry.location.lat;
               var lng = data.results[0].geometry.location.lng;
               $scope.setMapView(lng,lat);
+              $scope.filterType = 'location';
+              $scope.filterChoice = '';
+              var filterLocationParts = data.results[0].formatted_address;
+              var filterLocationArray = filterLocationParts.split(", ");
+              $scope.filterLocation1 = filterLocationArray[0];
+              $scope.filterLocation2 = filterLocationArray.slice(1, -1).join(", ");
+              document.getElementById("autocomplete").innerHTML = "";
             }
           }, function(err){
             $log.error(err);
           });
         }, 0);
       };
-      //get WP options
+      $scope.mapLocator = function(location, name){
+        var locationParts = location.split(",");
+        $scope.setMapView(locationParts[0], locationParts[1]);
+        $scope.filterType = 'location';
+        $scope.filterChoice = '';
+        var filterLocationArray = name.split(", ");
+        $scope.filterLocation1 = filterLocationArray[0];
+        $scope.filterLocation2 = filterLocationArray.slice(1, -1).join(", ");
+        document.getElementById("autocomplete").innerHTML = "";
+      };
+      //
       $scope.settings = [];
       var optHandler = function(data){
         $scope.settings = data;
@@ -317,7 +330,6 @@ angular.module('resourceMap.controllers')
       apiSrv.getOptions(optHandler, function(err){
         $log.error(err);
       });
-
       //
       $scope.setMapView = function(lng,lat){
         if($state.current.name !== "map"){
@@ -333,8 +345,14 @@ angular.module('resourceMap.controllers')
         }, 0);
       };
       //
-      $scope.selectFilter = function(name, id){
+      $scope.filterType = null;
+      $scope.filterChoice = '';
+      $scope.filterLocation = '';
+      $scope.selectFilter = function(name, id, filterName){
         $scope.filter[name] = id;
+        $scope.filterChoice = filterName;
+        $scope.filterLocation = '';
+        $scope.filterType = null;
       };
       $scope.cancelFilters = function(){
         $mdDialog.cancel();
