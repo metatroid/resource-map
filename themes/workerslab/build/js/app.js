@@ -254,7 +254,12 @@ angular.module('resourceMap.controllers')
           },
           controllerAs: 'ctrl',
           templateUrl: '/wp-content/themes/workerslab/views/company_detail.php',
-          clickOutsideToClose: true
+          clickOutsideToClose: true,
+          onComplete: function(){
+            angular.element(document.querySelector('md-bottom-sheet md-content')).on('touchmove', function(e){
+              e.stopPropagation();
+            });
+          }
         }).finally(function(){
           mLayer.setGeoJSON(geojson);
           for(var i=0;i<geojson.length;i++){
@@ -293,9 +298,9 @@ angular.module('resourceMap.controllers')
               }
               break;
             case "industry":
-              for(var i=0;i<$scope.industries.length;i++){
-                if($scope.industries[i].id === id){
-                  name = $scope.industries[i].name;
+              for(var n=0;n<$scope.industries.length;n++){
+                if($scope.industries[n].id === id){
+                  name = $scope.industries[n].name;
                 }
               }
               if(id === 'all'){
@@ -303,9 +308,9 @@ angular.module('resourceMap.controllers')
               }
               break;
             case "year":
-              for(var i=0;i<$scope.years.length;i++){
-                if($scope.years[i].id === id){
-                  name = $scope.years[i].name;
+              for(var y=0;y<$scope.years.length;y++){
+                if($scope.years[y].id === id){
+                  name = $scope.years[y].name;
                 }
               }
               if(id === 'all'){
@@ -474,6 +479,8 @@ angular.module('resourceMap.controllers')
       $scope.toggleFilterSelections = function(){
         $scope.filterSelectionsOpen = !$scope.filterSelectionsOpen;
       };
+      //
+      $scope.currentYear = (new Date()).getFullYear();
     }
   ])
 ;
@@ -515,66 +522,45 @@ angular.module('resourceMap.controllers')
 //     }
 //   ])
 // ;
-angular.module('resourceMap.states')
-  .run(['$rootScope', 
-        '$state', 
-        '$stateParams', 
-    function($rootScope, $state, $stateParams){
-      $rootScope.$state = $state;
-      $rootScope.$stateParams = $stateParams;
+angular.module('resourceMap.filters')
+  .filter('telephone', 
+    function(){
+      return function(telephone){
+        if(!telephone){
+          return "";
+        }
+        var value = telephone.toString().trim().replace(/^\+/, '');
+        if(value.match(/[^0-9]/)){
+          return telephone;
+        }
+        var country, city, number;
+        switch(value.length){
+          case 10:
+            country = 1;
+            city = value.slice(0,3);
+            number = value.slice(3);
+            break;
+          case 11:
+            country = value[0];
+            city = value.slice(1,4);
+            number = value.slice(4);
+            break;
+          case 12:
+            country = value.slice(0,3);
+            city = value.slice(3,5);
+            number = value.slice(5);
+            break;
+          default:
+            return telephone;
+        }
+        if(country === 1){
+          country = "";
+        }
+        number = number.slice(0, 3) + '-' + number.slice(3);
+        return (country + " (" + city + ") " + number).trim();
+      };
     }
-  ])
-  .config(['$stateProvider', 
-           '$urlRouterProvider', 
-    function($stateProvider, $urlRouterProvider){
-      var templateDir = '/wp-content/themes/workerslab/views';
-
-      $urlRouterProvider.otherwise('/');
-
-      $stateProvider
-        .state('main', {
-          url: '/',
-          views: {
-            'main': {
-              templateUrl: templateDir + '/main.php'
-            },
-            'header':{
-              templateUrl: templateDir + '/header.php'
-            },
-            'map@main': {
-              templateUrl: templateDir + '/map.php'
-            },
-            'landing': {
-              templateUrl: templateDir + '/landing.php'
-            },
-            'footer':{
-              templateUrl: templateDir + '/footer.php'
-            },
-          }
-        })
-        .state('map', {
-          url: '/map',
-          views: {
-            'main': {
-              templateUrl: templateDir + '/main.php'
-            },
-            'header': {
-              templateUrl: templateDir + '/header.php'
-            },
-            'map@map': {
-              templateUrl: templateDir + '/map.php'
-            },
-            'footer':{
-              templateUrl: templateDir + '/footer.php'
-            }
-          }
-        })
-        .state('map.companyView', {
-          url: '/companies/:slug'
-        })
-      ;
-    }
-  ])
+  )
 ;
 angular.module('resourceMap.services')
   .factory('apiSrv', ['$http', 
@@ -671,45 +657,66 @@ angular.module('resourceMap.services')
     }
   ])
 ;
-angular.module('resourceMap.filters')
-  .filter('telephone', 
-    function(){
-      return function(telephone){
-        if(!telephone){
-          return "";
-        }
-        var value = telephone.toString().trim().replace(/^\+/, '');
-        if(value.match(/[^0-9]/)){
-          return telephone;
-        }
-        var country, city, number;
-        switch(value.length){
-          case 10:
-            country = 1;
-            city = value.slice(0,3);
-            number = value.slice(3);
-            break;
-          case 11:
-            country = value[0];
-            city = value.slice(1,4);
-            number = value.slice(4);
-            break;
-          case 12:
-            country = value.slice(0,3);
-            city = value.slice(3,5);
-            number = value.slice(5);
-            break;
-          default:
-            return telephone;
-        }
-        if(country === 1){
-          country = "";
-        }
-        number = number.slice(0, 3) + '-' + number.slice(3);
-        return (country + " (" + city + ") " + number).trim();
-      };
+angular.module('resourceMap.states')
+  .run(['$rootScope', 
+        '$state', 
+        '$stateParams', 
+    function($rootScope, $state, $stateParams){
+      $rootScope.$state = $state;
+      $rootScope.$stateParams = $stateParams;
     }
-  )
+  ])
+  .config(['$stateProvider', 
+           '$urlRouterProvider', 
+    function($stateProvider, $urlRouterProvider){
+      var templateDir = '/wp-content/themes/workerslab/views';
+
+      $urlRouterProvider.otherwise('/');
+
+      $stateProvider
+        .state('main', {
+          url: '/',
+          views: {
+            'main': {
+              templateUrl: templateDir + '/main.php'
+            },
+            'header':{
+              templateUrl: templateDir + '/header.php'
+            },
+            'map@main': {
+              templateUrl: templateDir + '/map.php'
+            },
+            'landing': {
+              templateUrl: templateDir + '/landing.php'
+            },
+            'footer':{
+              templateUrl: templateDir + '/footer.php'
+            },
+          }
+        })
+        .state('map', {
+          url: '/map',
+          views: {
+            'main': {
+              templateUrl: templateDir + '/main.php'
+            },
+            'header': {
+              templateUrl: templateDir + '/header.php'
+            },
+            'map@map': {
+              templateUrl: templateDir + '/map.php'
+            },
+            'footer':{
+              templateUrl: templateDir + '/footer.php'
+            }
+          }
+        })
+        .state('map.companyView', {
+          url: '/companies/:slug'
+        })
+      ;
+    }
+  ])
 ;
 var smoothScroll = function(element, options){
   options = options || {};
