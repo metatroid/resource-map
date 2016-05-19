@@ -68208,6 +68208,7 @@ angular.module('resourceMap.controllers')
                 $scope.$apply(function(){
                   this.parent = $scope;
                   this.parent.company = company;
+                  $scope.company = company;
                 });
               }, 0);
             }, function(err){

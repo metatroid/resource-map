@@ -7,7 +7,7 @@
       <div class="comp-info">
         <div class="meta">
           <div class="titles">
-            <h2 class="title">{{ctrl.parent.company.title.rendered}}</h2>
+            <h2 class="title">{{ctrl.parent.company.title.rendered}}{{ctrl.parent.debug}}</h2>
             <h3 class="subtitle">{{ctrl.parent.company.company_meta.subtitle}}</h3></div>
           <div class="social">
             <div class="avatar"><img src="{{ctrl.parent.company.company_meta.avatar}}" alt="{{ctrl.parent.company.title.rendered}} logo" /></div>
