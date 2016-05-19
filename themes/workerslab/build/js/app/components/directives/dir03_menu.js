@@ -98,8 +98,8 @@ angular.module('resourceMap')
               });
               document.addEventListener('click', function(e){
                 // e.preventDefault();
-                var target = document.querySelector('#landing .overlay-content > div');
-                if(e.target.closest('#landing') !== null){
+                var targetContainer = document.getElementById('landing');
+                if(targetContainer !== null && targetContainer.contains(e.target)){
                   openPage('page_map');
                   closeMenu();
                 }
