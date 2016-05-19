@@ -15,11 +15,11 @@
             %md-option{ng-repeat: "industry in industries", ng-value: "{{industry.id}}"}
               {{industry.name}}
         .input.input-select
-          %md-select{ng-model: "filter.issue", ng-change: "filterBy(filter)", aria-label: "Issue"}
-            <md-option value="" disabled>Issue</md-option>
+          %md-select{ng-model: "filter.campaign", ng-change: "filterBy(filter)", aria-label: "Campaign"}
+            <md-option value="" disabled>Campaign</md-option>
             <md-option value="all">All</md-option>
-            %md-option{ng-repeat: "issue in issues", ng-value: "{{issue.id}}"}
-              {{issue.name}}
+            %md-option{ng-repeat: "campaign in campaigns", ng-value: "{{campaign.id}}"}
+              {{campaign.name}}
         .input.input-select
           %md-select{ng-model: "filter.state", ng-change: "filterBy(filter)", aria-label: "State"}
             <md-option value="" disabled>State</md-option>
@@ -60,8 +60,8 @@
       %a{ng-click: "revealFilterModal('industry')"}
         Industry
     %li
-      %a{ng-click: "revealFilterModal('issue')"}
-        Issue
+      %a{ng-click: "revealFilterModal('campaign')"}
+        Campaign
     %li
       %a{ng-click: "revealFilterModal('year')"}
         Year

@@ -116,7 +116,12 @@ angular.module('resourceMap')
             }
             function toggleMenu(){
               if(isMenuOpen){
-                closeMenu();
+                if(menuCtrl.classList.contains("open")){
+                  closeMenu();
+                } else {
+                  isMenuOpen = true;
+                  openMenu();
+                }
               } else {
                 isMenuOpen = true;
                 openMenu();
@@ -166,10 +171,12 @@ angular.module('resourceMap')
                 document.getElementById("landing").parentNode.classList.remove("menu-open");
               }
               onEndTransition(futurePage, function(){
-                stack.classList.remove("open");
-                buildStack();
-                isMenuOpen = false;
-                if(id === "page_map"){window.location.href = "/#/map";}
+                if(!isMenuOpen){
+                  stack.classList.remove("open");
+                  buildStack();
+                  isMenuOpen = false;
+                  if(id === "page_map"){window.location.href = "/#/map";}
+                }
               });
             }
             function getStackPagesIdxs(excludePageIdx){

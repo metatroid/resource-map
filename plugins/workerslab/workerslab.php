@@ -64,7 +64,7 @@ function add_meta_to_json($data, $post, $request){
   $lat = get_post_meta($post->ID, 'latitude', true);
   $lng = get_post_meta($post->ID, 'longitude', true);
   $industry = wp_get_post_terms($post->ID, 'industry');
-  $issue = wp_get_post_terms($post->ID, 'issue');
+  $campaign = wp_get_post_terms($post->ID, 'campaign');
   $state = wp_get_post_terms($post->ID, 'state');
   if(has_post_thumbnail($post->ID)) {
     $attachment = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), 'full');
@@ -92,7 +92,7 @@ function add_meta_to_json($data, $post, $request){
       'latitude' => $lat,
       'longitude' => $lng,
       'industry' => $industry,
-      'issue' => $issue,
+      'campaign' => $campaign,
       'state' => $state
     );  
   }
@@ -116,8 +116,8 @@ function updateGeoJson(){
     $slug = $company->post_name;
     $industry = wp_get_post_terms($company->ID, 'industry', array('fields' => 'ids'));
     array_push($industry, "all");
-    $issue = wp_get_post_terms($company->ID, 'issue', array('fields' => 'ids'));
-    array_push($issue, "all");
+    $campaign = wp_get_post_terms($company->ID, 'campaign', array('fields' => 'ids'));
+    array_push($campaign, "all");
     $state = wp_get_post_terms($company->ID, 'state', array('fields' => 'ids'));
     array_push($state, "all");
     $comp = array(
@@ -130,7 +130,7 @@ function updateGeoJson(){
                 "title" => $title,
                 "slug" => $slug,
                 "industry" => $industry,
-                "issue" => $issue,
+                "campaign" => $campaign,
                 "state" => $state,
                 "compid" => $company->ID,
                 "marker-color" => "#0c1d20",
@@ -190,14 +190,14 @@ function taxonInit() {
     )
   );
   register_taxonomy(
-    'issue',
+    'campaign',
     'company',
     array(
-      'label' => __( 'Issues' ),
-      'rewrite' => array( 'slug' => 'issues' ),
+      'label' => __( 'Campaigns' ),
+      'rewrite' => array( 'slug' => 'campaigns' ),
       'hierarchical' => true,
       'show_in_rest' => true,
-      'rest_base' => 'issue',
+      'rest_base' => 'campaign',
       'rest_controller_class' => 'WP_REST_Terms_Controller',
     )
   );
@@ -205,7 +205,7 @@ function taxonInit() {
     'state',
     'company',
     array(
-      'label' => __( 'states' ),
+      'label' => __( 'States' ),
       'rewrite' => array( 'slug' => 'states' ),
       'hierarchical' => true,
       'show_in_rest' => true,

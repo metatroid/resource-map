@@ -33,20 +33,20 @@ angular.module('resourceMap.controllers')
         $log.error(err);
       });
       //
-      $scope.issues = [];
+      $scope.campaigns = [];
       $scope.industries = [];
       $scope.categories = [];
       $scope.states = [];
       $scope.filter = {
-        "issue": "",
+        "campaign": "",
         "industry": "",
         "state": ""
       };
       var industryHandler = function(data){
         $scope.industries = data;
       };
-      var issueHandler = function(data){
-        $scope.issues = data;
+      var campaignHandler = function(data){
+        $scope.campaigns = data;
       };
       var stateHandler = function(data){
         $scope.states = data;
@@ -54,7 +54,7 @@ angular.module('resourceMap.controllers')
       apiSrv.getIndustries(industryHandler, function(err){
         $log.error(err);
       });
-      apiSrv.getIssues(issueHandler, function(err){
+      apiSrv.getCampaigns(campaignHandler, function(err){
         $log.error(err);
       });
       apiSrv.getStates(stateHandler, function(err){
@@ -212,10 +212,10 @@ angular.module('resourceMap.controllers')
           var id = filters[category];
           var name = '';
           switch(category){
-            case "issue":
-              for(var i=0;i<$scope.issues.length;i++){
-                if($scope.issues[i].id === id){
-                  name = $scope.issues[i].name;
+            case "campaign":
+              for(var i=0;i<$scope.campaigns.length;i++){
+                if($scope.campaigns[i].id === id){
+                  name = $scope.campaigns[i].name;
                 }
               }
               if(id === 'all'){
@@ -261,18 +261,18 @@ angular.module('resourceMap.controllers')
         }
         $timeout(function(){
           markers.setFilter(function(f){
-            if(opts.industry && opts.issue && opts.state){
-              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
-            } else if(opts.industry && opts.issue){
-              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1);
+            if(opts.industry && opts.campaign && opts.state){
+              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.campaign.indexOf(opts.campaign) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
+            } else if(opts.industry && opts.campaign){
+              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.campaign.indexOf(opts.campaign) !== -1);
             } else if(opts.industry && opts.state){
               return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
-            } else if(opts.issue && opts.state){
-              return (f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
+            } else if(opts.campaign && opts.state){
+              return (f.properties.campaign.indexOf(opts.campaign) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
             } else if(opts.industry){
               return (f.properties.industry.indexOf(opts.industry) !== -1);
-            } else if(opts.issue){
-              return (f.properties.issue.indexOf(opts.issue) !== -1);
+            } else if(opts.campaign){
+              return (f.properties.campaign.indexOf(opts.campaign) !== -1);
             } else if(opts.state){
               return (f.properties.state.indexOf(opts.state) !== -1);
             }
@@ -375,8 +375,8 @@ angular.module('resourceMap.controllers')
           case "industry":
             $scope.filterSet = $scope.industries;
             break;
-          case "issue":
-            $scope.filterSet = $scope.issues;
+          case "campaign":
+            $scope.filterSet = $scope.campaigns;
             break;
           case "state":
             $scope.filterSet = $scope.states;

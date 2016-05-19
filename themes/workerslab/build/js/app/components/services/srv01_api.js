@@ -38,10 +38,10 @@ angular.module('resourceMap.services')
           url: '/wp-json/wp/v2/industry?per_page=100'
         }).success(successFn).error(errorFn);
       };
-      apiSrv.getIssues = function(successFn, errorFn){
+      apiSrv.getCampaigns = function(successFn, errorFn){
         return $http({
           method: 'GET',
-          url: '/wp-json/wp/v2/issue?per_page=100'
+          url: '/wp-json/wp/v2/campaign?per_page=100'
         }).success(successFn).error(errorFn);
       };
       apiSrv.getStates = function(successFn, errorFn){
@@ -53,7 +53,7 @@ angular.module('resourceMap.services')
       apiSrv.getCoords = function(terms, successFn, errorFn){
         var apiKey = "AIzaSyDCeNiQn5pxEpsoOGBIRChItBfGSYwe2VY";
         var lookup = encodeURI(terms);
-        var apiUrl = "https://maps.googleapis.com/maps/api/geocode/json?key="+apiKey+"&address="+lookup;
+        var apiUrl = "https://maps.googleapis.com/maps/api/geocode/json?key="+apiKey+"&components=country:US&address="+lookup;
         return $http({
           method: 'GET',
           url: apiUrl

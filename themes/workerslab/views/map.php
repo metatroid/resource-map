@@ -10,10 +10,10 @@
           </md-select>
         </div>
         <div class="input input-select">
-          <md-select ng-model="filter.issue" ng-change="filterBy(filter)" aria-label="Issue">
-            <md-option value="" disabled>Issue</md-option>
+          <md-select ng-model="filter.campaign" ng-change="filterBy(filter)" aria-label="Campaign">
+            <md-option value="" disabled>Campaign</md-option>
             <md-option value="all">All</md-option>
-            <md-option ng-repeat="issue in issues" ng-value="{{issue.id}}">{{issue.name}}</md-option>
+            <md-option ng-repeat="campaign in campaigns" ng-value="{{campaign.id}}">{{campaign.name}}</md-option>
           </md-select>
         </div>
         <div class="input input-select">
@@ -40,7 +40,7 @@
   <ul
     class="unstyled">
     <li><a ng-click="revealFilterModal('industry')">Industry</a></li>
-    <li><a ng-click="revealFilterModal('issue')">Issue</a></li>
+    <li><a ng-click="revealFilterModal('campaign')">Campaign</a></li>
     <li><a ng-click="revealFilterModal('year')">Year</a></li>
     </ul>
 </div>

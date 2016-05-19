@@ -108,20 +108,20 @@ angular.module('resourceMap.controllers')
         $log.error(err);
       });
       //
-      $scope.issues = [];
+      $scope.campaigns = [];
       $scope.industries = [];
       $scope.categories = [];
       $scope.states = [];
       $scope.filter = {
-        "issue": "",
+        "campaign": "",
         "industry": "",
         "state": ""
       };
       var industryHandler = function(data){
         $scope.industries = data;
       };
-      var issueHandler = function(data){
-        $scope.issues = data;
+      var campaignHandler = function(data){
+        $scope.campaigns = data;
       };
       var stateHandler = function(data){
         $scope.states = data;
@@ -129,7 +129,7 @@ angular.module('resourceMap.controllers')
       apiSrv.getIndustries(industryHandler, function(err){
         $log.error(err);
       });
-      apiSrv.getIssues(issueHandler, function(err){
+      apiSrv.getCampaigns(campaignHandler, function(err){
         $log.error(err);
       });
       apiSrv.getStates(stateHandler, function(err){
@@ -287,10 +287,10 @@ angular.module('resourceMap.controllers')
           var id = filters[category];
           var name = '';
           switch(category){
-            case "issue":
-              for(var i=0;i<$scope.issues.length;i++){
-                if($scope.issues[i].id === id){
-                  name = $scope.issues[i].name;
+            case "campaign":
+              for(var i=0;i<$scope.campaigns.length;i++){
+                if($scope.campaigns[i].id === id){
+                  name = $scope.campaigns[i].name;
                 }
               }
               if(id === 'all'){
@@ -336,18 +336,18 @@ angular.module('resourceMap.controllers')
         }
         $timeout(function(){
           markers.setFilter(function(f){
-            if(opts.industry && opts.issue && opts.state){
-              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
-            } else if(opts.industry && opts.issue){
-              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1);
+            if(opts.industry && opts.campaign && opts.state){
+              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.campaign.indexOf(opts.campaign) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
+            } else if(opts.industry && opts.campaign){
+              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.campaign.indexOf(opts.campaign) !== -1);
             } else if(opts.industry && opts.state){
               return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
-            } else if(opts.issue && opts.state){
-              return (f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
+            } else if(opts.campaign && opts.state){
+              return (f.properties.campaign.indexOf(opts.campaign) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
             } else if(opts.industry){
               return (f.properties.industry.indexOf(opts.industry) !== -1);
-            } else if(opts.issue){
-              return (f.properties.issue.indexOf(opts.issue) !== -1);
+            } else if(opts.campaign){
+              return (f.properties.campaign.indexOf(opts.campaign) !== -1);
             } else if(opts.state){
               return (f.properties.state.indexOf(opts.state) !== -1);
             }
@@ -450,8 +450,8 @@ angular.module('resourceMap.controllers')
           case "industry":
             $scope.filterSet = $scope.industries;
             break;
-          case "issue":
-            $scope.filterSet = $scope.issues;
+          case "campaign":
+            $scope.filterSet = $scope.campaigns;
             break;
           case "state":
             $scope.filterSet = $scope.states;
@@ -522,46 +522,6 @@ angular.module('resourceMap.controllers')
 //     }
 //   ])
 // ;
-angular.module('resourceMap.filters')
-  .filter('telephone', 
-    function(){
-      return function(telephone){
-        if(!telephone){
-          return "";
-        }
-        var value = telephone.toString().trim().replace(/^\+/, '');
-        if(value.match(/[^0-9]/)){
-          return telephone;
-        }
-        var country, city, number;
-        switch(value.length){
-          case 10:
-            country = 1;
-            city = value.slice(0,3);
-            number = value.slice(3);
-            break;
-          case 11:
-            country = value[0];
-            city = value.slice(1,4);
-            number = value.slice(4);
-            break;
-          case 12:
-            country = value.slice(0,3);
-            city = value.slice(3,5);
-            number = value.slice(5);
-            break;
-          default:
-            return telephone;
-        }
-        if(country === 1){
-          country = "";
-        }
-        number = number.slice(0, 3) + '-' + number.slice(3);
-        return (country + " (" + city + ") " + number).trim();
-      };
-    }
-  )
-;
 var smoothScroll = function(element, options){
   options = options || {};
   var duration = 800,
@@ -800,7 +760,12 @@ angular.module('resourceMap')
             }
             function toggleMenu(){
               if(isMenuOpen){
-                closeMenu();
+                if(menuCtrl.classList.contains("open")){
+                  closeMenu();
+                } else {
+                  isMenuOpen = true;
+                  openMenu();
+                }
               } else {
                 isMenuOpen = true;
                 openMenu();
@@ -850,10 +815,12 @@ angular.module('resourceMap')
                 document.getElementById("landing").parentNode.classList.remove("menu-open");
               }
               onEndTransition(futurePage, function(){
-                stack.classList.remove("open");
-                buildStack();
-                isMenuOpen = false;
-                if(id === "page_map"){window.location.href = "/#/map";}
+                if(!isMenuOpen){
+                  stack.classList.remove("open");
+                  buildStack();
+                  isMenuOpen = false;
+                  if(id === "page_map"){window.location.href = "/#/map";}
+                }
               });
             }
             function getStackPagesIdxs(excludePageIdx){
@@ -980,6 +947,46 @@ angular.module('resourceMap.directives')
     }
   )
 ;
+angular.module('resourceMap.filters')
+  .filter('telephone', 
+    function(){
+      return function(telephone){
+        if(!telephone){
+          return "";
+        }
+        var value = telephone.toString().trim().replace(/^\+/, '');
+        if(value.match(/[^0-9]/)){
+          return telephone;
+        }
+        var country, city, number;
+        switch(value.length){
+          case 10:
+            country = 1;
+            city = value.slice(0,3);
+            number = value.slice(3);
+            break;
+          case 11:
+            country = value[0];
+            city = value.slice(1,4);
+            number = value.slice(4);
+            break;
+          case 12:
+            country = value.slice(0,3);
+            city = value.slice(3,5);
+            number = value.slice(5);
+            break;
+          default:
+            return telephone;
+        }
+        if(country === 1){
+          country = "";
+        }
+        number = number.slice(0, 3) + '-' + number.slice(3);
+        return (country + " (" + city + ") " + number).trim();
+      };
+    }
+  )
+;
 angular.module('resourceMap.services')
   .factory('apiSrv', ['$http', 
     function($http){
@@ -1020,10 +1027,10 @@ angular.module('resourceMap.services')
           url: '/wp-json/wp/v2/industry?per_page=100'
         }).success(successFn).error(errorFn);
       };
-      apiSrv.getIssues = function(successFn, errorFn){
+      apiSrv.getCampaigns = function(successFn, errorFn){
         return $http({
           method: 'GET',
-          url: '/wp-json/wp/v2/issue?per_page=100'
+          url: '/wp-json/wp/v2/campaign?per_page=100'
         }).success(successFn).error(errorFn);
       };
       apiSrv.getStates = function(successFn, errorFn){
@@ -1035,7 +1042,7 @@ angular.module('resourceMap.services')
       apiSrv.getCoords = function(terms, successFn, errorFn){
         var apiKey = "AIzaSyDCeNiQn5pxEpsoOGBIRChItBfGSYwe2VY";
         var lookup = encodeURI(terms);
-        var apiUrl = "https://maps.googleapis.com/maps/api/geocode/json?key="+apiKey+"&address="+lookup;
+        var apiUrl = "https://maps.googleapis.com/maps/api/geocode/json?key="+apiKey+"&components=country:US&address="+lookup;
         return $http({
           method: 'GET',
           url: apiUrl
