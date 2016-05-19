@@ -36,11 +36,11 @@ angular.module('resourceMap.controllers')
       $scope.issues = [];
       $scope.industries = [];
       $scope.categories = [];
-      $scope.years = [];
+      $scope.states = [];
       $scope.filter = {
         "issue": "",
         "industry": "",
-        "year": ""
+        "state": ""
       };
       var industryHandler = function(data){
         $scope.industries = data;
@@ -48,8 +48,8 @@ angular.module('resourceMap.controllers')
       var issueHandler = function(data){
         $scope.issues = data;
       };
-      var yearHandler = function(data){
-        $scope.years = data;
+      var stateHandler = function(data){
+        $scope.states = data;
       };
       apiSrv.getIndustries(industryHandler, function(err){
         $log.error(err);
@@ -57,7 +57,7 @@ angular.module('resourceMap.controllers')
       apiSrv.getIssues(issueHandler, function(err){
         $log.error(err);
       });
-      apiSrv.getYears(yearHandler, function(err){
+      apiSrv.getStates(stateHandler, function(err){
         $log.error(err);
       });
       //
@@ -232,10 +232,10 @@ angular.module('resourceMap.controllers')
                 name = 'all';
               }
               break;
-            case "year":
-              for(var y=0;y<$scope.years.length;y++){
-                if($scope.years[y].id === id){
-                  name = $scope.years[y].name;
+            case "state":
+              for(var y=0;y<$scope.states.length;y++){
+                if($scope.states[y].id === id){
+                  name = $scope.states[y].name;
                 }
               }
               if(id === 'all'){
@@ -261,20 +261,20 @@ angular.module('resourceMap.controllers')
         }
         $timeout(function(){
           markers.setFilter(function(f){
-            if(opts.industry && opts.issue && opts.year){
-              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.year.indexOf(opts.year) !== -1);
+            if(opts.industry && opts.issue && opts.state){
+              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
             } else if(opts.industry && opts.issue){
               return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1);
-            } else if(opts.industry && opts.year){
-              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.year.indexOf(opts.year) !== -1);
-            } else if(opts.issue && opts.year){
-              return (f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.year.indexOf(opts.year) !== -1);
+            } else if(opts.industry && opts.state){
+              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
+            } else if(opts.issue && opts.state){
+              return (f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
             } else if(opts.industry){
               return (f.properties.industry.indexOf(opts.industry) !== -1);
             } else if(opts.issue){
               return (f.properties.issue.indexOf(opts.issue) !== -1);
-            } else if(opts.year){
-              return (f.properties.year.indexOf(opts.year) !== -1);
+            } else if(opts.state){
+              return (f.properties.state.indexOf(opts.state) !== -1);
             }
           });
           $scope.filterType = 'filter';
@@ -378,8 +378,8 @@ angular.module('resourceMap.controllers')
           case "issue":
             $scope.filterSet = $scope.issues;
             break;
-          case "year":
-            $scope.filterSet = $scope.years;
+          case "state":
+            $scope.filterSet = $scope.states;
             break;
           default:
             break;

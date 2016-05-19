@@ -111,11 +111,11 @@ angular.module('resourceMap.controllers')
       $scope.issues = [];
       $scope.industries = [];
       $scope.categories = [];
-      $scope.years = [];
+      $scope.states = [];
       $scope.filter = {
         "issue": "",
         "industry": "",
-        "year": ""
+        "state": ""
       };
       var industryHandler = function(data){
         $scope.industries = data;
@@ -123,8 +123,8 @@ angular.module('resourceMap.controllers')
       var issueHandler = function(data){
         $scope.issues = data;
       };
-      var yearHandler = function(data){
-        $scope.years = data;
+      var stateHandler = function(data){
+        $scope.states = data;
       };
       apiSrv.getIndustries(industryHandler, function(err){
         $log.error(err);
@@ -132,7 +132,7 @@ angular.module('resourceMap.controllers')
       apiSrv.getIssues(issueHandler, function(err){
         $log.error(err);
       });
-      apiSrv.getYears(yearHandler, function(err){
+      apiSrv.getStates(stateHandler, function(err){
         $log.error(err);
       });
       //
@@ -307,10 +307,10 @@ angular.module('resourceMap.controllers')
                 name = 'all';
               }
               break;
-            case "year":
-              for(var y=0;y<$scope.years.length;y++){
-                if($scope.years[y].id === id){
-                  name = $scope.years[y].name;
+            case "state":
+              for(var y=0;y<$scope.states.length;y++){
+                if($scope.states[y].id === id){
+                  name = $scope.states[y].name;
                 }
               }
               if(id === 'all'){
@@ -336,20 +336,20 @@ angular.module('resourceMap.controllers')
         }
         $timeout(function(){
           markers.setFilter(function(f){
-            if(opts.industry && opts.issue && opts.year){
-              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.year.indexOf(opts.year) !== -1);
+            if(opts.industry && opts.issue && opts.state){
+              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
             } else if(opts.industry && opts.issue){
               return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.issue.indexOf(opts.issue) !== -1);
-            } else if(opts.industry && opts.year){
-              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.year.indexOf(opts.year) !== -1);
-            } else if(opts.issue && opts.year){
-              return (f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.year.indexOf(opts.year) !== -1);
+            } else if(opts.industry && opts.state){
+              return (f.properties.industry.indexOf(opts.industry) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
+            } else if(opts.issue && opts.state){
+              return (f.properties.issue.indexOf(opts.issue) !== -1 && f.properties.state.indexOf(opts.state) !== -1);
             } else if(opts.industry){
               return (f.properties.industry.indexOf(opts.industry) !== -1);
             } else if(opts.issue){
               return (f.properties.issue.indexOf(opts.issue) !== -1);
-            } else if(opts.year){
-              return (f.properties.year.indexOf(opts.year) !== -1);
+            } else if(opts.state){
+              return (f.properties.state.indexOf(opts.state) !== -1);
             }
           });
           $scope.filterType = 'filter';
@@ -453,8 +453,8 @@ angular.module('resourceMap.controllers')
           case "issue":
             $scope.filterSet = $scope.issues;
             break;
-          case "year":
-            $scope.filterSet = $scope.years;
+          case "state":
+            $scope.filterSet = $scope.states;
             break;
           default:
             break;
@@ -522,202 +522,6 @@ angular.module('resourceMap.controllers')
 //     }
 //   ])
 // ;
-angular.module('resourceMap.filters')
-  .filter('telephone', 
-    function(){
-      return function(telephone){
-        if(!telephone){
-          return "";
-        }
-        var value = telephone.toString().trim().replace(/^\+/, '');
-        if(value.match(/[^0-9]/)){
-          return telephone;
-        }
-        var country, city, number;
-        switch(value.length){
-          case 10:
-            country = 1;
-            city = value.slice(0,3);
-            number = value.slice(3);
-            break;
-          case 11:
-            country = value[0];
-            city = value.slice(1,4);
-            number = value.slice(4);
-            break;
-          case 12:
-            country = value.slice(0,3);
-            city = value.slice(3,5);
-            number = value.slice(5);
-            break;
-          default:
-            return telephone;
-        }
-        if(country === 1){
-          country = "";
-        }
-        number = number.slice(0, 3) + '-' + number.slice(3);
-        return (country + " (" + city + ") " + number).trim();
-      };
-    }
-  )
-;
-angular.module('resourceMap.services')
-  .factory('apiSrv', ['$http', 
-    function($http){
-      var apiSrv = {};
-      apiSrv.getJson = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-content/plugins/workerslab/companies.json'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getOptions = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/options'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getPages = function(order, direction, successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/pages?filter[orderby]='+order+'&filter[order]='+direction
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getCompanies = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/company'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getCompany = function(slug, successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/company?filter[name]='+slug
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getIndustries = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/industry'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getIssues = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/issue'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getYears = function(successFn, errorFn){
-        return $http({
-          method: 'GET',
-          url: '/wp-json/wp/v2/year'
-        }).success(successFn).error(errorFn);
-      };
-      apiSrv.getCoords = function(terms, successFn, errorFn){
-        var apiKey = "AIzaSyDCeNiQn5pxEpsoOGBIRChItBfGSYwe2VY";
-        var lookup = encodeURI(terms);
-        var apiUrl = "https://maps.googleapis.com/maps/api/geocode/json?key="+apiKey+"&address="+lookup;
-        return $http({
-          method: 'GET',
-          url: apiUrl
-        }).success(successFn).error(errorFn);
-      };
-      return apiSrv;
-    }
-  ])
-;
-angular.module('resourceMap.services')
-  .factory('msgSrv', ['$rootScope',
-    function($rootScope){
-      var msgSrv = {};
-      msgSrv.state = {};
-      msgSrv.appScope = {};
-      msgSrv.vars = {};
-      msgSrv.setState = function(stateLabel, data){
-        msgSrv.state = {
-          fn: stateLabel,
-          args: data
-        };
-        $rootScope.$broadcast('updateState');
-      };
-      msgSrv.setScope = function(key, value){
-        msgSrv.appScope[key] = value;
-      };
-      msgSrv.getScope = function(key){
-        return msgSrv.appScope[key];
-      };
-      msgSrv.setVars = function(obj){
-        msgSrv.vars = obj;
-      };
-      msgSrv.getVars = function(){
-        return msgSrv.vars;
-      };
-      return msgSrv;
-    }
-  ])
-;
-angular.module('resourceMap.states')
-  .run(['$rootScope', 
-        '$state', 
-        '$stateParams', 
-    function($rootScope, $state, $stateParams){
-      $rootScope.$state = $state;
-      $rootScope.$stateParams = $stateParams;
-    }
-  ])
-  .config(['$stateProvider', 
-           '$urlRouterProvider', 
-    function($stateProvider, $urlRouterProvider){
-      var templateDir = '/wp-content/themes/workerslab/views';
-
-      $urlRouterProvider.otherwise('/');
-
-      $stateProvider
-        .state('main', {
-          url: '/',
-          views: {
-            'main': {
-              templateUrl: templateDir + '/main.php'
-            },
-            'header':{
-              templateUrl: templateDir + '/header.php'
-            },
-            'map@main': {
-              templateUrl: templateDir + '/map.php'
-            },
-            'landing': {
-              templateUrl: templateDir + '/landing.php'
-            },
-            'footer':{
-              templateUrl: templateDir + '/footer.php'
-            },
-          }
-        })
-        .state('map', {
-          url: '/map',
-          views: {
-            'main': {
-              templateUrl: templateDir + '/main.php'
-            },
-            'header': {
-              templateUrl: templateDir + '/header.php'
-            },
-            'map@map': {
-              templateUrl: templateDir + '/map.php'
-            },
-            'footer':{
-              templateUrl: templateDir + '/footer.php'
-            }
-          }
-        })
-        .state('map.companyView', {
-          url: '/companies/:slug'
-        })
-      ;
-    }
-  ])
-;
 var smoothScroll = function(element, options){
   options = options || {};
   var duration = 800,
@@ -1135,4 +939,200 @@ angular.module('resourceMap.directives')
       };
     }
   )
+;
+angular.module('resourceMap.filters')
+  .filter('telephone', 
+    function(){
+      return function(telephone){
+        if(!telephone){
+          return "";
+        }
+        var value = telephone.toString().trim().replace(/^\+/, '');
+        if(value.match(/[^0-9]/)){
+          return telephone;
+        }
+        var country, city, number;
+        switch(value.length){
+          case 10:
+            country = 1;
+            city = value.slice(0,3);
+            number = value.slice(3);
+            break;
+          case 11:
+            country = value[0];
+            city = value.slice(1,4);
+            number = value.slice(4);
+            break;
+          case 12:
+            country = value.slice(0,3);
+            city = value.slice(3,5);
+            number = value.slice(5);
+            break;
+          default:
+            return telephone;
+        }
+        if(country === 1){
+          country = "";
+        }
+        number = number.slice(0, 3) + '-' + number.slice(3);
+        return (country + " (" + city + ") " + number).trim();
+      };
+    }
+  )
+;
+angular.module('resourceMap.services')
+  .factory('apiSrv', ['$http', 
+    function($http){
+      var apiSrv = {};
+      apiSrv.getJson = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-content/plugins/workerslab/companies.json'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getOptions = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/options'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getPages = function(order, direction, successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/pages?filter[orderby]='+order+'&filter[order]='+direction
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getCompanies = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/company'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getCompany = function(slug, successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/company?filter[name]='+slug
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getIndustries = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/industry'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getIssues = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/issue'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getStates = function(successFn, errorFn){
+        return $http({
+          method: 'GET',
+          url: '/wp-json/wp/v2/state'
+        }).success(successFn).error(errorFn);
+      };
+      apiSrv.getCoords = function(terms, successFn, errorFn){
+        var apiKey = "AIzaSyDCeNiQn5pxEpsoOGBIRChItBfGSYwe2VY";
+        var lookup = encodeURI(terms);
+        var apiUrl = "https://maps.googleapis.com/maps/api/geocode/json?key="+apiKey+"&address="+lookup;
+        return $http({
+          method: 'GET',
+          url: apiUrl
+        }).success(successFn).error(errorFn);
+      };
+      return apiSrv;
+    }
+  ])
+;
+angular.module('resourceMap.services')
+  .factory('msgSrv', ['$rootScope',
+    function($rootScope){
+      var msgSrv = {};
+      msgSrv.state = {};
+      msgSrv.appScope = {};
+      msgSrv.vars = {};
+      msgSrv.setState = function(stateLabel, data){
+        msgSrv.state = {
+          fn: stateLabel,
+          args: data
+        };
+        $rootScope.$broadcast('updateState');
+      };
+      msgSrv.setScope = function(key, value){
+        msgSrv.appScope[key] = value;
+      };
+      msgSrv.getScope = function(key){
+        return msgSrv.appScope[key];
+      };
+      msgSrv.setVars = function(obj){
+        msgSrv.vars = obj;
+      };
+      msgSrv.getVars = function(){
+        return msgSrv.vars;
+      };
+      return msgSrv;
+    }
+  ])
+;
+angular.module('resourceMap.states')
+  .run(['$rootScope', 
+        '$state', 
+        '$stateParams', 
+    function($rootScope, $state, $stateParams){
+      $rootScope.$state = $state;
+      $rootScope.$stateParams = $stateParams;
+    }
+  ])
+  .config(['$stateProvider', 
+           '$urlRouterProvider', 
+    function($stateProvider, $urlRouterProvider){
+      var templateDir = '/wp-content/themes/workerslab/views';
+
+      $urlRouterProvider.otherwise('/');
+
+      $stateProvider
+        .state('main', {
+          url: '/',
+          views: {
+            'main': {
+              templateUrl: templateDir + '/main.php'
+            },
+            'header':{
+              templateUrl: templateDir + '/header.php'
+            },
+            'map@main': {
+              templateUrl: templateDir + '/map.php'
+            },
+            'landing': {
+              templateUrl: templateDir + '/landing.php'
+            },
+            'footer':{
+              templateUrl: templateDir + '/footer.php'
+            },
+          }
+        })
+        .state('map', {
+          url: '/map',
+          views: {
+            'main': {
+              templateUrl: templateDir + '/main.php'
+            },
+            'header': {
+              templateUrl: templateDir + '/header.php'
+            },
+            'map@map': {
+              templateUrl: templateDir + '/map.php'
+            },
+            'footer':{
+              templateUrl: templateDir + '/footer.php'
+            }
+          }
+        })
+        .state('map.companyView', {
+          url: '/companies/:slug'
+        })
+      ;
+    }
+  ])
 ;

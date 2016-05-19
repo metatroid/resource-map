@@ -17,13 +17,13 @@
           </md-select>
         </div>
         <div class="input input-select">
-          <md-select ng-model="filter.year" ng-change="filterBy(filter)" aria-label="Year">
-            <md-option value="" disabled>Year</md-option>
+          <md-select ng-model="filter.state" ng-change="filterBy(filter)" aria-label="State">
+            <md-option value="" disabled>State</md-option>
             <md-option value="all">All</md-option>
-            <md-option ng-repeat="year in years" ng-value="{{year.id}}">{{year.name}}</md-option>
+            <md-option ng-repeat="state in states" ng-value="{{state.id}}">{{state.name}}</md-option>
           </md-select>
         </div>
-        <div class="input input-text input-search"><span class="icon fa fa-search"></span><input type="text" ng-model="search" placeholder="enter a zip code" locator="locator" />
+        <div class="input input-text input-search"><span class="icon fa fa-search"></span><input type="text" ng-model="search" placeholder="enter a location" locator="locator" />
           <ul id="autocomplete"></ul>
         </div>
       </form>

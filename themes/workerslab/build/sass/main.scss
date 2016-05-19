@@ -117,9 +117,6 @@ img.alignright{
       }
     }
   }
-  .leaflet-control-zoom{
-    display: none;
-  }
   #mapbox{
     @include phone{
       bottom: 50px;
@@ -217,7 +214,15 @@ md-dialog-actions{
     background-color: transparent !important;
   }
 }
+.leaflet-control-container{
+  .leaflet-top{
+    top: 150px;
+  }
+}
 body.main{
+  .leaflet-control-zoom{
+    display: none;
+  }
   #page_map{
     #filterBarDisplay{
       display: none;

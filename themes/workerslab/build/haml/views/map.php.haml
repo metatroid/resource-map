@@ -21,14 +21,14 @@
             %md-option{ng-repeat: "issue in issues", ng-value: "{{issue.id}}"}
               {{issue.name}}
         .input.input-select
-          %md-select{ng-model: "filter.year", ng-change: "filterBy(filter)", aria-label: "Year"}
-            <md-option value="" disabled>Year</md-option>
+          %md-select{ng-model: "filter.state", ng-change: "filterBy(filter)", aria-label: "State"}
+            <md-option value="" disabled>State</md-option>
             <md-option value="all">All</md-option>
-            %md-option{ng-repeat: "year in years", ng-value: "{{year.id}}"}
-              {{year.name}}
+            %md-option{ng-repeat: "state in states", ng-value: "{{state.id}}"}
+              {{state.name}}
         .input.input-text.input-search
           %span.icon.fa.fa-search
-          %input{type: "text", ng-model: "search", placeholder: "enter a zip code", locator: "locator"}
+          %input{type: "text", ng-model: "search", placeholder: "enter a location", locator: "locator"}
           %ul#autocomplete
     %a.branding{ui-sref: "main", title: "Home"}
       %img{alt: "The Workers Lab", src: "/assets/img/logo.png"}

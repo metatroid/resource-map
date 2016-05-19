@@ -44,10 +44,10 @@ angular.module('resourceMap.services')
           url: '/wp-json/wp/v2/issue'
         }).success(successFn).error(errorFn);
       };
-      apiSrv.getYears = function(successFn, errorFn){
+      apiSrv.getStates = function(successFn, errorFn){
         return $http({
           method: 'GET',
-          url: '/wp-json/wp/v2/year'
+          url: '/wp-json/wp/v2/state'
         }).success(successFn).error(errorFn);
       };
       apiSrv.getCoords = function(terms, successFn, errorFn){

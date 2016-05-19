@@ -65,7 +65,7 @@ function add_meta_to_json($data, $post, $request){
   $lng = get_post_meta($post->ID, 'longitude', true);
   $industry = wp_get_post_terms($post->ID, 'industry');
   $issue = wp_get_post_terms($post->ID, 'issue');
-  $year = wp_get_post_terms($post->ID, 'year');
+  $state = wp_get_post_terms($post->ID, 'state');
   if(has_post_thumbnail($post->ID)) {
     $attachment = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), 'full');
     if($attachment){
@@ -93,7 +93,7 @@ function add_meta_to_json($data, $post, $request){
       'longitude' => $lng,
       'industry' => $industry,
       'issue' => $issue,
-      'year' => $year
+      'state' => $state
     );  
   }
   $data->set_data($response_data);
@@ -118,8 +118,8 @@ function updateGeoJson(){
     array_push($industry, "all");
     $issue = wp_get_post_terms($company->ID, 'issue', array('fields' => 'ids'));
     array_push($issue, "all");
-    $year = wp_get_post_terms($company->ID, 'year', array('fields' => 'ids'));
-    array_push($year, "all");
+    $state = wp_get_post_terms($company->ID, 'state', array('fields' => 'ids'));
+    array_push($state, "all");
     $comp = array(
               "geometry" => array(
                               "type" => "Point", 
@@ -131,7 +131,7 @@ function updateGeoJson(){
                 "slug" => $slug,
                 "industry" => $industry,
                 "issue" => $issue,
-                "year" => $year,
+                "state" => $state,
                 "compid" => $company->ID,
                 "marker-color" => "#0c1d20",
                 "icon" => array(
@@ -202,14 +202,14 @@ function taxonInit() {
     )
   );
   register_taxonomy(
-    'year',
+    'state',
     'company',
     array(
-      'label' => __( 'Years' ),
-      'rewrite' => array( 'slug' => 'years' ),
+      'label' => __( 'states' ),
+      'rewrite' => array( 'slug' => 'states' ),
       'hierarchical' => true,
       'show_in_rest' => true,
-      'rest_base' => 'year',
+      'rest_base' => 'state',
       'rest_controller_class' => 'WP_REST_Terms_Controller',
     )
   );

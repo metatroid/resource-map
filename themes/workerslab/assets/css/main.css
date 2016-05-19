@@ -26516,9 +26516,6 @@ img.alignright {
       height: 18px;
       top: 93px; } }
 
-#page_map .leaflet-control-zoom {
-  display: none; }
-
 @media (max-width: 767px) {
   #page_map #mapbox {
     bottom: 50px; } }
@@ -26597,6 +26594,12 @@ md-dialog-actions .md-button {
   font-size: 14px;
   letter-spacing: 0.5px;
   background-color: transparent !important; }
+
+.leaflet-control-container .leaflet-top {
+  top: 150px; }
+
+body.main .leaflet-control-zoom {
+  display: none; }
 
 body.main #page_map #filterBarDisplay {
   display: none; }
