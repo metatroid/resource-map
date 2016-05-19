@@ -23,7 +23,7 @@ angular.module('resourceMap.services')
       apiSrv.getCompanies = function(successFn, errorFn){
         return $http({
           method: 'GET',
-          url: '/wp-json/wp/v2/company'
+          url: '/wp-json/wp/v2/company?per_page=100'
         }).success(successFn).error(errorFn);
       };
       apiSrv.getCompany = function(slug, successFn, errorFn){
@@ -35,19 +35,19 @@ angular.module('resourceMap.services')
       apiSrv.getIndustries = function(successFn, errorFn){
         return $http({
           method: 'GET',
-          url: '/wp-json/wp/v2/industry'
+          url: '/wp-json/wp/v2/industry?per_page=100'
         }).success(successFn).error(errorFn);
       };
       apiSrv.getIssues = function(successFn, errorFn){
         return $http({
           method: 'GET',
-          url: '/wp-json/wp/v2/issue'
+          url: '/wp-json/wp/v2/issue?per_page=100'
         }).success(successFn).error(errorFn);
       };
       apiSrv.getStates = function(successFn, errorFn){
         return $http({
           method: 'GET',
-          url: '/wp-json/wp/v2/state'
+          url: '/wp-json/wp/v2/state?per_page=100'
         }).success(successFn).error(errorFn);
       };
       apiSrv.getCoords = function(terms, successFn, errorFn){

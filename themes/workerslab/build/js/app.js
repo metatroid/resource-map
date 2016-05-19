@@ -522,6 +522,46 @@ angular.module('resourceMap.controllers')
 //     }
 //   ])
 // ;
+angular.module('resourceMap.filters')
+  .filter('telephone', 
+    function(){
+      return function(telephone){
+        if(!telephone){
+          return "";
+        }
+        var value = telephone.toString().trim().replace(/^\+/, '');
+        if(value.match(/[^0-9]/)){
+          return telephone;
+        }
+        var country, city, number;
+        switch(value.length){
+          case 10:
+            country = 1;
+            city = value.slice(0,3);
+            number = value.slice(3);
+            break;
+          case 11:
+            country = value[0];
+            city = value.slice(1,4);
+            number = value.slice(4);
+            break;
+          case 12:
+            country = value.slice(0,3);
+            city = value.slice(3,5);
+            number = value.slice(5);
+            break;
+          default:
+            return telephone;
+        }
+        if(country === 1){
+          country = "";
+        }
+        number = number.slice(0, 3) + '-' + number.slice(3);
+        return (country + " (" + city + ") " + number).trim();
+      };
+    }
+  )
+;
 var smoothScroll = function(element, options){
   options = options || {};
   var duration = 800,
@@ -940,46 +980,6 @@ angular.module('resourceMap.directives')
     }
   )
 ;
-angular.module('resourceMap.filters')
-  .filter('telephone', 
-    function(){
-      return function(telephone){
-        if(!telephone){
-          return "";
-        }
-        var value = telephone.toString().trim().replace(/^\+/, '');
-        if(value.match(/[^0-9]/)){
-          return telephone;
-        }
-        var country, city, number;
-        switch(value.length){
-          case 10:
-            country = 1;
-            city = value.slice(0,3);
-            number = value.slice(3);
-            break;
-          case 11:
-            country = value[0];
-            city = value.slice(1,4);
-            number = value.slice(4);
-            break;
-          case 12:
-            country = value.slice(0,3);
-            city = value.slice(3,5);
-            number = value.slice(5);
-            break;
-          default:
-            return telephone;
-        }
-        if(country === 1){
-          country = "";
-        }
-        number = number.slice(0, 3) + '-' + number.slice(3);
-        return (country + " (" + city + ") " + number).trim();
-      };
-    }
-  )
-;
 angular.module('resourceMap.services')
   .factory('apiSrv', ['$http', 
     function($http){
@@ -1005,7 +1005,7 @@ angular.module('resourceMap.services')
       apiSrv.getCompanies = function(successFn, errorFn){
         return $http({
           method: 'GET',
-          url: '/wp-json/wp/v2/company'
+          url: '/wp-json/wp/v2/company?per_page=100'
         }).success(successFn).error(errorFn);
       };
       apiSrv.getCompany = function(slug, successFn, errorFn){
@@ -1017,19 +1017,19 @@ angular.module('resourceMap.services')
       apiSrv.getIndustries = function(successFn, errorFn){
         return $http({
           method: 'GET',
-          url: '/wp-json/wp/v2/industry'
+          url: '/wp-json/wp/v2/industry?per_page=100'
         }).success(successFn).error(errorFn);
       };
       apiSrv.getIssues = function(successFn, errorFn){
         return $http({
           method: 'GET',
-          url: '/wp-json/wp/v2/issue'
+          url: '/wp-json/wp/v2/issue?per_page=100'
         }).success(successFn).error(errorFn);
       };
       apiSrv.getStates = function(successFn, errorFn){
         return $http({
           method: 'GET',
-          url: '/wp-json/wp/v2/state'
+          url: '/wp-json/wp/v2/state?per_page=100'
         }).success(successFn).error(errorFn);
       };
       apiSrv.getCoords = function(terms, successFn, errorFn){
