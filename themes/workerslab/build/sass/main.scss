@@ -855,6 +855,9 @@ body.main{
     @include phone{
       top: 15px;
       left: 15px;
+      padding: 10px;
+      line-height: 0;
+      background-color: $black;
     }
   }
   .comp-images{

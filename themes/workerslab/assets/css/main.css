@@ -27182,7 +27182,10 @@ body.main #page_map #filterBarDisplay {
     @media (max-width: 767px) {
       #compDetail .close-btn {
         top: 15px;
-        left: 15px; } }
+        left: 15px;
+        padding: 10px;
+        line-height: 0;
+        background-color: #0d212f; } }
   #compDetail .comp-images {
     position: relative;
     height: 240px;
