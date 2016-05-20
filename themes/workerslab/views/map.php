@@ -32,7 +32,7 @@
   </div>
 </header><map map-ready="mapReady" menu-trigger="#siteNav" id="mapbox"></map>
 <div ng-show="filterType !== null &amp;&amp; $state.current.name !== 'main'" id="filterMsg">
-  <div class="filter-msg-desktop"><span ng-if="filterChoices.length &gt; 0 &amp;&amp; filterType === 'filter'">Filtered by "{{filterChoices}}." Select a <img alt="map marker" src="/assets/img/marker_icon_clicked.svg"> pin to see why they stand out.</span><span ng-if="filterLocation1.length &gt; 0 &amp;&amp; filterType === 'location'">Showing results in the {{filterLocation1}} area. Select a <img alt="map marker" src="/assets/img/marker_icon_clicked.svg"> pin to see why they stand out.</span></div>
+  <div class="filter-msg-desktop"><span ng-if="filterChoices.length &gt; 0 &amp;&amp; filterType === 'filter'">Filtered by <strong>{{filterChoices}}</strong>. Click on a <img alt="map marker" src="/assets/img/marker_icon_clicked.svg"> pin for info.</span><span ng-if="filterLocation1.length &gt; 0 &amp;&amp; filterType === 'location'">Showing results in the <strong>{{filterLocation1}}</strong> area. Click on a <img alt="map marker" src="/assets/img/marker_icon_clicked.svg"> pin for info.</span></div>
   <div
     class="filter-msg-mobile"><span ng-if="filterChoices.length &gt; 0 &amp;&amp; filterType === 'filter'">Showing "{{filterChoices}}" results in the area.</span><span ng-if="filterLocation1.length &gt; 0 &amp;&amp; filterType === 'location'">Showing results in the area {{filterLocation1}}</span></div>
 </div>

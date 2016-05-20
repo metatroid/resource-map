@@ -26493,9 +26493,10 @@ img.alignright {
   padding: 8px 15px 5px;
   color: #fff;
   text-align: center;
-  font-family: "AntennaExtraCond-Bold";
   font-size: 10px;
   letter-spacing: 0.4px; }
+  #page_map .page-content #filterMsg strong {
+    font-family: "AntennaExtraCond-Black"; }
   @media (max-width: 768px) {
     #page_map .page-content #filterMsg .filter-msg-desktop {
       display: none; } }
@@ -26509,7 +26510,6 @@ img.alignright {
       background-color: #fff;
       color: #0d212f;
       font-size: 14px;
-      font-family: "AntennaExtraCond-Black";
       letter-spacing: 0.5px;
       box-shadow: 0 5px 5px -2px rgba(0, 0, 0, 0.5);
       padding: 5px 15px 10px;

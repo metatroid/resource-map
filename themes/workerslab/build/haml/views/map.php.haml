@@ -36,9 +36,9 @@
 #filterMsg{ng-show: "filterType !== null && $state.current.name !== 'main'"}
   .filter-msg-desktop
     %span{ng-if: "filterChoices.length > 0 && filterType === 'filter'"}
-      Filtered by "{{filterChoices}}." Select a <img alt="map marker" src="/assets/img/marker_icon_clicked.svg"> pin to see why they stand out.
+      Filtered by <strong>{{filterChoices}}</strong>. Click on a <img alt="map marker" src="/assets/img/marker_icon_clicked.svg"> pin for info.
     %span{ng-if: "filterLocation1.length > 0 && filterType === 'location'"}
-      Showing results in the {{filterLocation1}} area. Select a <img alt="map marker" src="/assets/img/marker_icon_clicked.svg"> pin to see why they stand out.
+      Showing results in the <strong>{{filterLocation1}}</strong> area. Click on a <img alt="map marker" src="/assets/img/marker_icon_clicked.svg"> pin for info.
   .filter-msg-mobile
     %span{ng-if: "filterChoices.length > 0 && filterType === 'filter'"}
       Showing "{{filterChoices}}" results in the area.
