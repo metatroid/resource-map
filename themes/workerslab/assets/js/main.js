@@ -68323,7 +68323,26 @@ angular.module('resourceMap.controllers')
             filterChoicesArray.splice(filterChoicesArray.length-1, 0, "&");
           }
           $scope.filterChoices = filterChoicesArray.join(", ").replace("&,", "&");
-          mapObj.fitBounds(markers.getBounds());
+          if(opts.state && opts.state !== 'all'){
+            //move map to state
+            var stateName = '';
+            for(var y=0;y<$scope.states.length;y++){
+              if($scope.states[y].id === opts.state){
+                stateName = $scope.states[y].name;
+              }
+            }
+            apiSrv.getCoords(stateName, function(data){
+              if(data){
+                var lat = data.results[0].geometry.location.lat;
+                var lng = data.results[0].geometry.location.lng;
+                mapObj.setView([lat,lng], 7);
+              }
+            }, function(err){
+              $log.error(err);
+            });
+          } else {
+            mapObj.fitBounds(markers.getBounds());
+          }
         }, 0);
       };
       //
