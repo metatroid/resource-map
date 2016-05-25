@@ -26516,9 +26516,12 @@ img.alignright {
       height: 18px;
       top: 93px; } }
 
-@media (max-width: 767px) {
-  #page_map #mapbox {
-    bottom: 50px; } }
+#page_map #mapbox {
+  top: 93px;
+  bottom: 61px; }
+  @media (max-width: 767px) {
+    #page_map #mapbox {
+      bottom: 50px; } }
 
 #page_map #filterBarDisplay {
   display: none; }

@@ -23,7 +23,7 @@
             <md-option ng-repeat="state in states" ng-value="{{state.id}}">{{state.name}}</md-option>
           </md-select>
         </div>
-        <div class="input input-text input-search"><span class="icon fa fa-search"></span><input type="text" ng-model="search" placeholder="enter a location" locator="locator" />
+        <div class="input input-text input-search"><span class="icon fa fa-search"></span><input type="text" ng-model="search" placeholder="enter a location" />
           <ul id="autocomplete"></ul>
         </div>
       </form>

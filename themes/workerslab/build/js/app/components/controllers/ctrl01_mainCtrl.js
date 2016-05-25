@@ -252,6 +252,7 @@ angular.module('resourceMap.controllers')
       };
       //
       $scope.filterBy = function(opts){
+        $log.info(opts);
         if($state.current.name !== "map"){
           $state.go("map");
         }
@@ -276,6 +277,8 @@ angular.module('resourceMap.controllers')
               return (f.properties.campaign.indexOf(opts.campaign) !== -1);
             } else if(opts.state){
               return (f.properties.state.indexOf(opts.state) !== -1);
+            } else {
+              return true;
             }
           });
           $scope.filterType = 'filter';
@@ -296,9 +299,22 @@ angular.module('resourceMap.controllers')
             }
             apiSrv.getCoords(stateName, function(data){
               if(data){
-                var lat = data.results[0].geometry.location.lat;
-                var lng = data.results[0].geometry.location.lng;
-                mapObj.setView([lat,lng], 7);
+                if(stateName === "Alaska"){
+                  var lat = data.results[0].geometry.location.lat;
+                  var lng = data.results[0].geometry.location.lng;
+                  mapObj.setView([lat,lng], 4);
+                  $log.info(stateName);
+                } else {
+                  var northeast = {
+                    lat: data.results[0].geometry.bounds.northeast.lat,
+                    lng: data.results[0].geometry.bounds.northeast.lng
+                  };
+                  var southwest = {
+                    lat: data.results[0].geometry.bounds.southwest.lat,
+                    lng: data.results[0].geometry.bounds.southwest.lng
+                  };
+                  mapObj.fitBounds([[northeast.lat,northeast.lng],[southwest.lat,southwest.lng]]);
+                }
               }
             }, function(err){
               $log.error(err);

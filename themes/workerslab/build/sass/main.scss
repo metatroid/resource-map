@@ -119,6 +119,8 @@ img.alignright{
     }
   }
   #mapbox{
+    top: 93px;
+    bottom: 61px;
     @include phone{
       bottom: 50px;
     }
