@@ -1,32 +1,32 @@
-%md-bottom-sheet#compDetail.full-content{ng-class: "{filtered: ctrl.parent.filterType !== null}"}
+.sidenav-inner
   %md-content
-    %a.close-btn{ng-click: "ctrl.parent.closeSheet()"}
+    %a.close-btn{ng-click: "closeProfile()"}
       %svg{version: "1.1", xmlns: "http://www.w3.org/2000/svg", x: "0", y: "0", width: "16", height: "16", viewBox: "0 0 16 16", 'xml:space': "preserve"}
         %path{d: "M0 0 L16 16", fill: "#fff", stroke: "#fff", stroke-width: "2px"}
         %path{d: "M0 16 L16 0", fill: "#fff", stroke: "#fff", stroke-width: "2px"}
     .comp-images{slideshow: "slideshow"}
-      .img.fit-images{ng-repeat: "image in ctrl.parent.company.acf.slideshow_images"}
+      .img.fit-images{ng-repeat: "image in company.acf.slideshow_images"}
         %img{src: "{{image.image}}"}
     .comp-info
       .meta
         .titles
           %h2.title
-            {{ctrl.parent.company.title.rendered}}
-            {{ctrl.parent.debug}}
+            {{company.title.rendered}}
+            {{debug}}
           %h3.subtitle
-            {{ctrl.parent.company.company_meta.subtitle}}
+            {{company.company_meta.subtitle}}
         .social
           .avatar
-            %img{src: "{{ctrl.parent.company.company_meta.avatar}}", alt: "{{ctrl.parent.company.title.rendered}} logo"}
+            %img{src: "{{company.company_meta.avatar}}", alt: "{{company.title.rendered}} logo"}
           .links
-            %a{ng-repeat: "site in ctrl.parent.company.acf.social_media", target: "_blank", href: "{{site.url}}", title: "{{site.service}}"}
+            %a{ng-repeat: "site in company.acf.social_media", target: "_blank", href: "{{site.url}}", title: "{{site.service}}"}
               %span.icon.fa{class: "fa-{{site.service}}"}
-      .intro{ng-bind-html: "ctrl.parent.htmlSafe(ctrl.parent.company.content.rendered)"}
+      .intro{ng-bind-html: "htmlSafe(company.content.rendered)"}
       .tabs{ng-cloak: true}
         %md-content
           %md-tabs{md-dynamic-height: true, md-border-bottom: true, md-center-tabs: true, md-stretch-tabs: "always", md-swipe-content: true}
-            %md-tab{ng-repeat: "tab in ctrl.parent.company.acf.tabbed_content", label: "{{tab.content_title}}"}
-              %md-content.md-padding{ng-bind-html: "ctrl.parent.htmlSafe(tab.content)"}
+            %md-tab{ng-repeat: "tab in company.acf.tabbed_content", label: "{{tab.content_title}}"}
+              %md-content.md-padding{ng-bind-html: "htmlSafe(tab.content)"}
 
 
   -#.see-more

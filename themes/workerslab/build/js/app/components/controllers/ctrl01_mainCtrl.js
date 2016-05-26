@@ -8,15 +8,17 @@ angular.module('resourceMap.controllers')
                            '$timeout',
                            '$cookies',
                            '$mdBottomSheet',
+                           '$mdSidenav',
                            '$mdDialog',
                            'apiSrv',
                            'msgSrv',
-    function($scope, $rootScope, $state, $log, $sce, $compile, $timeout, $cookies, $mdBottomSheet, $mdDialog, apiSrv, msgSrv){
+    function($scope, $rootScope, $state, $log, $sce, $compile, $timeout, $cookies, $mdBottomSheet, $mdSidenav, $mdDialog, apiSrv, msgSrv){
       var mapObj;
       var mLayer;
       var geojson;
       var _geojson;
       $scope.htmlSafe = $sce.trustAsHtml;
+      $scope.filterText = '';
       var overlay = false;
       //
       if($state.is('map.companyView')){
@@ -155,50 +157,112 @@ angular.module('resourceMap.controllers')
         }
       });
       //
-      $scope.closeSheet = function(){
-        $mdBottomSheet.hide();
+      $scope.closeProfile = function(){
+        $mdSidenav('left').close()
+          .then(function () {
+            mLayer.setGeoJSON(geojson);
+            for(var i=0;i<geojson.length;i++){
+              geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
+              geojson[i].properties.icon.iconSize = [22,31];
+              geojson[i].properties.icon.iconAnchor = [11,31];
+            }
+            if($state.current.name === "map"){
+              mLayer.setGeoJSON(geojson);
+            }
+            overlay = false;
+            $state.go("map");
+          });
+      };
+      //
+      $scope.isOpenLeft = function(){
+        return $mdSidenav('left').isOpen();
       };
       //
       $scope.showCompany = function(slug){
+        // $mdSidenav('left').close();
         overlay = true;
-        $mdBottomSheet.show({
-          controller: function(){
-            this.parent = $scope;
-            this.parent.company = {};
-            apiSrv.getCompany(slug, function(company){
-              company = company[0];
-              $timeout(function(){
-                $scope.$apply(function(){
-                  this.parent = $scope;
-                  this.parent.company = company;
-                  $scope.company = company;
-                });
-              }, 0);
-            }, function(err){
-              $log.error(err);
-            });
-          },
-          controllerAs: 'ctrl',
-          templateUrl: '/wp-content/themes/workerslab/views/company_detail.php',
-          clickOutsideToClose: true,
-          onComplete: function(){
-            angular.element(document.querySelector('md-bottom-sheet md-content')).on('touchmove', function(e){
-              e.stopPropagation();
-            });
-          }
-        }).finally(function(){
-          mLayer.setGeoJSON(geojson);
-          for(var i=0;i<geojson.length;i++){
-            geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
-            geojson[i].properties.icon.iconSize = [22,31];
-            geojson[i].properties.icon.iconAnchor = [11,31];
-          }
-          if($state.current.name === "map"){
-            mLayer.setGeoJSON(geojson);
-          }
-          overlay = false;
-          $state.go("map");
+        $mdSidenav('left').toggle().then(function(){
+          angular.element(document.querySelector('md-bottom-sheet md-content')).on('touchmove', function(e){
+            e.stopPropagation();
+          });
         });
+        $scope.company = {};
+        apiSrv.getCompany(slug, function(company){
+          company = company[0];
+          $timeout(function(){
+            $scope.$apply(function(){
+              $scope.company = company;
+              // $scope.toggleLeft();
+              if(!$scope.isOpenLeft()){
+                $mdSidenav('left').toggle().then(function(){
+                  mLayer.eachLayer(function(marker){
+                    if(marker.feature.properties.slug === $state.params.slug){
+                      marker.setIcon(L.icon({
+                        "iconUrl":"/assets/img/marker_icon_clicked.svg",
+                        "iconSize":[44,62],
+                        "iconAnchor":[25,60],
+                        "popupAnchor":[0,0],
+                        "className":"dot"
+                      }));
+                    } else {
+                      marker.setIcon(L.icon({
+                        "iconUrl":"/assets/img/marker_icon.svg",
+                        "iconSize":[22,31],
+                        "iconAnchor":[11,31],
+                        "popupAnchor":[0,0],
+                        "className":"dot"
+                      }));
+                    }
+                  });
+                  angular.element(document.querySelector('md-bottom-sheet md-content')).on('touchmove', function(e){
+                    e.stopPropagation();
+                  });
+                });
+              }
+            });
+          }, 0);
+        }, function(err){
+          $log.error(err);
+        });
+        
+        // $mdBottomSheet.show({
+        //   controller: function(){
+        //     this.parent = $scope;
+        //     this.parent.company = {};
+        //     apiSrv.getCompany(slug, function(company){
+        //       company = company[0];
+        //       $timeout(function(){
+        //         $scope.$apply(function(){
+        //           this.parent = $scope;
+        //           this.parent.company = company;
+        //           $scope.company = company;
+        //         });
+        //       }, 0);
+        //     }, function(err){
+        //       $log.error(err);
+        //     });
+        //   },
+        //   controllerAs: 'ctrl',
+        //   templateUrl: '/wp-content/themes/workerslab/views/company_detail.php',
+        //   clickOutsideToClose: true,
+        //   onComplete: function(){
+        //     angular.element(document.querySelector('md-bottom-sheet md-content')).on('touchmove', function(e){
+        //       e.stopPropagation();
+        //     });
+        //   }
+        // }).finally(function(){
+        //   mLayer.setGeoJSON(geojson);
+        //   for(var i=0;i<geojson.length;i++){
+        //     geojson[i].properties.icon.iconUrl = "/assets/img/marker_icon.svg";
+        //     geojson[i].properties.icon.iconSize = [22,31];
+        //     geojson[i].properties.icon.iconAnchor = [11,31];
+        //   }
+        //   if($state.current.name === "map"){
+        //     mLayer.setGeoJSON(geojson);
+        //   }
+        //   overlay = false;
+        //   $state.go("map");
+        // });
       };
       //
       $scope.companyActive = false;
@@ -208,7 +272,11 @@ angular.module('resourceMap.controllers')
       };
       //
       var getFilterChoices = function(filters){
-        var choices = [];
+        var choices = {
+          industry: '',
+          campaign: '',
+          state: ''
+        };
         for(var category in filters){
           var id = filters[category];
           var name = '';
@@ -246,7 +314,7 @@ angular.module('resourceMap.controllers')
             default:
               break;
           }
-          choices.push(name);
+          choices[category] = name;
         }
         return choices;
       };
@@ -282,13 +350,22 @@ angular.module('resourceMap.controllers')
             }
           });
           $scope.filterType = 'filter';
-          var filterChoicesArray = getFilterChoices($scope.filter);
-          filterChoicesArray = filterChoicesArray.clean('');
-          filterChoicesArray = filterChoicesArray.getUnique();
-          if(filterChoicesArray.length >= 2){
-            filterChoicesArray.splice(filterChoicesArray.length-1, 0, "&");
+          var filters = getFilterChoices($scope.filter);
+          if(filters.industry.length > 0 && filters.campaign.length > 0 && filters.state.length > 0){
+            $scope.filterText = "Now showing <strong>"+filters.campaign+"</strong> campaigns in "+ (filters.industry === 'all' ? '<strong>'+filters.industry+'</strong> industries' : 'the <strong>'+filters.industry+'</strong> industry') + " in <strong>"+filters.state+"</strong>"+(filters.state === 'all' ? ' states.' : '.')+" <span>Click on a <img alt='map marker' src='/assets/img/marker_icon_subnav_blue.svg'> pin for info.</span>";
+          } else if(filters.industry.length > 0 && filters.campaign.length > 0){
+            $scope.filterText = "Now showing <strong>"+filters.campaign+"</strong> campaigns in "+ (filters.industry === 'all' ? '<strong>'+filters.industry+'</strong> industries.' : 'the <strong>'+filters.industry+'</strong> industry.') + " <span>Click on a <img alt='map marker' src='/assets/img/marker_icon_subnav_blue.svg'> pin for info.</span>";
+          } else if(filters.industry.length > 0 && filters.state.length > 0){
+            $scope.filterText = "Now showing "+(filters.industry === 'all' ? '<strong>'+filters.industry+'</strong> industries' : 'the <strong>'+filters.industry+'</strong> industry')+" in <strong>"+filters.state+"</strong>"+(filters.state === 'all' ? ' states.' : '.')+" <span>Click on a <img alt='map marker' src='/assets/img/marker_icon_subnav_blue.svg'> pin for info.</span>";
+          } else if(filters.campaign.length > 0 && filters.state.length > 0){
+            $scope.filterText = "Now showing <strong>"+filters.campaign+"</strong> campaigns in <strong>"+filters.state+"</strong>"+(filters.state === 'all' ? ' states.' : '.')+" <span>Click on a <img alt='map marker' src='/assets/img/marker_icon_subnav_blue.svg'> pin for info.</span>";
+          } else if(filters.industry.length > 0){
+            $scope.filterText = "Now showing "+(filters.industry === 'all' ? '<strong>'+filters.industry+'</strong> industries.' : 'the <strong>'+filters.industry+'</strong> industry.')+" <span>Click on a <img alt='map marker' src='/assets/img/marker_icon_subnav_blue.svg'> pin for info.</span>";
+          } else if(filters.campaign.length > 0){
+            $scope.filterText = "Now showing <strong>"+filters.campaign+"</strong> campaigns."+" <span>Click on a <img alt='map marker' src='/assets/img/marker_icon_subnav_blue.svg'> pin for info.</span>";
+          } else if(filters.state.length > 0){
+            $scope.filterText = "Now showing <strong>"+filters.state+"</strong>"+(filters.state === 'all' ? ' states.' : '.')+" <span>Click on a <img alt='map marker' src='/assets/img/marker_icon_subnav_blue.svg'> pin for info.</span>";
           }
-          $scope.filterChoices = filterChoicesArray.join(", ").replace("&,", "&");
           if(opts.state && opts.state !== 'all'){
             //move map to state
             var stateName = '';
@@ -326,6 +403,9 @@ angular.module('resourceMap.controllers')
       };
       //
       $scope.searchFor = function(search){
+        if(typeof search === 'undefined' || search.length === 0){
+          return false;
+        }
         if($state.current.name !== "map"){
           $state.go("map");
         }

@@ -93,6 +93,16 @@ img.alignright{
       strong{
         font-family: $antBlack;
       }
+      img{
+        width: 12px;
+      }
+      .filter-msg-mobile{
+        span{
+          span{
+            display: none;
+          }
+        }
+      }
       .filter-msg-desktop{
         @include phablet{
           display: none;
@@ -122,6 +132,7 @@ img.alignright{
     top: 93px;
     bottom: 61px;
     @include phone{
+      top: 55px;
       bottom: 50px;
     }
   }
@@ -220,6 +231,9 @@ md-dialog-actions{
 .leaflet-control-container{
   .leaflet-top{
     top: 150px;
+    @include phone{
+      top: 15px;
+    }
   }
 }
 body.main{
@@ -242,6 +256,10 @@ body.main{
   @include phone{
     padding: 14px 15px;
     height: 27px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
   }
   .header{
     display: flex;
@@ -301,6 +319,7 @@ body.main{
             }
             @include phone{
               padding: 0;
+              margin-top: 4px;
               .icon{
                 margin-top: 0;
               }
@@ -806,18 +825,36 @@ body.main{
 #compDetail{
   top: 93px;
   bottom: 61px;
-  transform: translateY(0);
-  border-top: 0;
   width: 500px;
-  height: auto;
-  padding: 0;
-  overflow: hidden;
+  max-width: 500px;
+  z-index: 12345;
   &.filtered{
-    top: 123px;
+    top: 126px;
     @include phone{
-      top: 81px;
+      top: 80px;
     }
   }
+  ng-include{
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+  }
+  // top: 93px;
+  // bottom: 61px;
+  // transform: translateY(0);
+  // border-top: 0;
+  // width: 500px;
+  // height: auto;
+  // padding: 0;
+  // overflow: hidden;
+  // &.filtered{
+  //   top: 123px;
+  //   @include phone{
+  //     top: 81px;
+  //   }
+  // }
   &.full-content{
     md-content{
       height: 100%;
@@ -992,6 +1029,7 @@ body.main{
 md-backdrop.md-opaque.md-default-theme,
 md-backdrop.md-opaque{
   background-color: rgba(33,33,33,0.01);
+  display: none;
 }
 .md-scroll-mask,
 .leaflet-popup-pane{
@@ -1059,4 +1097,13 @@ md-backdrop.md-opaque{
       }
     }
   }
+}
+
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+  animation: fadein .5s;
+}
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }

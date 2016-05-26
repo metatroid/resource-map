@@ -7,7 +7,7 @@
     <meta name="description" />
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <link rel="stylesheet" href="/assets/css/main.css" />
-    <script src="/assets/js/main.min.js"></script>
+    <script src="/assets/js/main.js"></script>
   </head>
 
   <body ng-controller="mainCtrl">

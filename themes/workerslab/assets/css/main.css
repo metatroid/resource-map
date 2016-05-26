@@ -26497,6 +26497,10 @@ img.alignright {
   letter-spacing: 0.4px; }
   #page_map .page-content #filterMsg strong {
     font-family: "AntennaExtraCond-Black"; }
+  #page_map .page-content #filterMsg img {
+    width: 12px; }
+  #page_map .page-content #filterMsg .filter-msg-mobile span span {
+    display: none; }
   @media (max-width: 768px) {
     #page_map .page-content #filterMsg .filter-msg-desktop {
       display: none; } }
@@ -26521,6 +26525,7 @@ img.alignright {
   bottom: 61px; }
   @media (max-width: 767px) {
     #page_map #mapbox {
+      top: 55px;
       bottom: 50px; } }
 
 #page_map #filterBarDisplay {
@@ -26600,6 +26605,9 @@ md-dialog-actions .md-button {
 
 .leaflet-control-container .leaflet-top {
   top: 150px; }
+  @media (max-width: 767px) {
+    .leaflet-control-container .leaflet-top {
+      top: 15px; } }
 
 body.main .leaflet-control-zoom {
   display: none; }
@@ -26616,7 +26624,11 @@ body.main #page_map #filterBarDisplay {
   @media (max-width: 767px) {
     #pageHeader {
       padding: 14px 15px;
-      height: 27px; } }
+      height: 27px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%; } }
   #pageHeader .header {
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -26697,7 +26709,8 @@ body.main #page_map #filterBarDisplay {
                 cursor: pointer; }
           @media (max-width: 767px) {
             #pageHeader .header #filterBar form .input.input-search {
-              padding: 0; }
+              padding: 0;
+              margin-top: 4px; }
               #pageHeader .header #filterBar form .input.input-search .icon {
                 margin-top: 0; } }
         #pageHeader .header #filterBar form .input.input-select md-select {
@@ -27139,18 +27152,20 @@ body.main #page_map #filterBarDisplay {
 #compDetail {
   top: 93px;
   bottom: 61px;
-  -webkit-transform: translateY(0);
-          transform: translateY(0);
-  border-top: 0;
   width: 500px;
-  height: auto;
-  padding: 0;
-  overflow: hidden; }
+  max-width: 500px;
+  z-index: 12345; }
   #compDetail.filtered {
-    top: 123px; }
+    top: 126px; }
     @media (max-width: 767px) {
       #compDetail.filtered {
-        top: 81px; } }
+        top: 80px; } }
+  #compDetail ng-include {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%; }
   #compDetail.full-content md-content {
     height: 100%; }
   #compDetail.full-content .see-more {
@@ -27298,7 +27313,8 @@ body.main #page_map #filterBarDisplay {
 
 md-backdrop.md-opaque.md-default-theme,
 md-backdrop.md-opaque {
-  background-color: rgba(33, 33, 33, 0.01); }
+  background-color: rgba(33, 33, 33, 0.01);
+  display: none; }
 
 .md-scroll-mask,
 .leaflet-popup-pane {
@@ -27372,3 +27388,20 @@ md-backdrop.md-opaque {
           width: 28px;
           height: 28px;
           font-size: 14px; } }
+
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+  -webkit-animation: fadein .5s;
+          animation: fadein .5s; }
+
+@-webkit-keyframes fadein {
+  from {
+    opacity: 0; }
+  to {
+    opacity: 1; } }
+
+@keyframes fadein {
+  from {
+    opacity: 0; }
+  to {
+    opacity: 1; } }
